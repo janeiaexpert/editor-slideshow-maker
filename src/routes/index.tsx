@@ -24,9 +24,17 @@ type Slide = {
   author: string;
   image: string | null;
   align: "top" | "center" | "bottom";
+  gradient: "top" | "bottom" | "left" | "right";
 };
 
 const STORAGE_KEY = "carousel-creator-v1";
+
+const GRADIENTS: Record<Slide["gradient"], string> = {
+  top: "linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+  bottom: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.85) 100%)",
+  left: "linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+  right: "linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+};
 
 function blankSlides(brand: Brand): Slide[] {
   return Array.from({ length: 8 }, () => ({
@@ -39,6 +47,7 @@ function blankSlides(brand: Brand): Slide[] {
     author: brand.author,
     image: null,
     align: "bottom",
+    gradient: "bottom",
   }));
 }
 
