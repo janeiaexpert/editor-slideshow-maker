@@ -24,9 +24,17 @@ type Slide = {
   author: string;
   image: string | null;
   align: "top" | "center" | "bottom";
+  gradient: "top" | "bottom" | "left" | "right";
 };
 
 const STORAGE_KEY = "carousel-creator-v1";
+
+const GRADIENTS: Record<Slide["gradient"], string> = {
+  top: "linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+  bottom: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.85) 100%)",
+  left: "linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+  right: "linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+};
 
 function blankSlides(brand: Brand): Slide[] {
   return Array.from({ length: 8 }, () => ({
@@ -39,6 +47,7 @@ function blankSlides(brand: Brand): Slide[] {
     author: brand.author,
     image: null,
     align: "bottom",
+    gradient: "bottom",
   }));
 }
 
@@ -72,7 +81,7 @@ function Index() {
       try {
         const data = JSON.parse(raw);
         if (Array.isArray(data) && data.length === 8) {
-          setSlides(data);
+          setSlides(data.map((d: Slide) => ({ ...d, gradient: d.gradient ?? "bottom" })));
           setView("editor");
         }
       } catch {}
@@ -124,6 +133,7 @@ function Index() {
         author: brand.author,
         image: null,
         align: s.align,
+        gradient: "bottom",
       }));
       setSlides(next);
       setActive(0);
@@ -280,12 +290,9 @@ function Index() {
                     )}
                     <div
                       className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.85) 100%)",
-                      }}
+                      style={{ background: GRADIENTS[s.gradient] }}
                     />
-                    <div className={`relative z-10 flex h-full w-full flex-col px-7 ${alignClass}`}>
+                    <div className={`relative z-10 flex h-full w-full flex-col px-7 pb-20 ${alignClass}`}>
                       <div>
                         <div
                           className="text-[11px] font-bold tracking-[0.28em]"
@@ -317,21 +324,24 @@ function Index() {
                             )}
                           </div>
                         )}
-                        <div className="mt-5 flex items-center justify-between text-[11px] text-white/60">
-                          <span>
-                            {s.handle} · {s.author}
-                          </span>
-                          <span>{active + 1}/8</span>
-                        </div>
-                        <div
-                          className="mt-2 h-[3px] w-full rounded-full"
-                          style={{
-                            background: `linear-gradient(to right, ${GOLD} ${
-                              ((active + 1) / 8) * 100
-                            }%, rgba(255,255,255,0.15) ${((active + 1) / 8) * 100}%)`,
-                          }}
-                        />
                       </div>
+                    </div>
+                    {/* Footer fixo na parte inferior */}
+                    <div className="absolute right-0 bottom-0 left-0 z-10 px-7 pb-5">
+                      <div className="flex items-center justify-between text-[11px] text-white/70">
+                        <span>
+                          {s.handle} · {s.author}
+                        </span>
+                        <span>{active + 1}/8</span>
+                      </div>
+                      <div
+                        className="mt-2 h-[3px] w-full rounded-full"
+                        style={{
+                          background: `linear-gradient(to right, ${GOLD} ${
+                            ((active + 1) / 8) * 100
+                          }%, rgba(255,255,255,0.15) ${((active + 1) / 8) * 100}%)`,
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -468,6 +478,23 @@ function Index() {
                   ))}
                 </div>
               </Field>
+
+              <Field label="Gradiente (escurece esse lado)">
+                <div className="grid grid-cols-4 gap-2">
+                  {(["top", "bottom", "left", "right"] as const).map((g) => (
+                    <button
+                      key={g}
+                      onClick={() => update({ gradient: g })}
+                      className={`rounded-md py-2 text-xs font-semibold capitalize ${
+                        s.gradient === g ? "bg-white text-black" : "bg-white/5 text-white/70"
+                      }`}
+                    >
+                      {g === "top" ? "↑" : g === "bottom" ? "↓" : g === "left" ? "←" : "→"} {g}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+
 
               <Field label="Foto de fundo">
                 <label className="block cursor-pointer rounded-md bg-white/5 px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10">
