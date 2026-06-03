@@ -2,6 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toPng } from "html-to-image";
+import {
+  Settings2,
+  Plus,
+  Download,
+  Sparkles,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Circle,
+} from "lucide-react";
 import { generateCarousel } from "@/lib/carousel.functions";
 import {
   type Brand,
@@ -25,17 +39,36 @@ type Slide = {
   image: string | null;
   align: "top" | "center" | "bottom";
   gradient: "top" | "bottom" | "left" | "right";
+  gradientIntensity: number;
+  buttonPosition: "inline" | "bottom";
   imagePos: "top" | "center" | "bottom";
 };
 
 const STORAGE_KEY = "carousel-creator-v1";
 
-const GRADIENTS: Record<Slide["gradient"], string> = {
-  top: "linear-gradient(to top, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
-  bottom: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.85) 100%)",
-  left: "linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
-  right: "linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.85) 100%)",
+const DIR_MAP: Record<Slide["gradient"], string> = {
+  top: "to top",
+  bottom: "to bottom",
+  left: "to left",
+  right: "to right",
 };
+
+function gradientFor(dir: Slide["gradient"], intensity: number) {
+  const a = Math.max(0, Math.min(1, intensity / 100));
+  return `linear-gradient(${DIR_MAP[dir]}, rgba(0,0,0,${(a * 0.3).toFixed(
+    2,
+  )}) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,${a.toFixed(2)}) 100%)`;
+}
+
+function sanitizeTitle(t: string) {
+  return t
+    .replace(/\\n/g, "\n")
+    .replace(/\n{2,}/g, "\n")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .join("\n");
+}
 
 function blankSlides(brand: Brand): Slide[] {
   return Array.from({ length: 8 }, () => ({
@@ -49,6 +82,8 @@ function blankSlides(brand: Brand): Slide[] {
     image: null,
     align: "bottom",
     gradient: "bottom",
+    gradientIntensity: 70,
+    buttonPosition: "inline",
     imagePos: "center",
   }));
 }
