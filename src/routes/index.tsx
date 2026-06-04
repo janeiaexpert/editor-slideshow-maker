@@ -145,7 +145,55 @@ function Index() {
         }
       } catch {}
     }
+    setLibrary(loadLibrary());
   }, []);
+
+  const handleSaveCarousel = () => {
+    const name =
+      currentName.trim() ||
+      slides[0]?.title?.split("\n")[0]?.slice(0, 60) ||
+      "Carrossel sem nome";
+    const id = currentId ?? newId();
+    const now = Date.now();
+    const item: SavedCarousel = {
+      id,
+      name,
+      createdAt: now,
+      updatedAt: now,
+      slides,
+    };
+    const next = upsertCarousel(item);
+    setLibrary(next);
+    setCurrentId(id);
+    setCurrentName(name);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1500);
+  };
+
+  const handleLoadCarousel = (item: SavedCarousel) => {
+    const data = (item.slides as Slide[]).map((d) => ({
+      ...d,
+      gradient: d.gradient ?? "bottom",
+      gradientIntensity: d.gradientIntensity ?? 70,
+      buttonPosition: d.buttonPosition ?? "inline",
+      imagePos: d.imagePos ?? "center",
+    }));
+    setSlides(data);
+    setCurrentId(item.id);
+    setCurrentName(item.name);
+    setActive(0);
+    setView("editor");
+    setShowLibrary(false);
+  };
+
+  const handleDeleteCarousel = (id: string) => {
+    const next = deleteCarousel(id);
+    setLibrary(next);
+    if (currentId === id) {
+      setCurrentId(null);
+      setCurrentName("");
+    }
+  };
 
   useEffect(() => {
     if (view === "editor") localStorage.setItem(STORAGE_KEY, JSON.stringify(slides));
