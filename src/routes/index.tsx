@@ -19,10 +19,19 @@ import {
 import { generateCarousel } from "@/lib/carousel.functions";
 import {
   type Brand,
+  BRAND_PALETTES,
   defaultBrand,
   loadBrand,
   saveBrand,
 } from "@/lib/brand-storage";
+import {
+  type SavedCarousel,
+  deleteCarousel,
+  loadLibrary,
+  newId,
+  upsertCarousel,
+} from "@/lib/carousel-library";
+import { Save, FolderOpen, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -100,6 +109,11 @@ function Index() {
   const [slides, setSlides] = useState<Slide[]>(blankSlides(defaultBrand));
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState<number | null>(null);
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [currentName, setCurrentName] = useState<string>("");
+  const [library, setLibrary] = useState<SavedCarousel[]>([]);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
   const slideRef = useRef<HTMLDivElement>(null);
 
   const generateFn = useServerFn(generateCarousel);
@@ -131,7 +145,55 @@ function Index() {
         }
       } catch {}
     }
+    setLibrary(loadLibrary());
   }, []);
+
+  const handleSaveCarousel = () => {
+    const name =
+      currentName.trim() ||
+      slides[0]?.title?.split("\n")[0]?.slice(0, 60) ||
+      "Carrossel sem nome";
+    const id = currentId ?? newId();
+    const now = Date.now();
+    const item: SavedCarousel = {
+      id,
+      name,
+      createdAt: now,
+      updatedAt: now,
+      slides,
+    };
+    const next = upsertCarousel(item);
+    setLibrary(next);
+    setCurrentId(id);
+    setCurrentName(name);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1500);
+  };
+
+  const handleLoadCarousel = (item: SavedCarousel) => {
+    const data = (item.slides as Slide[]).map((d) => ({
+      ...d,
+      gradient: d.gradient ?? "bottom",
+      gradientIntensity: d.gradientIntensity ?? 70,
+      buttonPosition: d.buttonPosition ?? "inline",
+      imagePos: d.imagePos ?? "center",
+    }));
+    setSlides(data);
+    setCurrentId(item.id);
+    setCurrentName(item.name);
+    setActive(0);
+    setView("editor");
+    setShowLibrary(false);
+  };
+
+  const handleDeleteCarousel = (id: string) => {
+    const next = deleteCarousel(id);
+    setLibrary(next);
+    if (currentId === id) {
+      setCurrentId(null);
+      setCurrentName("");
+    }
+  };
 
   useEffect(() => {
     if (view === "editor") localStorage.setItem(STORAGE_KEY, JSON.stringify(slides));
@@ -185,6 +247,8 @@ function Index() {
       }));
       setSlides(next);
       setActive(0);
+      setCurrentId(null);
+      setCurrentName("");
       setView("editor");
     } catch (e: any) {
       console.error(e);
@@ -228,6 +292,8 @@ function Index() {
   const newCarousel = () => {
     setInsight("");
     setError(null);
+    setCurrentId(null);
+    setCurrentName("");
     setView("insight");
   };
 
@@ -253,7 +319,21 @@ function Index() {
               {view === "insight" ? "Cole um insight → IA gera o carrossel" : `${brand.handle} · 8 slides`}
             </h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                setLibrary(loadLibrary());
+                setShowLibrary(true);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-2 text-xs font-semibold hover:bg-white/10"
+            >
+              <FolderOpen className="h-3.5 w-3.5" /> Biblioteca
+              {library.length > 0 && (
+                <span className="ml-1 rounded-full bg-white/10 px-1.5 text-[10px]">
+                  {library.length}
+                </span>
+              )}
+            </button>
             <button
               onClick={() => setShowBrand(true)}
               className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-2 text-xs font-semibold hover:bg-white/10"
@@ -269,6 +349,13 @@ function Index() {
                   <Plus className="h-3.5 w-3.5" /> Novo
                 </button>
                 <button
+                  onClick={handleSaveCarousel}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-2 text-xs font-semibold hover:bg-white/20"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  {savedFlash ? "Salvo!" : currentId ? "Atualizar" : "Salvar"}
+                </button>
+                <button
                   onClick={exportAll}
                   className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold"
                   style={{ background: GOLD, color: "#111" }}
@@ -279,6 +366,19 @@ function Index() {
             )}
           </div>
         </header>
+
+        {view === "editor" && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-white/60">
+            <span className="uppercase tracking-wider">Nome:</span>
+            <input
+              value={currentName}
+              onChange={(e) => setCurrentName(e.target.value)}
+              placeholder="Dê um nome ao carrossel (ex: lançamento agosto)"
+              className="flex-1 max-w-md rounded-md border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white outline-none focus:border-white/30"
+            />
+            {currentId && <span className="text-white/40">· salvo</span>}
+          </div>
+        )}
 
         {view === "insight" && (
           <div className="mx-auto max-w-2xl">
@@ -666,6 +766,15 @@ function Index() {
           }}
         />
       )}
+      {showLibrary && (
+        <LibraryDialog
+          items={library}
+          currentId={currentId}
+          onLoad={handleLoadCarousel}
+          onDelete={handleDeleteCarousel}
+          onClose={() => setShowLibrary(false)}
+        />
+      )}
     </div>
   );
 }
@@ -737,6 +846,31 @@ function BrandDialog({
               <option value="viralizacao">Viralização</option>
             </select>
           </Field>
+          <div className="col-span-2">
+            <div className="mb-1 text-[11px] tracking-wider uppercase text-white/50">
+              Paleta sugerida
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {BRAND_PALETTES.map((p) => {
+                const active = b.primaryColor === p.primary && b.bgColor === p.bg;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => setB((s) => ({ ...s, primaryColor: p.primary, bgColor: p.bg }))}
+                    className={`flex flex-col items-stretch overflow-hidden rounded-md border text-[10px] font-semibold transition ${
+                      active ? "border-white" : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    <div className="flex h-8">
+                      <div className="flex-1" style={{ background: p.bg }} />
+                      <div className="flex-1" style={{ background: p.primary }} />
+                    </div>
+                    <div className="px-1 py-1 text-white/70">{p.name}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <Field label="Cor primária">
             <input
               type="color"
@@ -784,5 +918,95 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <div className="mb-1 text-[11px] tracking-wider uppercase text-white/50">{label}</div>
       {children}
     </label>
+  );
+}
+
+function LibraryDialog({
+  items,
+  currentId,
+  onLoad,
+  onDelete,
+  onClose,
+}: {
+  items: SavedCarousel[];
+  currentId: string | null;
+  onLoad: (item: SavedCarousel) => void;
+  onDelete: (id: string) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-2xl rounded-2xl bg-[#161616] p-6 ring-1 ring-white/10">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold">Biblioteca de carrosséis</h2>
+            <p className="text-xs text-white/50">
+              Seus carrosséis salvos ficam aqui — abra a qualquer hora para exportar.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
+          >
+            Fechar
+          </button>
+        </div>
+        {items.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-white/10 p-8 text-center text-sm text-white/40">
+            Nenhum carrossel salvo ainda. Gere um e clique em "Salvar".
+          </div>
+        ) : (
+          <ul className="max-h-[60vh] space-y-2 overflow-y-auto">
+            {items.map((item) => {
+              const first = (item.slides[0] as Slide | undefined)?.title ?? "";
+              const date = new Date(item.updatedAt).toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              const isCurrent = item.id === currentId;
+              return (
+                <li
+                  key={item.id}
+                  className={`flex items-center gap-3 rounded-lg border p-3 ${
+                    isCurrent ? "border-white/40 bg-white/[0.04]" : "border-white/10"
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-white">
+                      {item.name}
+                      {isCurrent && (
+                        <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-normal text-white/60">
+                          aberto
+                        </span>
+                      )}
+                    </div>
+                    <div className="truncate text-xs text-white/40">
+                      {first || "—"} · atualizado em {date}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onLoad(item)}
+                    className="rounded-md bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/20"
+                  >
+                    Abrir
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Excluir "${item.name}"?`)) onDelete(item.id);
+                    }}
+                    className="rounded-md bg-white/5 p-2 text-white/60 hover:bg-red-500/20 hover:text-red-300"
+                    aria-label="Excluir"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }
