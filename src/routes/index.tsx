@@ -247,6 +247,8 @@ function Index() {
       }));
       setSlides(next);
       setActive(0);
+      setCurrentId(null);
+      setCurrentName("");
       setView("editor");
     } catch (e: any) {
       console.error(e);
