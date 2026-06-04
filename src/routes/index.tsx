@@ -319,7 +319,21 @@ function Index() {
               {view === "insight" ? "Cole um insight → IA gera o carrossel" : `${brand.handle} · 8 slides`}
             </h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                setLibrary(loadLibrary());
+                setShowLibrary(true);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-2 text-xs font-semibold hover:bg-white/10"
+            >
+              <FolderOpen className="h-3.5 w-3.5" /> Biblioteca
+              {library.length > 0 && (
+                <span className="ml-1 rounded-full bg-white/10 px-1.5 text-[10px]">
+                  {library.length}
+                </span>
+              )}
+            </button>
             <button
               onClick={() => setShowBrand(true)}
               className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-2 text-xs font-semibold hover:bg-white/10"
@@ -335,6 +349,13 @@ function Index() {
                   <Plus className="h-3.5 w-3.5" /> Novo
                 </button>
                 <button
+                  onClick={handleSaveCarousel}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-2 text-xs font-semibold hover:bg-white/20"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  {savedFlash ? "Salvo!" : currentId ? "Atualizar" : "Salvar"}
+                </button>
+                <button
                   onClick={exportAll}
                   className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold"
                   style={{ background: GOLD, color: "#111" }}
@@ -345,6 +366,19 @@ function Index() {
             )}
           </div>
         </header>
+
+        {view === "editor" && (
+          <div className="mb-4 flex items-center gap-2 text-xs text-white/60">
+            <span className="uppercase tracking-wider">Nome:</span>
+            <input
+              value={currentName}
+              onChange={(e) => setCurrentName(e.target.value)}
+              placeholder="Dê um nome ao carrossel (ex: lançamento agosto)"
+              className="flex-1 max-w-md rounded-md border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white outline-none focus:border-white/30"
+            />
+            {currentId && <span className="text-white/40">· salvo</span>}
+          </div>
+        )}
 
         {view === "insight" && (
           <div className="mx-auto max-w-2xl">
