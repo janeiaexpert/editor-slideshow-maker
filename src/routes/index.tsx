@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toPng } from "html-to-image";
+import { jsPDF } from "jspdf";
 import {
   Settings2,
   Plus,
