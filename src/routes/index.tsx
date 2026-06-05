@@ -881,7 +881,7 @@ function BrandDialog({
   const set = <K extends keyof Brand>(k: K, v: Brand[K]) => setB((s) => ({ ...s, [k]: v }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 p-4 overflow-y-auto">
       <div className="w-full max-w-lg rounded-2xl bg-[#161616] p-6 ring-1 ring-white/10">
         <h2 className="mb-1 text-lg font-bold">Sua marca</h2>
         <p className="mb-5 text-xs text-white/50">
@@ -1024,7 +1024,7 @@ function LibraryDialog({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 p-4 overflow-y-auto">
       <div className="w-full max-w-2xl rounded-2xl bg-[#161616] p-6 ring-1 ring-white/10">
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -1110,7 +1110,7 @@ function StylesDialog({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 p-4 overflow-y-auto">
       <div className="w-full max-w-2xl rounded-2xl bg-[#161616] p-6 ring-1 ring-white/10">
         <div className="mb-4 flex items-center justify-between">
           <div>
