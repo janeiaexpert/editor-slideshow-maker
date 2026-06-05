@@ -829,6 +829,23 @@ function Index() {
           onClose={() => setShowLibrary(false)}
         />
       )}
+      {showStyles && (
+        <StylesDialog
+          current={brand}
+          onClose={() => setShowStyles(false)}
+          onPick={(style) => {
+            const next: Brand = {
+              ...brand,
+              fontFamily: style.fontFamily,
+              primaryColor: style.primaryColor,
+              bgColor: style.bgColor,
+            };
+            saveBrand(next);
+            setBrand(next);
+            setShowStyles(false);
+          }}
+        />
+      )}
     </div>
   );
 }
