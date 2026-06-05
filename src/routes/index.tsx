@@ -513,7 +513,7 @@ function Index() {
                         </div>
                         <h2
                           className="mt-3 whitespace-pre-line text-[28px] leading-[1.1] font-bold"
-                          style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+                          style={{ fontFamily: brand.fontFamily }}
                         >
                           {s.title}
                         </h2>
