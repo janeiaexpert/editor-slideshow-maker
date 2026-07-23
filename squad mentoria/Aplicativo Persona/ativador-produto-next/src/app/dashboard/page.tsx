@@ -13,13 +13,14 @@ import {
   Sparkles, Copy, Download, FileText, FileDown, ChevronDown, ChevronRight,
   ArrowLeft, ShoppingCart, DollarSign, TrendingUp, Users, BarChart3,
   Mail, MessageSquare, Gift, ShieldCheck, Target, Zap, Eye,
-  Image, Palette, Layout, Code, PenTool, Play
+  Image, Palette, Layout, Code, PenTool, Play, RotateCcw
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
 import { sanitizeSvg } from "@/lib/security"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChatBot } from "@/components/chat-bot"
 import { Biblioteca } from "@/components/biblioteca"
+import { ProdutoCustom } from "@/components/produto-custom"
 import { Conversor } from "@/components/conversor"
 import { EditablePreview } from "@/components/editable-preview"
 
@@ -170,14 +171,19 @@ const FALLBACKS: Record<string, (idea: string) => Record<string, string>> = {
     "Semana 2 — Dia 13": "Carrossel: Resumo dos aprendizados da semana",
     "Semana 2 — Dia 14": "Reels: Convite para conhecer o método completo"
   }),
-  oferta: () => ({
-    "Valor Ideal": "R$ [SEU VALOR] à vista ou [N]x de R$ [VALOR]",
-    "Ancoragem": "De R$ [VALOR CHEIO] por apenas R$ [VALOR COM DESCONTO] — economia de [N]%",
-    "Parcelamento": "[N]x de R$ [VALOR] sem juros no cartão. PIX com [N]% de desconto.",
-    "Garantia": "7 dias de garantia incondicional. Risco zero.",
-    "Escassez": "Últimas [N] vagas com acesso aos bônus exclusivos",
-    "Oferta Principal": "Curso completo com [N] módulos, [N]h de conteúdo, acesso vitalício. Bônus: [LISTA]. Tudo por R$ [VALOR]. Garantia de 7 dias."
-  }),
+  oferta: (idea, lucro) => {
+    const valor = lucro > 0 ? lucro : 497
+    const parcela = Math.round(valor / 12 * 100) / 100
+    const valorCheio = Math.round(valor * 2)
+    return {
+      "Valor Ideal": `R$ ${valor} à vista ou 12x de R$ ${parcela}`,
+      "Ancoragem": `De R$ ${valorCheio} por apenas R$ ${valor} — economia de 50%`,
+      "Parcelamento": `12x de R$ ${parcela} sem juros no cartão. PIX com 10% de desconto.`,
+      "Garantia": "7 dias de garantia incondicional. Risco zero.",
+      "Escassez": "Últimas 50 vagas com acesso aos bônus exclusivos",
+      "Oferta Principal": `Curso completo com todos os módulos, conteúdo exclusivo e acesso vitalício. Bônus: checklist, templates e comunidade. Tudo por R$ ${valor}. Garantia de 7 dias.`
+    }
+  },
   funil: () => ({
     "Checkout": "[PLATAFORMA] — taxa de [N]%. Configuração em [TEMPO].",
     "Order Bump": "[PRODUTO EXTRA] por R$ [VALOR] no checkout",
@@ -342,10 +348,13 @@ function DashboardInner() {
   }, [updateStepContent])
 
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number) => {
+    localStorage.removeItem(LS_KEY)
     setStepIdeia(ideia)
     setLucro(lucroVal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    setExpandedSteps([])
     toast("Produto selecionado! Gerando conteúdo...")
 
     const tomText = tom || "Persuasivo e direto"
@@ -373,6 +382,18 @@ function DashboardInner() {
       setShowIdeiaForm(false)
     }
   }, [searchParams])
+
+  const handleNovoProduto = useCallback(() => {
+    localStorage.removeItem(LS_KEY)
+    setStepIdeia("")
+    setTom("")
+    setLucro(0)
+    setActiveTab("produto")
+    setShowIdeiaForm(true)
+    setExpandedSteps([])
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    toast("Pronto! Comece um novo produto.")
+  }, [])
 
   const toggleStep = useCallback((id: string) => {
     setExpandedSteps(prev =>
@@ -421,9 +442,19 @@ function DashboardInner() {
               <h1 className="text-white text-sm font-bold">Ativador <span className="text-[#D4B896]">Automático</span></h1>
             </div>
           </div>
-          <Badge className="bg-white text-[#8B5E3C] text-[10px] font-semibold">
-            {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "artefatos" ? "Artefatos" : "Operação"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleNovoProduto}
+              className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-semibold transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg"
+              title="Limpar e começar novo produto"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Novo Produto
+            </button>
+            <Badge className="bg-white text-[#8B5E3C] text-[10px] font-semibold">
+              {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "artefatos" ? "Artefatos" : activeTab === "custom" ? "Meu Produto" : "Operação"}
+            </Badge>
+          </div>
         </div>
       </header>
 
@@ -519,6 +550,9 @@ function DashboardInner() {
             </TabsTrigger>
             <TabsTrigger value="biblioteca" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
               Biblioteca
+            </TabsTrigger>
+            <TabsTrigger value="custom" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
+              Meu Produto
             </TabsTrigger>
           </TabsList>
 
@@ -705,6 +739,11 @@ function DashboardInner() {
           {/* Biblioteca Tab */}
           <TabsContent value="biblioteca" className="mt-3">
             <Biblioteca onSelectProduto={handleSelectProduto} />
+          </TabsContent>
+
+          {/* Meu Produto Tab */}
+          <TabsContent value="custom" className="mt-3">
+            <ProdutoCustom onGerar={handleSelectProduto} />
           </TabsContent>
         </Tabs>
       </div>

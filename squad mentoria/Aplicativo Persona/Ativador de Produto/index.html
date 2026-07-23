@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ativador Automático de Produtos Virais</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-l"><span class="tb-ico"></span><span class="tb-t">Ativador <span>Automático</span></span></div>
+    <div class="tb-r"><span class="tb-step" id="tbStep">Etapa 1</span></div>
+  </header>
+
+  <!-- ==================== CAPA ==================== -->
+  <div class="step active" id="s0">
+    <div class="cover-container fade-in">
+
+      <div class="cover-logo">
+        <div class="cover-logo-icon"></div>
+      </div>
+
+      <h1 class="cover-title">Ativador Automatico<br><span>de Produtos Virais</span></h1>
+
+      <p class="cover-sub">Transforme sua ideia em um produto digital completo, pronto para vender — em minutos.</p>
+
+      <div class="cover-divider"></div>
+
+      <h2 class="cover-h2">O que e</h2>
+      <p class="cover-p">Um sistema inteligente que gera automaticamente a estrutura completa de um produto digital: nome, headline, modulos, anuncios, VSL, pagina de vendas, funil de automacao, precificacao, plano de conteudo, dashboard de operacao e estrategias de escala. Tudo pronto para copiar e usar.</p>
+
+      <h2 class="cover-h2">Para que serve</h2>
+      <p class="cover-p">Para criadores, empreendedores e infoprodutores que querem lancar um produto digital sem depender de equipe criativa. Voce descreve sua ideia, o sistema faz todo o resto — da concepcao a estrategia de vendas.</p>
+
+      <div class="cover-divider"></div>
+
+      <h2 class="cover-h2">Passo a passo</h2>
+
+      <div class="cover-step-list">
+        <div class="cover-step">
+          <div class="cover-step-num">1</div>
+          <div class="cover-step-info">
+            <strong>Conte sua ideia</strong>
+            <span>Descreva o conhecimento, habilidade ou paixao que voce quer transformar em produto.</span>
+          </div>
+        </div>
+        <div class="cover-step">
+          <div class="cover-step-num">2</div>
+          <div class="cover-step-info">
+            <strong>Defina o tom</strong>
+            <span>Escolha o estilo de comunicacao que combina com seu publico.</span>
+          </div>
+        </div>
+        <div class="cover-step">
+          <div class="cover-step-num">3</div>
+          <div class="cover-step-info">
+            <strong>Revise e ative</strong>
+            <span>Confirme seus dados, defina sua meta de lucro e ative o gerador completo.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cover-divider"></div>
+
+      <div class="cover-vitrine-note">
+        <span class="cover-vitrine-tag">☰ VITRINE</span>
+        <span class="cover-vitrine-text">Ja tem 8 produtos validados prontos para usar — clique em qualquer um para ver a estrutura completa.</span>
+      </div>
+
+      <button onclick="goEtapa(1)" class="btn-main btn-big pulse" style="margin-top:16px">
+        ◇ Criar Meu Produto
+      </button>
+
+    </div>
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="progress-steps" id="progressSteps">
+    <div class="ps-item active" id="ps1"><div class="ps-dot">1</div><span>Ideia</span></div>
+    <div class="ps-line" id="psl1"></div>
+    <div class="ps-item" id="ps2"><div class="ps-dot">2</div><span>Criacao</span></div>
+    <div class="ps-line" id="psl2"></div>
+    <div class="ps-item" id="ps3"><div class="ps-dot">3</div><span>Revisao</span></div>
+  </div>
+
+  <!-- ==================== ETAPA 1 ==================== -->
+  <div class="step" id="s1">
+    <div class="etapa-header">
+      <span class="etapa-num">ETAPA 1</span>
+      <h2>Qual conhecimento, habilidade ou paixão você quer transformar em um produto viral?</h2>
+    </div>
+
+    <div class="exemplo-box">
+      <span class="exemplo-label">▸ Exemplo:</span>
+      <span>"Quero criar um produto para ensinar mulheres empreendedoras a criarem conteúdos profissionais para o Instagram."</span>
+    </div>
+
+    <div class="form-box">
+      <textarea id="ideiaInput" class="textarea-viral" placeholder="Descreva aqui o que você quer transformar em produto viral..." rows="5"></textarea>
+    </div>
+
+    <div class="sn">
+      <button onclick="goEtapa(2)" class="btn-main pulse">Próximo — Etapa 2 →</button>
+    </div>
+  </div>
+
+  <!-- ==================== ETAPA 2 ==================== -->
+  <div class="step" id="s2">
+    <div class="etapa-header">
+      <span class="etapa-num">ETAPA 2</span>
+      <h2>Com base no que você definiu na Etapa 1, posso criar seu produto de forma completa, incluindo anúncios, produto e promessa?</h2>
+    </div>
+
+    <div class="exemplo-box">
+      <span class="exemplo-label">▸ Exemplo:</span>
+      <span>"Quero uma comunicação simples, feminina e com foco em transformação prática."</span>
+    </div>
+
+    <div class="form-box">
+      <textarea id="criacaoInput" class="textarea-viral" placeholder="Descreva como quer a comunicação, o tom, o estilo do produto..." rows="5"></textarea>
+    </div>
+
+    <div class="sn">
+      <button onclick="goEtapa(1)" class="btn-back">← Voltar</button>
+      <button onclick="goEtapa(3)" class="btn-main">Próximo — Etapa 3 →</button>
+    </div>
+  </div>
+
+  <!-- ==================== ETAPA 3 ==================== -->
+  <div class="step" id="s3">
+    <div class="etapa-header">
+      <span class="etapa-num">ETAPA 3 — RESUMO FINAL</span>
+      <h2>Revise o que foi definido e o que será criado</h2>
+    </div>
+
+    <div class="resumo-box">
+      <div class="resumo-item">
+        <span class="ri-num">Etapa 1</span>
+        <span class="ri-label">Nicho e habilidade definidos</span>
+        <span class="ri-status">✓</span>
+      </div>
+      <div class="resumo-item">
+        <span class="ri-num">Etapa 2</span>
+        <span class="ri-label">Autorização para criar produto, promessa e anúncios</span>
+        <span class="ri-status">✓</span>
+      </div>
+      <div class="resumo-item">
+        <span class="ri-num">Etapa 3</span>
+        <span class="ri-label">Resumo Final. Revise o que foi definido e o que será criado.</span>
+        <span class="ri-status">✓</span>
+      </div>
+    </div>
+
+    <div class="criacao-box">
+      <h3>O que será criado</h3>
+      <div class="criacao-list">
+        <div class="cl-item"><span class="cl-ico doc"></span> Produto digital</div>
+        <div class="cl-item"><span class="cl-ico square"></span> Anúncios</div>
+        <div class="cl-item"><span class="cl-ico tri"></span> Estrutura inicial</div>
+        <div class="cl-item"><span class="cl-ico square"></span> Promessa</div>
+      </div>
+    </div>
+
+    <div class="lucro-box">
+      <label>Quanto você quer lucrar com o produto?</label>
+      <div class="lucro-input-wrap">
+        <span class="lucro-prefix">R$</span>
+        <input type="number" id="lucroInput" class="inp" placeholder="10000" value="60000" />
+      </div>
+    </div>
+
+    <p class="final-msg">Se estiver tudo certo, finalize o ativador completo.</p>
+
+    <button onclick="ativarCompleto()" class="btn-main btn-big pulse" style="margin-top:8px">
+      ▸ ATIVADOR COMPLETO
+    </button>
+  </div>
+
+  <!-- ==================== RESULTADO: SISTEMA ATIVADO ==================== -->
+  <div class="step" id="s4">
+    <div class="success-top">
+      <div class="st-emoji"></div>
+      <h2 class="st-title">Sistema Ativado com Sucesso!</h2>
+      <p class="st-sub">Seu produto viral foi gerado automaticamente</p>
+    </div>
+
+    <!-- Passo a passo do produto gerado -->
+    <div class="steps-section">
+      <h3>▦ Passo a Passo — Estrutura do seu Produto</h3>
+      <p class="steps-sub">Clique em cada etapa para ver os detalhes</p>
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="produto" onclick="switchTab('produto')">◇ Produto</button>
+        <button class="tab-btn" data-tab="vendas" onclick="switchTab('vendas')">$ Vendas</button>
+        <button class="tab-btn" data-tab="operacao" onclick="switchTab('operacao')">✦ Operação</button>
+      </div>
+      <div class="tab-pane active" id="tabProduto">
+        <div class="steps-list" id="stepsList"></div>
+      </div>
+      <div class="tab-pane" id="tabVendas">
+        <div class="steps-list" id="stepsListVendas"></div>
+      </div>
+      <div class="tab-pane" id="tabOperacao">
+        <div class="steps-list" id="stepsListOperacao"></div>
+      </div>
+    </div>
+
+    <!-- Resumo do produto -->
+    <div class="produto-gerado" id="produtoGerado">
+      <div class="pg-header">
+        <span class="pg-emoji" id="pgEmoji"></span>
+        <div class="pg-info">
+          <strong id="pgNome">Carrossel de Alta Retenção</strong>
+          <span id="pgDesc">12 slides que seguram o público em qualquer nicho</span>
+        </div>
+      </div>
+      <div class="pg-detalhe" id="pgValid">✓ 34% de retenção média — saúde, moda, imóveis e mais</div>
+    </div>
+
+    <!-- VITRINE -->
+    <div class="vitrine-section">
+      <div class="vitrine-tag">☰ VITRINE — PRODUTOS VIRAIS VALIDADOS</div>
+      <div class="vitrine-sub">PRONTO PARA VENDA</div>
+
+      <div class="vitrine-highlight">
+        <div class="vh-emoji"></div>
+        <div class="vh-info">
+          <span class="vh-label">Produto em destaque</span>
+          <span class="vh-valor" id="vhValor">Desafio Corpo de Verão</span>
+          <span class="vh-desc">Clique em qualquer produto para ver ideia, copy, criativos e mais</span>
+        </div>
+        <div class="vh-badge">REAL + VALIDADO</div>
+      </div>
+
+      <div class="vitrine-grid" id="vitrineGrid"></div>
+    </div>
+
+    <!-- Ações -->
+    <div class="acoes-finais">
+      <button onclick="downloadEstrutura()" class="btn-main">↓ Baixar PDF — Estrutura Completa</button>
+      <button onclick="goEtapa(1)" class="btn-back" style="width:100%;justify-content:center;">↻ Novo Produto</button>
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Gerando seu produto com IA...</div>
+    <div class="loading-sub">Aguarde enquanto criamos algo personalizado para você</div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  area      String
+  stage     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bottlenecks Bottleneck[]
+  metrics     Metric[]
+}
+
+model Mentor {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  area      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bottleneck {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  area        String
+  severity    Int
+  status      String   @default("open")
+  detectedAt  DateTime @default(now())
+  resolvedAt  DateTime?
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  actions AgentAction[]
+}
+
+model Metric {
+  id        String   @id @default(uuid())
+  name      String
+  value     Float
+  area      String
+  recordedAt DateTime @default(now())
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+}
+
+model AgentAction {
+  id          String   @id @default(uuid())
+  agentName   String
+  actionType  String
+  description String
+  result      String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  bottleneckId String
+  bottleneck   Bottleneck @relation(fields: [bottleneckId], references: [id])
+}
+
+model AgentLog {
+  id        String   @id @default(uuid())
+  agentName String
+  area      String
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}

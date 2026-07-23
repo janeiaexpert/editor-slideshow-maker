@@ -31,15 +31,15 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
         Escolha um produto validado, defina quanto quer ganhar e o sistema modela tudo para voce vender.
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {PRODUTOS_VALIDADOS.map(p => (
           <button
             key={p.id}
             onClick={() => { setSelected(p.id); setLucro(0) }}
-            className="relative rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-left focus:outline-none"
+            className="relative rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5]"
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "transparent" }}
           >
-            <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full" />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center">
                 <span className="text-white text-[10px] font-bold">✓</span>

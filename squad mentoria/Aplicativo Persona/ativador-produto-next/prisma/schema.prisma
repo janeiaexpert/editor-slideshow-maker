@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  products  Product[]
+
+  @@map("users")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  promise   String
+  avatar    String?
+  price     Float?
+  headline  String?
+  sub       String?
+  benef     String?
+  validated String?
+  hook1     String?
+  hook2     String?
+  hook3     String?
+  mods      Json?
+  criativos Json?
+  salesPage String?
+  entregaveis Json?
+  vsl       Json?
+  anuncios  Json?
+  planoConteudo Json? @map("plano_conteudo")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  offer     Offer?
+  funnel    Funnel?
+  emailAuto EmailAutomation?
+  monetizacao Monetizacao?
+  dashboards Dashboard[]
+
+  @@map("products")
+}
+
+model Offer {
+  id          String @id @default(cuid())
+  productId   String @unique @map("product_id")
+  headline    String?
+  subheadline String?
+  preco       Float?
+  precoAncorado Float? @map("preco_ancorado")
+  garantia    String?
+  cta         String?
+  escassez    String?
+  urgencia    String?
+  oferta      String?
+  objecoes    String?
+  beneficios  Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("offers")
+}
+
+model Funnel {
+  id        String @id @default(cuid())
+  productId String @unique @map("product_id")
+  checkout  Json?
+  orderBump Json? @map("order_bump")
+  upsell1   Json?
+  upsell2   Json?
+  downsell  Json?
+  obrigado  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("funnels")
+}
+
+model EmailAutomation {
+  id        String   @id @default(cuid())
+  productId String   @unique @map("product_id")
+  email1    String?
+  email2    String?
+  email3    String?
+  whatsapp  String?
+  sms       String?
+  carrinho  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("email_automations")
+}
+
+model Monetizacao {
+  id          String @id @default(cuid())
+  productId   String @unique @map("product_id")
+  assinatura  Json?
+  licenciamento Json?
+  mentoria    Json?
+  comunidade  Json?
+  afiliados   Json?
+  whiteLabel  Json? @map("white_label")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("monetizacoes")
+}
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  productId   String   @map("product_id")
+  ticketMedio Float?   @map("ticket_medio")
+  cac         Float?
+  ltv         Float?
+  roi         Float?
+  roas        Float?
+  metaMensal  Int?     @map("meta_mensal")
+  receitaPrevista Float? @map("receita_prevista")
+  conversao   Float?
+  dadosFunil  Json?    @map("dados_funil")
+  dadosReceita Json?   @map("dados_receita")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId])
+  @@map("dashboards")
+}
