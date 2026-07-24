@@ -495,14 +495,32 @@ function DashboardInner() {
                 </div>
                 <Conversor moeda="BRL" valor={lucro} />
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowIdeiaForm(false)}
-                className="text-xs"
-              >
-                Ok, guardar ideia
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setStepIdeia("")
+                    setTom("")
+                    setLucro(0)
+                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+                    setExpandedSteps([])
+                    localStorage.removeItem(LS_KEY)
+                    toast("Ideia apagada.")
+                  }}
+                  className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                >
+                  Apagar Ideia
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowIdeiaForm(false)}
+                  className="text-xs"
+                >
+                  Ok, guardar ideia
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
