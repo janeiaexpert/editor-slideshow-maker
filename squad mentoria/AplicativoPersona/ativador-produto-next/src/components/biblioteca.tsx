@@ -31,7 +31,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
         Escolha um produto validado, defina quanto quer ganhar e o sistema modela tudo para voce vender.
       </p>
 
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {PRODUTOS_VALIDADOS.map(p => (
           <button
             key={p.id}

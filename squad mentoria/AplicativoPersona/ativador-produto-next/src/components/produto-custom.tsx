@@ -20,15 +20,15 @@ const PALETTES = [
 ]
 
 const FONTS = [
-  { id: "inter", nome: "Inter", estilo: "Moderno e limpo" },
-  { id: "playfair", nome: "Playfair Display", estilo: "Elegante e sofisticado" },
-  { id: "raleway", nome: "Raleway", estilo: "Fino e profissional" },
-  { id: "montserrat", nome: "Montserrat", estilo: "Forte e confiável" },
-  { id: "roboto", nome: "Roboto", estilo: "Clássico e versátil" },
-  { id: "oswald", nome: "Oswald", estilo: "Impactante e bold" },
-  { id: "poppins", nome: "Poppins", estilo: "Amigável e clean" },
-  { id: "lora", nome: "Lora", estilo: "Editorial e refinado" },
-  { id: "bebas", nome: "Bebas Neue", estilo: "Alto e chamativo" },
+  { id: "inter", nome: "Inter", estilo: "Moderno e limpo", preview: "font-[family-name:var(--font-inter)]" },
+  { id: "playfair", nome: "Playfair Display", estilo: "Elegante e sofisticado", preview: "font-[family-name:var(--font-playfair)]" },
+  { id: "raleway", nome: "Raleway", estilo: "Fino e profissional", preview: "font-[family-name:var(--font-raleway)]" },
+  { id: "montserrat", nome: "Montserrat", estilo: "Forte e confiável", preview: "font-[family-name:var(--font-montserrat)]" },
+  { id: "roboto", nome: "Roboto", estilo: "Clássico e versátil", preview: "font-[family-name:var(--font-roboto)]" },
+  { id: "oswald", nome: "Oswald", estilo: "Impactante e bold", preview: "font-[family-name:var(--font-oswald)]" },
+  { id: "poppins", nome: "Poppins", estilo: "Amigável e clean", preview: "font-[family-name:var(--font-poppins)]" },
+  { id: "lora", nome: "Lora", estilo: "Editorial e refinado", preview: "font-[family-name:var(--font-lora)]" },
+  { id: "bebas", nome: "Bebas Neue", estilo: "Alto e chamativo", preview: "font-[family-name:var(--font-bebas)]" },
 ]
 
 interface ProdutoCustomProps {
@@ -176,8 +176,8 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                       <Check className="w-2.5 h-2.5 text-white" />
                     </div>
                   )}
-                  <span className="text-xs font-bold text-[#1A1A1A] block leading-tight">{f.nome}</span>
-                  <span className="text-[9px] text-[#5C5146] block mt-0.5">{f.estilo}</span>
+                  <span className={`text-xs font-bold text-[#1A1A1A] block leading-tight ${f.preview}`}>{f.nome}</span>
+                  <span className={`text-[9px] text-[#5C5146] block mt-0.5 ${f.preview}`}>{f.estilo}</span>
                 </button>
               ))}
             </div>

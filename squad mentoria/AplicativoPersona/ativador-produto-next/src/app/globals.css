@@ -20,7 +20,15 @@
   --color-input: #D9CEC2;
   --color-ring: #8B5E3C;
   --radius: 0.625rem;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-playfair: var(--font-playfair), Georgia, serif;
+  --font-raleway: var(--font-raleway), sans-serif;
+  --font-montserrat: var(--font-montserrat), sans-serif;
+  --font-roboto: var(--font-roboto), sans-serif;
+  --font-oswald: var(--font-oswald), sans-serif;
+  --font-poppins: var(--font-poppins), sans-serif;
+  --font-lora: var(--font-lora), Georgia, serif;
+  --font-bebas: var(--font-bebas), sans-serif;
 }
 
 body {
@@ -56,20 +64,20 @@ body {
   body { padding: 24px; }
 }
 
-/* Abas centralizadas no celular */
+/* Abas responsivas no celular */
 @media (max-width: 640px) {
   [role="tablist"] {
     display: grid !important;
-    grid-template-columns: 1fr 1fr 1fr !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     width: 100% !important;
   }
   [role="tablist"] > button {
     width: 100% !important;
     text-align: center !important;
     white-space: normal !important;
-    font-size: 10px !important;
-    padding: 8px 4px !important;
-    line-height: 1.3 !important;
+    font-size: 9px !important;
+    padding: 6px 2px !important;
+    line-height: 1.2 !important;
   }
   .step-card .flex-wrap.gap-2 { gap: 4px; }
   .step-card .flex-wrap.gap-2 button { font-size: 9px !important; padding: 4px 6px !important; }

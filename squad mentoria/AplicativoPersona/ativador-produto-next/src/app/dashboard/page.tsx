@@ -2,12 +2,11 @@
 
 import { useState, useCallback, useEffect, Suspense } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import {
   Sparkles, Copy, Download, FileText, FileDown, ChevronDown, ChevronRight,
@@ -111,7 +110,7 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
 }
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
-const FALLBACKS: Record<string, (idea: string) => Record<string, string>> = {
+const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string, string>> = {
   headline: (idea) => ({
     "Headline": "Descubra o Método Para " + idea.split(" ").slice(0,4).join(" "),
     "Subtítulo": "Um guia prático e direto ao ponto para quem quer [RESULTADO] — sem enrolação",
@@ -333,13 +332,13 @@ function DashboardInner() {
       }
       if (!content) {
         const fallback = FALLBACKS[stepId]
-        content = fallback ? fallback(ideaText) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        content = fallback ? fallback(ideaText, lucroVal) : { "Conteúdo": "Conteúdo gerado automaticamente" }
       }
       updateStepContent(stepId, content)
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
-      const content = fallback ? fallback(ideaText) : { "Conteúdo": "Conteúdo gerado (offline)" }
+      const content = fallback ? fallback(ideaText, lucroVal) : { "Conteúdo": "Conteúdo gerado (offline)" }
       updateStepContent(stepId, content)
       return content
     } finally {
@@ -452,7 +451,7 @@ function DashboardInner() {
               Novo Produto
             </button>
             <Badge className="bg-white text-[#8B5E3C] text-[10px] font-semibold">
-              {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "artefatos" ? "Artefatos" : activeTab === "custom" ? "Meu Produto" : "Operação"}
+              {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "artefatos" ? "Artefatos" : activeTab === "custom" ? "Meu Produto" : activeTab === "biblioteca" ? "Biblioteca" : "Operação"}
             </Badge>
           </div>
         </div>
