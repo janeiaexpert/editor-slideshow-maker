@@ -18,7 +18,7 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
   const { messages, temperature = 0.8, maxTokens = 4000 } = opts
   try {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000)
+    const timeout = setTimeout(() => controller.abort(), 90000)
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_KEY}` },
@@ -26,10 +26,16 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
       signal: controller.signal,
     })
     clearTimeout(timeout)
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.error(`[Groq] ${res.status}: ${res.statusText}`)
+      return null
+    }
     const data = await res.json()
     return data.choices?.[0]?.message?.content || null
-  } catch { return null }
+  } catch (e: any) {
+    console.error("[Groq] Error:", e?.name === "AbortError" ? "TIMEOUT 90s" : e?.message)
+    return null
+  }
 }
 
 async function callGemini(opts: CallOptions): Promise<string | null> {
@@ -46,16 +52,22 @@ async function callGemini(opts: CallOptions): Promise<string | null> {
   }
   try {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000)
+    const timeout = setTimeout(() => controller.abort(), 90000)
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-      { method: "POST", headers: { "Content-Type": "application/json" },       body: JSON.stringify({ contents, generationConfig: { temperature, maxOutputTokens: Math.min(maxTokens, 8000) } }), signal: controller.signal }
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents, generationConfig: { temperature, maxOutputTokens: Math.min(maxTokens, 8000) } }), signal: controller.signal }
     )
     clearTimeout(timeout)
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.error(`[Gemini] ${res.status}: ${res.statusText}`)
+      return null
+    }
     const data = await res.json()
     return data.candidates?.[0]?.content?.parts?.[0]?.text || null
-  } catch { return null }
+  } catch (e: any) {
+    console.error("[Gemini] Error:", e?.name === "AbortError" ? "TIMEOUT 90s" : e?.message)
+    return null
+  }
 }
 
 async function callOpenRouter(opts: CallOptions): Promise<string | null> {
@@ -63,7 +75,7 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
   const { messages, temperature = 0.8, maxTokens = 4000 } = opts
   try {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000)
+    const timeout = setTimeout(() => controller.abort(), 90000)
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
@@ -71,18 +83,30 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
       signal: controller.signal,
     })
     clearTimeout(timeout)
-    if (!res.ok) return null
+    if (!res.ok) {
+      console.error(`[OpenRouter] ${res.status}: ${res.statusText}`)
+      return null
+    }
     const data = await res.json()
     return data.choices?.[0]?.message?.content || null
-  } catch { return null }
+  } catch (e: any) {
+    console.error("[OpenRouter] Error:", e?.name === "AbortError" ? "TIMEOUT 90s" : e?.message)
+    return null
+  }
 }
+
+function delay(ms: number) { return new Promise(r => setTimeout(r, ms)) }
 
 export async function aiChat(opts: CallOptions): Promise<{ content: string; provider: string } | null> {
   const groq = await callGroq(opts)
   if (groq) return { content: groq, provider: "groq" }
 
+  await delay(1000)
+
   const gemini = await callGemini(opts)
   if (gemini) return { content: gemini, provider: "gemini" }
+
+  await delay(1000)
 
   const openrouter = await callOpenRouter(opts)
   if (openrouter) return { content: openrouter, provider: "openrouter" }
