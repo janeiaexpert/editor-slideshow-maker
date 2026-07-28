@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="keyBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3D2A1A"/>
+      <stop offset="50%" stop-color="#5C3D1F"/>
+      <stop offset="100%" stop-color="#3D2512"/>
+    </linearGradient>
+    <linearGradient id="keyTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4A3520"/>
+      <stop offset="100%" stop-color="#2E1E10"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="40%" stop-color="#FFC200"/>
+      <stop offset="100%" stop-color="#E6A800"/>
+    </linearGradient>
+    <linearGradient id="boltShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFED4A"/>
+      <stop offset="50%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#CC8800"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="keyShadow">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <!-- Key base (3D effect) -->
+  <rect x="80" y="100" width="352" height="352" rx="40" fill="#1A1008"/>
+  <rect x="80" y="90" width="352" height="340" rx="40" fill="url(#keyBg)" filter="url(#keyShadow)"/>
+  <!-- Key top surface -->
+  <rect x="96" y="96" width="320" height="320" rx="32" fill="url(#keyTop)"/>
+  <!-- Subtle border highlight -->
+  <rect x="96" y="96" width="320" height="320" rx="32" fill="none" stroke="#6B4226" stroke-width="1" opacity="0.4"/>
+  <!-- Lightning bolt glow -->
+  <g filter="url(#glow)" opacity="0.5">
+    <polygon points="280,120 180,270 240,270 210,380 340,210 270,210 310,120" fill="#FFD700"/>
+  </g>
+  <!-- Lightning bolt -->
+  <polygon points="290,110 170,280 240,280 200,400 360,200 280,200 320,110" fill="url(#boltShine)"/>
+  <!-- Bolt highlight -->
+  <polygon points="290,110 170,280 240,280 200,400 360,200 280,200 320,110" fill="none" stroke="#FFED4A" stroke-width="1" opacity="0.3"/>
+</svg>

@@ -171,7 +171,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
     "Semana 2 — Dia 14": "Reels: Convite para conhecer o método completo"
   }),
   oferta: (idea, lucro) => {
-    const valor = lucro > 0 ? lucro : 497
+    const valor = lucro && lucro > 0 ? lucro : 497
     const parcela = Math.round(valor / 12 * 100) / 100
     const valorCheio = Math.round(valor * 2)
     return {
