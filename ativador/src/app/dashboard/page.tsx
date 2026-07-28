@@ -718,7 +718,7 @@ function DashboardInner() {
       {/* Tabs horizontal */}
       <div className="bg-[#EDE6DC] border-b border-[#D9CEC2] sticky top-0 z-30">
         <div className="max-w-[900px] mx-auto px-2 sm:px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
             <TabsList className="flex w-full gap-0 bg-transparent p-0 h-auto">
               {[
                 { id: "produto", label: "Produto" },
@@ -789,7 +789,7 @@ function DashboardInner() {
                   placeholder="Descreva o conhecimento, habilidade ou paixão que quer transformar em produto..."
                   value={stepIdeia}
                   onChange={e => setStepIdeia(e.target.value)}
-                  onKeyDown={stopKeys}
+                  onKeyDown={e => e.stopPropagation()}
                   className="mt-1 min-h-[140px] text-sm leading-relaxed resize-y"
                 />
               </div>
@@ -800,7 +800,7 @@ function DashboardInner() {
                     placeholder="Ex: Saúde, Finanças, Relacionamentos..."
                     value={nicho}
                     onChange={e => setNicho(e.target.value)}
-                    onKeyDown={stopKeys}
+                    onKeyDown={e => e.stopPropagation()}
                     className="mt-1"
                   />
                 </div>
@@ -810,7 +810,7 @@ function DashboardInner() {
                     placeholder="Ex: Mães empreendedoras, Jovens 18-25..."
                     value={publicoAlvo}
                     onChange={e => setPublicoAlvo(e.target.value)}
-                    onKeyDown={stopKeys}
+                    onKeyDown={e => e.stopPropagation()}
                     className="mt-1"
                   />
                 </div>
@@ -821,7 +821,7 @@ function DashboardInner() {
                   placeholder="Qual a transformacao real que este produto entrega? (Ex: De frustrada com dietas para confiante e saudavel)"
                   value={transformacao}
                   onChange={e => setTransformação(e.target.value)}
-                  onKeyDown={stopKeys}
+                  onKeyDown={e => e.stopPropagation()}
                   className="mt-1 min-h-[70px] text-sm resize-y"
                 />
                 <p className="text-[10px] text-[#A67C52] mt-1">Em dúvida? Consulte o Ativador no canto inferior direito</p>
@@ -832,7 +832,7 @@ function DashboardInner() {
                   placeholder="Ex: Comunicação simples, feminina e prática"
                   value={tom}
                   onChange={e => setTom(e.target.value)}
-                  onKeyDown={stopKeys}
+                  onKeyDown={e => e.stopPropagation()}
                   className="mt-1"
                 />
               </div>
@@ -849,7 +849,7 @@ function DashboardInner() {
                       const num = parseFloat(raw) || 0
                       setLucro(Math.round(num))
                     }}
-                    onKeyDown={stopKeys}
+                    onKeyDown={e => e.stopPropagation()}
                     className="pl-8"
                     placeholder="Quanto quer ganhar? (ex: 10.000)"
                   />
@@ -916,7 +916,7 @@ function DashboardInner() {
         )}
 
         {/* Tabs content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
           {["produto", "vendas", "operacao", "artefatos"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               <Button
@@ -1003,7 +1003,7 @@ function DashboardInner() {
                                     <iframe srcDoc={filled} title={key} className="w-full rounded-lg border border-[#D9CEC2]" style={{ height: "500px", background: "white" }} sandbox="allow-scripts allow-same-origin" />
                                     {isEditing ? (
                                       <div className="space-y-2">
-                                        <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={stopKeys} className="w-full min-h-[300px] text-[11px] font-mono text-[#5C5146] bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y" />
+                                        <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={e => e.stopPropagation()} className="w-full min-h-[300px] text-[11px] font-mono text-[#5C5146] bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y" />
                                         <div className="flex gap-1">
                                           <Button size="sm" variant="ghost" className="h-5 px-1.5 text-[10px] text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => { updateStepContent(step.id, { ...step.content, [key]: editValue }); setEditingField(null); toast("Salvo!") }}>Salvar</Button>
                                           <Button size="sm" variant="ghost" className="h-5 px-1.5 text-[10px] text-[#5C5146] hover:bg-[#D9CEC2]" onClick={() => setEditingField(null)}>Cancelar</Button>
@@ -1017,7 +1017,7 @@ function DashboardInner() {
                                     )}
                                   </div>
                                 ) : isEditing ? (
-                                  <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={stopKeys} className="w-full min-h-[150px] text-sm text-[#1A1A1A] leading-relaxed bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap" />
+                                  <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={e => e.stopPropagation()} className="w-full min-h-[150px] text-sm text-[#1A1A1A] leading-relaxed bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap" />
                                 ) : (
                                   <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{stripEmojis(filled)}</p>
                                 )}

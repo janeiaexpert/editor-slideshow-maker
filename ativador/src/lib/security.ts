@@ -18,7 +18,7 @@
 }
 
 export function sanitizeText(text: string): string {
-  return text
+  let result = text
     .replace(/vocêê/g, "voc\u00EA")
     .replace(/vocêsê/g, "voc\u00EAs")
     .replace(/entregaa/g, "entrega")
@@ -38,6 +38,14 @@ export function sanitizeText(text: string): string {
     .replace(/ââ/g, "\u00E2")
     .replace(/êê/g, "\u00EA")
     .replace(/ôô/g, "\u00F4")
+
+  result = result.replace(/R\$\s*(\d{1,3}(?:,\d{3})+\.\d{2})\b/g, (_m, p1) => {
+    const num = parseFloat(p1.replace(/,/g, ""))
+    if (!isNaN(num)) return `R$ ${num.toLocaleString("pt-BR")}`
+    return _m
+  })
+
+  return result
 }
 
 export function sanitizeSvg(svg: string): string {
