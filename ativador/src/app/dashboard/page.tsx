@@ -142,6 +142,14 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
 }
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
+function stopKeys(e: React.KeyboardEvent) {
+  const k = e.key
+  if (k === "ArrowLeft" || k === "ArrowRight" || k === "ArrowUp" || k === "ArrowDown" || k === "Enter" || k === "Tab") {
+    e.stopPropagation()
+    if (k !== "Tab") e.preventDefault()
+  }
+}
+
 const STOP_WORDS = /^(com|para|de|do|da|dos|das|e|em|no|na|o|a|os|as|um|uma|que|por|mas|se|n\u00E3o|j\u00E1|est\u00E1|mais|como|isso|este|esta|esse|essa|vou|vai|quero|criar|fazer|ter|pode|muito|bem|quando|por\u00E9m|porque|tamb\u00E9m|sobre|antes|depois|ainda|todo|toda|todos|todas|pelo|pela|at\u00E9|desde|sem|com|apoio|uso|meu|minha|nosso|nossa|quais|qual|onde|quem|s\u00E3o|ser|estou|tem|te|ter|foi|ser|estava|tinha|tenho|me|lhe|lhes|nos|eles|elas|tu|voc\u00EA|voc\u00EAs|si|meu|teu|seu|minha|tua|sua|meus|teus|seus|minhas|tuas|suas)$/i
 
 function extractTheme(idea: string, maxWords = 3): string {
@@ -764,7 +772,7 @@ function DashboardInner() {
                   placeholder="Descreva o conhecimento, habilidade ou paixão que quer transformar em produto..."
                   value={stepIdeia}
                   onChange={e => setStepIdeia(e.target.value)}
-                  onKeyDown={e => e.stopPropagation()}
+                  onKeyDown={stopKeys}
                   className="mt-1 min-h-[140px] text-sm leading-relaxed resize-y"
                 />
               </div>
@@ -775,7 +783,7 @@ function DashboardInner() {
                     placeholder="Ex: Saúde, Finanças, Relacionamentos..."
                     value={nicho}
                     onChange={e => setNicho(e.target.value)}
-                    onKeyDown={e => e.stopPropagation()}
+                    onKeyDown={stopKeys}
                     className="mt-1"
                   />
                 </div>
@@ -785,7 +793,7 @@ function DashboardInner() {
                     placeholder="Ex: Mães empreendedoras, Jovens 18-25..."
                     value={publicoAlvo}
                     onChange={e => setPublicoAlvo(e.target.value)}
-                    onKeyDown={e => e.stopPropagation()}
+                    onKeyDown={stopKeys}
                     className="mt-1"
                   />
                 </div>
@@ -796,7 +804,7 @@ function DashboardInner() {
                   placeholder="Qual a transformacao real que este produto entrega? (Ex: De frustrada com dietas para confiante e saudavel)"
                   value={transformacao}
                   onChange={e => setTransformação(e.target.value)}
-                  onKeyDown={e => e.stopPropagation()}
+                  onKeyDown={stopKeys}
                   className="mt-1 min-h-[70px] text-sm resize-y"
                 />
                 <p className="text-[10px] text-[#A67C52] mt-1">Em dúvida? Consulte o Ativador no canto inferior direito</p>
@@ -807,7 +815,7 @@ function DashboardInner() {
                   placeholder="Ex: Comunicação simples, feminina e prática"
                   value={tom}
                   onChange={e => setTom(e.target.value)}
-                  onKeyDown={e => e.stopPropagation()}
+                  onKeyDown={stopKeys}
                   className="mt-1"
                 />
               </div>
@@ -824,7 +832,7 @@ function DashboardInner() {
                       const num = parseFloat(raw) || 0
                       setLucro(Math.round(num))
                     }}
-                    onKeyDown={e => e.stopPropagation()}
+                    onKeyDown={stopKeys}
                     className="pl-8"
                     placeholder="Quanto quer ganhar? (ex: 10.000)"
                   />
@@ -977,7 +985,7 @@ function DashboardInner() {
                                     <iframe srcDoc={filled} title={key} className="w-full rounded-lg border border-[#D9CEC2]" style={{ height: "500px", background: "white" }} sandbox="allow-scripts allow-same-origin" />
                                     {isEditing ? (
                                       <div className="space-y-2">
-                                        <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={e => e.stopPropagation()} className="w-full min-h-[300px] text-[11px] font-mono text-[#5C5146] bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y" />
+                                        <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={stopKeys} className="w-full min-h-[300px] text-[11px] font-mono text-[#5C5146] bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y" />
                                         <div className="flex gap-1">
                                           <Button size="sm" variant="ghost" className="h-5 px-1.5 text-[10px] text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => { updateStepContent(step.id, { ...step.content, [key]: editValue }); setEditingField(null); toast("Salvo!") }}>Salvar</Button>
                                           <Button size="sm" variant="ghost" className="h-5 px-1.5 text-[10px] text-[#5C5146] hover:bg-[#D9CEC2]" onClick={() => setEditingField(null)}>Cancelar</Button>
@@ -991,7 +999,7 @@ function DashboardInner() {
                                     )}
                                   </div>
                                 ) : isEditing ? (
-                                  <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={e => e.stopPropagation()} className="w-full min-h-[150px] text-sm text-[#1A1A1A] leading-relaxed bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap" />
+                                  <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={stopKeys} className="w-full min-h-[150px] text-sm text-[#1A1A1A] leading-relaxed bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap" />
                                 ) : (
                                   <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{stripEmojis(filled)}</p>
                                 )}
