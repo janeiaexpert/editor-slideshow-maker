@@ -459,7 +459,7 @@ REGRAS OBRIGATÓRIAS:
           { role: "user", content: userPrompt },
         ],
         temperature: 0.8,
-        maxTokens: step === "landing" ? 8000 : step === "conteudo" ? 8000 : ["logo", "capa", "card_oferta", "certificado", "story"].includes(step) ? 8000 : 6000,
+        maxTokens: 4000,
       })
 
       if (result) {
