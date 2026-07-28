@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, Suspense } from "react"
+import { useState, useCallback, useEffect, useRef, Suspense } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -143,11 +143,17 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
 function stopKeys(e: React.KeyboardEvent) {
+  e.stopPropagation()
+  e.nativeEvent.stopImmediatePropagation()
   const k = e.key
   if (k === "ArrowLeft" || k === "ArrowRight" || k === "ArrowUp" || k === "ArrowDown" || k === "Enter" || k === "Tab") {
-    e.stopPropagation()
     if (k !== "Tab") e.preventDefault()
   }
+}
+
+const TAB_KEYS = new Set(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"])
+function blockRadixTabs(e: KeyboardEvent) {
+  if (TAB_KEYS.has(e.key)) { e.stopPropagation(); e.stopImmediatePropagation() }
 }
 
 const STOP_WORDS = /^(com|para|de|do|da|dos|das|e|em|no|na|o|a|os|as|um|uma|que|por|mas|se|n\u00E3o|j\u00E1|est\u00E1|mais|como|isso|este|esta|esse|essa|vou|vai|quero|criar|fazer|ter|pode|muito|bem|quando|por\u00E9m|porque|tamb\u00E9m|sobre|antes|depois|ainda|todo|toda|todos|todas|pelo|pela|at\u00E9|desde|sem|com|apoio|uso|meu|minha|nosso|nossa|quais|qual|onde|quem|s\u00E3o|ser|estou|tem|te|ter|foi|ser|estava|tinha|tenho|me|lhe|lhes|nos|eles|elas|tu|voc\u00EA|voc\u00EAs|si|meu|teu|seu|minha|tua|sua|meus|teus|seus|minhas|tuas|suas)$/i
@@ -428,6 +434,16 @@ function saveState(key: string, value: unknown) {
 function DashboardInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const formRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = formRef.current
+    if (!el) return
+    const handler = (e: KeyboardEvent) => {
+      if (TAB_KEYS.has(e.key)) { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault() }
+    }
+    el.addEventListener("keydown", handler, true)
+    return () => el.removeEventListener("keydown", handler, true)
+  }, [])
   const [steps, setSteps] = useState<StepData[]>(() => {
     const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean }>>("stepsData", {})
     return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated } : s)
@@ -764,6 +780,7 @@ function DashboardInner() {
 
         {/* Ideia Form */}
         {showIdeiaForm && (
+          <div ref={formRef}>
           <Card className="border-[#D9CEC2]">
             <CardContent className="p-4 sm:p-6 space-y-3">
               <div>
@@ -870,6 +887,7 @@ function DashboardInner() {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
 
         {!showIdeiaForm && (
