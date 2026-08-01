@@ -15,7 +15,7 @@ import {
   Image, Palette, Layout, Code, PenTool, Play, RotateCcw
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
-import { sanitizeSvg } from "@/lib/security"
+import { sanitizeSvg, sanitizeText } from "@/lib/security"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChatBot } from "@/components/chat-bot"
 import { Biblioteca } from "@/components/biblioteca"
@@ -54,7 +54,7 @@ const INITIAL_STEPS: StepData[] = [
   { id:"escala", title:"Estratégias de Escala", description:"Próximo produto, cross sell, ascensão de valor", icon:<Zap className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
 
   // === ARTEFATOS TAB ===
-  { id:"logo", title:"Logo SVG", description:"Logotipo profissional em SVG", icon:<Image className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"logo", title:"Logo", description:"Logotipo profissional", icon:<Image className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
   { id:"capa", title:"Capa para Redes Sociais", description:"Capa Feed (4:5) e Reels/Stories (9:16)", icon:<Palette className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
   { id:"card_oferta", title:"Card de Oferta", description:"Card promocional para divulgação", icon:<Layout className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
   { id:"certificado", title:"Certificado", description:"Template de certificado de conclusão", icon:<FileText className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
@@ -64,14 +64,15 @@ const INITIAL_STEPS: StepData[] = [
 
 function Book({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> }
 
+function formatBRL(value: number): string {
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 function fillVars(text: string, ideia: string, tom: string, lucro: number): string {
   const words = ideia.split(" ").filter(w => w.length > 2)
   const nome = words.slice(0, 3).join(" ") || ideia.slice(0, 30)
   const headline = ideia.length > 40 ? ideia.slice(0, 40) + "..." : ideia
   const destaque = words[0] || nome
-  const oferta = lucro > 0 ? `R$ ${lucro}` : "[VALOR]"
-  const valorCheio = lucro > 0 ? `R$ ${Math.round(lucro * 2.5)}` : "[VALOR CHEIO]"
-  const parcela = lucro > 0 ? `R$ ${Math.round(lucro / 12)}` : "[PARCELA]"
   const n = "12"
   const hoje = new Date().toLocaleDateString("pt-BR")
   const beneficios = words.slice(0, 3).map((w, i) => `${i+1}. Dominar ${w}`).join("\n")
@@ -84,11 +85,11 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
     "[HEADLINE PRINCIPAL]": headline.toUpperCase(),
     "[SUBTÍTULO]": tom || "Transforme seu conhecimento em resultados",
     "[PALAVRA DE DESTAQUE]": destaque,
-    "[OFERTA]": oferta,
-    "[VALOR]": lucro > 0 ? `R$ ${lucro}` : "[VALOR]",
-    "[VALOR CHEIO]": valorCheio,
+    "[OFERTA]": lucro > 0 ? formatBRL(lucro) : "[VALOR]",
+    "[VALOR]": lucro > 0 ? formatBRL(lucro) : "[VALOR]",
+    "[VALOR CHEIO]": lucro > 0 ? formatBRL(Math.round(lucro * 2.5)) : "[VALOR CHEIO]",
     "[N]": n,
-    "[PARCELA]": parcela,
+    "[PARCELA]": lucro > 0 ? formatBRL(Math.round(lucro / 12 * 100) / 100) : "[PARCELA]",
     "[CARGA]": "40",
     "[DATA]": hoje,
     "[PROBLEMA]": words.slice(0, 4).join(" ") || "alcançar seus objetivos",
@@ -99,13 +100,15 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
     "[TEMPO]": `${n} dias`,
     "[DESCRIÇÃO BREVE DOS MÓDULOS]": ideia.slice(0, 80) + (ideia.length > 80 ? "..." : ""),
     "[MÓDULOS HTML]": words.slice(0, 3).map((w, i) => `<div class="benefit-card"><div class="num">${i+1}</div><h3>Módulo ${i+1}</h3><p>Aprenda ${w} na prática, passo a passo.</p></div>`).join(""),
-    "[VALOR COM DESCONTO]": lucro > 0 ? `R$ ${Math.round(lucro * 0.8)}` : "[VALOR COM DESCONTO]",
+    "[VALOR COM DESCONTO]": lucro > 0 ? formatBRL(Math.round(lucro * 0.8)) : "[VALOR COM DESCONTO]",
   }
 
   let result = text
   for (const [key, val] of Object.entries(map)) {
     result = result.replaceAll(key, val)
   }
+  result = result.replace(/R\$\s*R\$/g, "R$")
+  result = result.replace(/R\$\s+/g, "R$ ")
   return result
 }
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
@@ -175,12 +178,12 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
     const parcela = Math.round(valor / 12 * 100) / 100
     const valorCheio = Math.round(valor * 2)
     return {
-      "Valor Ideal": `R$ ${valor} à vista ou 12x de R$ ${parcela}`,
-      "Ancoragem": `De R$ ${valorCheio} por apenas R$ ${valor} — economia de 50%`,
-      "Parcelamento": `12x de R$ ${parcela} sem juros no cartão. PIX com 10% de desconto.`,
+      "Valor Ideal": `R$ ${formatBRL(valor)} à vista ou 12x de R$ ${formatBRL(parcela)}`,
+      "Ancoragem": `De R$ ${formatBRL(valorCheio)} por apenas R$ ${formatBRL(valor)} — economia de 50%`,
+      "Parcelamento": `12x de R$ ${formatBRL(parcela)} sem juros no cartão. PIX com 10% de desconto.`,
       "Garantia": "7 dias de garantia incondicional. Risco zero.",
       "Escassez": "Últimas 50 vagas com acesso aos bônus exclusivos",
-      "Oferta Principal": `Curso completo com todos os módulos, conteúdo exclusivo e acesso vitalício. Bônus: checklist, templates e comunidade. Tudo por R$ ${valor}. Garantia de 7 dias.`
+      "Oferta Principal": `Curso completo com todos os módulos, conteúdo exclusivo e acesso vitalício. Bônus: checklist, templates e comunidade. Tudo por R$ ${formatBRL(valor)}. Garantia de 7 dias.`
     }
   },
   funil: () => ({
@@ -225,25 +228,25 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   }),
   // === ARTEFATOS ===
   logo: () => ({
-    "Logo Principal SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" width="500" height="180"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8B5E3C"/><stop offset="100%" stop-color="#6B4226"/></linearGradient></defs><rect width="500" height="180" fill="#F5EFE8" rx="12"/><rect x="30" y="30" width="120" height="120" rx="20" fill="url(#lg)"/><text x="90" y="100" font-family="Georgia,serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><rect x="170" y="40" width="6" height="40" rx="3" fill="#D4B896"/><text x="190" y="80" font-family="'Helvetica Neue',Arial,sans-serif" font-size="36" font-weight="800" fill="#1A1A1A" letter-spacing="2">[NOME]</text><rect x="190" y="95" width="60" height="3" rx="1.5" fill="#8B5E3C"/><text x="190" y="125" font-family="'Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="600" fill="#8B5E3C" letter-spacing="4" text-transform="uppercase">[SUBTÍTULO]</text></svg>`,
-    "Logo Alternativo SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" width="500" height="180"><rect width="500" height="180" fill="#1A1A1A" rx="12"/><circle cx="90" cy="90" r="50" fill="none" stroke="#8B5E3C" stroke-width="3"/><circle cx="90" cy="90" r="25" fill="#8B5E3C"/><text x="90" y="97" font-family="Georgia,serif" font-size="28" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><text x="170" y="85" font-family="'Helvetica Neue',Arial,sans-serif" font-size="34" font-weight="700" fill="#FFFFFF" letter-spacing="3">[NOME]</text><text x="170" y="115" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="500" fill="#D4B896" letter-spacing="5" text-transform="uppercase">[SUBTÍTULO]</text></svg>`,
-    "Cores da Marca": "Primária: #8B5E3C | Secundária: #6B4226 | Fundo Claro: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896",
-    "Usos do Logo": "Versão Principal: fundo claro, uso geral. Versão Alternativa: fundo escuro, ideal para vídeos e stories.",
+    "Logo Principal": "Logotipo profissional com design sofisticado e minimalista. Elemento icone unico que comunique o tema do produto. Hierarquia visual clara: nome grande e bold, subtitulo leve e letter-spaced. Paleta premium: marrom #8B5E3C (primaria), D4B896 (dourada), F5EFE8 (fundo), 1A1A1A (texto). Layout horizontal 500x180 com canto arredondado 12px.",
+    "Logo Alternativo": "Versao em fundo escuro (1A1A1A) do logotipo. Circulo decorativo com borda marrom #8B5E3C. Nome do produto em branco com subtitulo em dourado #D4B896. Ideal para videos, stories e fundos escuros.",
+    "Cores da Marca": "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo Claro: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896",
+    "Usos do Logo": "Versao Principal: fundo claro, uso geral. Versao Alternativa: fundo escuro, ideal para videos e stories.",
   }),
   capa: () => ({
-    "Feed 1080x1350 SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#2D2D2D"/></linearGradient><linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8B5E3C"/><stop offset="100%" stop-color="#6B4226"/></linearGradient></defs><rect width="1080" height="1350" fill="url(#bg)"/><circle cx="-100" cy="200" r="400" fill="#8B5E3C" opacity="0.08"/><circle cx="900" cy="1000" r="500" fill="#8B5E3C" opacity="0.06"/><rect x="60" y="1150" width="960" height="150" rx="12" fill="url(#accent)" opacity="0.15"/><text x="540" y="420" font-family="'Helvetica Neue',Arial,sans-serif" font-size="88" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="-1">[HEADLINE]</text><text x="540" y="500" font-family="'Helvetica Neue',Arial,sans-serif" font-size="88" font-weight="800" fill="#D4B896" text-anchor="middle" letter-spacing="-1">PRINCIPAL</text><rect x="440" y="550" width="200" height="4" rx="2" fill="#8B5E3C"/><text x="540" y="620" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#FFFFFF" opacity="0.7" text-anchor="middle" letter-spacing="3">[SUBTÍTULO]</text><text x="540" y="1230" font-family="'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">[NOME DO PRODUTO]</text><text x="540" y="1270" font-family="Arial,sans-serif" font-size="16" fill="#D4B896" text-anchor="middle" letter-spacing="2">[OFERTA]</text></svg>`,
-    "Reels 1080x1920 SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920"><defs><linearGradient id="bg2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#2D2D2D"/></linearGradient></defs><rect width="1080" height="1920" fill="url(#bg2)"/><circle cx="200" cy="300" r="350" fill="#8B5E3C" opacity="0.1"/><circle cx="900" cy="1500" r="450" fill="#8B5E3C" opacity="0.08"/><rect x="40" y="1680" width="1000" height="180" rx="16" fill="#8B5E3C" opacity="0.2"/><text x="540" y="600" font-family="'Helvetica Neue',Arial,sans-serif" font-size="120" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="-2">[HEADLINE]</text><text x="540" y="740" font-family="'Helvetica Neue',Arial,sans-serif" font-size="120" font-weight="800" fill="#D4B896" text-anchor="middle" letter-spacing="-2">PRINCIPAL</text><rect x="440" y="820" width="200" height="5" rx="2.5" fill="#8B5E3C"/><text x="540" y="920" font-family="Arial,sans-serif" font-size="34" font-weight="400" fill="#FFFFFF" opacity="0.7" text-anchor="middle" letter-spacing="4">[SUBTÍTULO]</text><text x="540" y="1760" font-family="'Helvetica Neue',Arial,sans-serif" font-size="28" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="5">[NOME DO PRODUTO]</text><text x="540" y="1815" font-family="Arial,sans-serif" font-size="20" fill="#D4B896" text-anchor="middle" letter-spacing="3">[OFERTA]</text></svg>`,
-    "Dicas de Uso": "Feed: poste como imagem no grid. Reels: use como capa de vídeo. Instagram recomenda tamanhos mínimos de 600px.",
+    "Feed 1080x1350": "Capa para feed do Instagram com design editorial premium. Fundo gradiente escuro (#1A1A1A para #2D2D2D). Headline em destaque com 88-120px, weight 800. Palavra-chave de destaque na cor dourada #D4B896. Linha divisoria fina (#8B5E3C) entre headline e subtitulo. Barra semi-transparente inferior com nome do produto e oferta. Proporcao 4:5.",
+    "Reels 1080x1920": "Capa para Reels e Stories com design editorial premium. Fundo gradiente escuro (#1A1A1A para #2D2D2D). Headline com 120px, weight 800. Palavra-chave em dourado #D4B896. Elementos decorativos sutis com circulos semi-transparentes. Proporcao 9:16.",
+    "Dicas de Uso": "Feed: poste como imagem no grid. Reels: use como capa de video. Instagram recomenda tamanhos minimos de 600px.",
   }),
   card_oferta: () => ({
-    "Card Oferta SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" width="1080" height="1350"><defs><linearGradient id="cbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A1A1A"/><stop offset="100%" stop-color="#0D0D0D"/></linearGradient><linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8B5E3C"/><stop offset="100%" stop-color="#5C3A1E"/></linearGradient></defs><rect width="1080" height="1350" fill="url(#cbg)"/><rect x="30" y="30" width="1020" height="1290" rx="24" fill="none" stroke="#8B5E3C" stroke-width="2" opacity="0.3"/><circle cx="540" cy="800" r="320" fill="#8B5E3C" opacity="0.04"/><text x="540" y="220" font-family="'Helvetica Neue',Arial,sans-serif" font-size="36" font-weight="700" fill="#D4B896" text-anchor="middle" letter-spacing="8">OFERTA ESPECIAL</text><rect x="440" y="250" width="200" height="2" fill="#D4B896" opacity="0.5"/><text x="540" y="440" font-family="'Helvetica Neue',Arial,sans-serif" font-size="28" font-weight="400" fill="#FFFFFF" opacity="0.5" text-anchor="middle" text-decoration="line-through">DE R$ [VALOR CHEIO]</text><text x="540" y="560" font-family="'Helvetica Neue',Arial,sans-serif" font-size="120" font-weight="800" fill="#FFFFFF" text-anchor="middle">R$ [VALOR]</text><text x="540" y="640" font-family="Arial,sans-serif" font-size="28" font-weight="400" fill="#D4B896" text-anchor="middle">ou [N]x de R$ [PARCELA]</text><rect x="290" y="750" width="500" height="70" rx="35" fill="url(#cg)"/><text x="540" y="795" font-family="'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">GARANTIR OFERTA</text><text x="540" y="920" font-family="Arial,sans-serif" font-size="18" fill="#FFFFFF" opacity="0.5" text-anchor="middle">⏰ Oferta por tempo limitado</text><text x="540" y="970" font-family="Arial,sans-serif" font-size="18" fill="#FFFFFF" opacity="0.5" text-anchor="middle">✅ 7 dias de garantia incondicional</text></svg>`,
+    "Card Oferta": "Card promocional com design dark premium. Fundo gradiente #1A1A1A para #0D0D0D. Borda elegante com outline sutil (#8B5E3C, opacidade 0.3). Selo OFERTA ESPECIAL em uppercase, letter-spacing 8px, cor #D4B896. Preco antigo riscado (opacidade 0.5). Preco novo GIGANTE 120px, weight 800, cor branca. Botao CTA com gradiente marrom (#8B5E3C para #5C3A1E), border-radius 35px. Selo de garantia e urgencia abaixo do CTA. Proporcao 1080x1350 (vertical para Stories).",
     "Indicado para": "Instagram Stories, Facebook Ads, WhatsApp, E-mail Marketing",
-    "Copy para Legenda": "A oferta especial do [NOME DO PRODUTO] chegou! 🔥 De R$ [VALOR CHEIO] por apenas R$ [VALOR] à vista ou [N]x de R$ [PARCELA]. Vagas limitadas — garanta a sua agora! Link na bio.",
+    "Copy para Legenda": "A oferta especial do [NOME DO PRODUTO] chegou! De R$ [VALOR CHEIO] por apenas R$ [VALOR] a vista ou [N]x de R$ [PARCELA]. Vagas limitadas — garantam a sua agora! Link na bio.",
   }),
   certificado: () => ({
-    "Certificado SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" width="842" height="595"><defs><linearGradient id="cborder" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8B5E3C"/><stop offset="100%" stop-color="#D4B896"/></linearGradient></defs><rect width="842" height="595" fill="#F5EFE8"/><rect x="15" y="15" width="812" height="565" fill="none" stroke="url(#cborder)" stroke-width="2" rx="8"/><rect x="25" y="25" width="792" height="545" fill="none" stroke="#D4B896" stroke-width="0.5" rx="6"/><circle cx="421" cy="80" r="40" fill="#8B5E3C" opacity="0.1"/><text x="421" y="90" font-family="Georgia,serif" font-size="40" font-weight="bold" fill="#8B5E3C" text-anchor="middle">CERTIFICADO</text><text x="421" y="130" font-family="Georgia,serif" font-size="18" fill="#8B5E3C" text-anchor="middle" letter-spacing="6">DE CONCLUSÃO</text><rect x="300" y="145" width="242" height="1" fill="#D4B896"/><text x="421" y="210" font-family="'Helvetica Neue',Arial,sans-serif" font-size="14" fill="#5C5146" text-anchor="middle">Concedemos o presente certificado a</text><text x="421" y="280" font-family="Georgia,serif" font-size="32" font-weight="bold" fill="#1A1A1A" text-anchor="middle">[NOME DO ALUNO]</text><rect x="320" y="300" width="202" height="2" fill="#8B5E3C"/><text x="421" y="350" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="#5C5146" text-anchor="middle">Por ter concluído com êxito o curso</text><text x="421" y="400" font-family="Georgia,serif" font-size="22" font-weight="bold" fill="#8B5E3C" text-anchor="middle">[NOME DO CURSO]</text><text x="421" y="440" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" fill="#5C5146" text-anchor="middle">Carga horária: [CARGA] horas</text><line x1="200" y1="510" x2="350" y2="510" stroke="#1A1A1A" stroke-width="0.5"/><text x="275" y="530" font-family="Arial,sans-serif" font-size="10" fill="#5C5146" text-anchor="middle">Assinatura</text><line x1="492" y1="510" x2="642" y2="510" stroke="#1A1A1A" stroke-width="0.5"/><text x="567" y="530" font-family="Arial,sans-serif" font-size="10" fill="#5C5146" text-anchor="middle">Data: [DATA]</text></svg>`,
-    "Instruções": "Substitua os placeholders entre colchetes. O SVG pode ser salvo como imagem, impresso ou convertido para PDF diretamente no navegador.",
-    "Personalização": "Adicione seu logo no canto superior esquerdo. Troque a paleta de cores para combinar com sua marca.",
+    "Certificado": "Template de certificado de conclusao profissional. Formato paisagem 842x595 (A4 landscape). Fundo off-white #F5EFE8 com acabamento limpo. Moldura dupla: borda externa com gradiente marrom (#8B5E3C para #D4B896), interna fina (#D4B896). Titulo CERTIFICADO em Georgia, 40px, cor marrom. Subtitulo DE CONCLUSAO em uppercase com letter-spacing 6px. Nome do aluno em Georgia 32px bold com linha abaixo. Nome do curso em Georgia 22px bold marrom. Carga horaria e data na parte inferior. Linhas de assinatura e carimbo decorativo.",
+    "Instrucoes": "Substitua os placeholders entre colchetes. O conteudo pode ser salvo como imagem, impresso ou convertido para PDF diretamente no navegador.",
+    "Personalizacao": "Adicione seu logo no canto superior esquerdo. Troque a paleta de cores para combinar com sua marca.",
   }),
   landing: () => ({
     "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>[NOME DO PRODUTO]</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;color:#1A1A1A;background:#F5EFE8;line-height:1.6}.hero{background:linear-gradient(135deg,#1A1A1A 0%,#2D2D2D 100%);color:#fff;padding:100px 24px;text-align:center;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(139,94,60,0.1) 0%,transparent 50%)}.hero-content{position:relative;z-index:1;max-width:720px;margin:0 auto}.hero h1{font-size:clamp(32px,6vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;letter-spacing:-1px}.hero h1 span{color:#D4B896}.hero p{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:540px;margin-left:auto;margin-right:auto}.btn-primary{display:inline-block;background:linear-gradient(135deg,#8B5E3C,#6B4226);color:#fff;padding:18px 48px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:2px;text-transform:uppercase;transition:transform 0.2s,box-shadow 0.2s}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,94,60,0.4)}.section{padding:80px 24px;max-width:800px;margin:0 auto}.section h2{font-size:32px;font-weight:700;color:#8B5E3C;margin-bottom:12px}.section>p{color:#5C5146;margin-bottom:32px;font-size:16px}.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}.benefit-card{background:#fff;padding:28px;border-radius:12px;border:1px solid #D9CEC2;transition:border-color 0.2s,transform 0.2s}.benefit-card:hover{border-color:#8B5E3C;transform:translateY(-4px)}.benefit-card .num{width:36px;height:36px;border-radius:50%;background:#8B5E3C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-bottom:12px}.benefit-card h3{font-size:16px;font-weight:700;margin-bottom:6px}.benefit-card p{font-size:14px;color:#5C5146}.offer-section{background:linear-gradient(135deg,#1A1A1A,#2D2D2D);color:#fff;padding:80px 24px;text-align:center}.offer-box{max-width:440px;margin:0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(139,94,60,0.3);border-radius:16px;padding:48px 32px}.offer-box .old-price{color:rgba(255,255,255,0.4);text-decoration:line-through;font-size:18px}.offer-box .price{font-size:56px;font-weight:800;color:#D4B896;margin:8px 0}.offer-box .installments{color:rgba(255,255,255,0.6);font-size:16px}.offer-box ul{list-style:none;margin:24px 0;text-align:left}.offer-box ul li{padding:8px 0;font-size:14px;color:rgba(255,255,255,0.8)}.offer-box ul li::before{content:'✓';color:#4CAF50;margin-right:10px;font-weight:700}.guarantee{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:24px;font-size:13px;color:rgba(255,255,255,0.5)}.footer{background:#0D0D0D;color:rgba(255,255,255,0.4);text-align:center;padding:32px 24px;font-size:12px}@media(max-width:640px){.hero{padding:60px 20px}.section{padding:48px 20px}.offer-box{padding:32px 20px}.benefits-grid{grid-template-columns:1fr}}</style></head><body><section class="hero"><div class="hero-content"><h1>[HEADLINE] <span>[PALAVRA DE DESTAQUE]</span></h1><p>[SUBTÍTULO]</p><a href="#" class="btn-primary">Quero Meu Acesso</a></div></section><section class="section"><h2>O que você vai aprender</h2><p>[DESCRIÇÃO BREVE DOS MÓDULOS]</p><div class="benefits-grid">[MÓDULOS HTML]</div></section><section class="offer-section"><div class="offer-box"><p class="old-price">De R$ [VALOR CHEIO]</p><p class="price">R$ [VALOR]</p><p class="installments">ou [N]x de R$ [PARCELA]</p><ul><li>Acesso vitalício ao conteúdo</li><li>Todas as atualizações futuras</li><li>Certificado de conclusão</li><li>Suporte via grupo VIP</li><li>7 dias de garantia incondicional</li></ul><a href="#" class="btn-primary">Garantir Minha Vaga</a><div class="guarantee">🔒 Pagamento 100% seguro</div></div></section><section class="footer"><p>© 2026 [NOME DO PRODUTO]. Todos os direitos reservados.</p></section></body></html>`,
@@ -328,7 +331,13 @@ function DashboardInner() {
       let content: Record<string, string> | null = null
       if (res.ok) {
         const data = await res.json()
-        if (data && typeof data === "object" && !data.error) content = data
+        if (data && typeof data === "object" && !data.error) {
+          const sanitized: Record<string, string> = {}
+          for (const [k, v] of Object.entries(data)) {
+            sanitized[k] = typeof v === "string" ? sanitizeText(v) : String(v)
+          }
+          content = sanitized
+        }
       }
       if (!content) {
         const fallback = FALLBACKS[stepId]
@@ -625,18 +634,27 @@ function DashboardInner() {
                       ) : (
                         <>
                           {/* Content */}
-                          <div className="space-y-2">
+                           <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
                               const filled = fillVars(value, stepIdeia || idea, tom, lucro)
-                              const isSVG = filled.startsWith("<svg")
+                              const isHTML = filled.includes("<!DOCTYPE") || filled.includes("<html")
+                              const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               return (
-                              <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg p-3">
-                                <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider block mb-1">{key}</span>
-                                {isSVG ? (
-                                  <div className="bg-white rounded-lg p-2 flex justify-center overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(filled) }} />
+                              <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg p-3 overflow-hidden">
+                                <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider block mb-1 truncate">{key}</span>
+                                {isHTML ? (
+                                  <iframe
+                                    srcDoc={filled}
+                                    className="w-full rounded-lg border border-[#D9CEC2] bg-white"
+                                    style={{ height: "500px" }}
+                                    sandbox="allow-scripts allow-same-origin"
+                                    title={key}
+                                  />
                                 ) : (
-                                  <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{filled}</p>
+                                  <div className="max-h-[400px] overflow-y-auto overflow-x-hidden">
+                                    <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap break-words" style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>{cleanText}</p>
+                                  </div>
                                 )}
                               </div>
                             )})}
@@ -728,17 +746,6 @@ function DashboardInner() {
                             <Button variant="outline" size="sm" onClick={() => handleExport(step, "md")} className="text-xs">
                               <Download className="w-3 h-3" /> MD
                             </Button>
-                            {Object.values(step.content).some(v => typeof v === "string" && v.startsWith("<svg")) && (
-                              <Button variant="outline" size="sm" onClick={() => {
-                                const filled: Record<string, string> = {}
-                                for (const [k, v] of Object.entries(step.content)) {
-                                  filled[k] = fillVars(v, stepIdeia || idea, tom, lucro)
-                                }
-                                exportPNG(step.title, filled)
-                              }} className="text-xs">
-                                <Download className="w-3 h-3" /> PNG
-                              </Button>
-                            )}
                           </div>
                         </>
                       )}

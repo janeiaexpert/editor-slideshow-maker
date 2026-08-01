@@ -53,14 +53,16 @@ export function sanitizeSvg(svg: string): string {
   const dangerous = /<script[\s>]/i
   if (dangerous.test(svg)) svg = svg.replace(/<script[\s\S]*?<\/script>/gi, "")
 
-  const vbW = 1080
-  const safeW = vbW * 0.88
-
   svg = svg.replace(/(<svg[^>]*?)\s+width="[^"]*"/gi, "$1")
   svg = svg.replace(/(<svg[^>]*?)\s+height="[^"]*"/gi, "$1")
   if (!/style="[^"]*max-width/i.test(svg)) {
-    svg = svg.replace(/<svg/, '<svg style="max-width:100%;height:auto;display:block"')
+    svg = svg.replace(/<svg/, '<svg style="width:100%;max-width:100%;height:auto;display:block"')
   }
+
+  const vbMatch = svg.match(/viewBox="[\s]*(\d+)[\s]+(\d+)/)
+  const vbW = vbMatch ? parseInt(vbMatch[1]) : 1080
+  const vbH = vbMatch ? parseInt(vbMatch[2]) : 1350
+  const safeW = vbW * 0.88
 
   const textRegex = /<text\b([^>]*)>([\s\S]*?)<\/text>/gi
   let match: RegExpExecArray | null
@@ -78,7 +80,7 @@ export function sanitizeSvg(svg: string): string {
     const fs = parseInt(fsMatch[1])
     const y = parseFloat(yMatch[1])
     const text = inner.replace(/<[^>]+>/g, "").trim()
-    if (!text || fs < 30) continue
+    if (!text || fs < 20) continue
 
     entries.push({ match, y, fs, text, attrs, inner })
   }
@@ -106,7 +108,7 @@ export function sanitizeSvg(svg: string): string {
 
     const ratio = safeW / textW
     let newFs = Math.round(entry.fs * ratio)
-    if (newFs < entry.fs * 0.45) newFs = Math.round(entry.fs * 0.45)
+    if (newFs < entry.fs * 0.35) newFs = Math.round(entry.fs * 0.35)
 
     const newW = estimateTextWidth(entry.text, newFs)
 
@@ -116,7 +118,7 @@ export function sanitizeSvg(svg: string): string {
 
     const newY = origY + accumulatedExtra
     const xMatch = entry.attrs.match(/x=["']([\d.]+)["']/)
-    const x = xMatch?.[1] || "540"
+    const x = xMatch?.[1] || String(vbW / 2)
 
     if (newW <= safeW) {
       const newAttrs = cleanAttrs
@@ -129,7 +131,7 @@ export function sanitizeSvg(svg: string): string {
       continue
     }
 
-    const maxChars = Math.max(Math.floor(entry.text.length * 0.45), 10)
+    const maxChars = Math.max(Math.floor(entry.text.length * 0.4), 8)
     const lines = splitIntoLines(entry.text, maxChars)
     const lineH = newFs * 1.35
     const startY = newY - ((lines.length - 1) * lineH) / 2
@@ -156,5 +158,20 @@ export function sanitizeSvg(svg: string): string {
     svg = svg.replace(r.orig, r.rep)
   }
 
+  svg = svg.replace(/R\$\s*R\$/g, "R$")
+  svg = svg.replace(/R\$\s+/g, "R$ ")
+
   return svg
+}
+
+export function sanitizeText(text: string): string {
+  if (!text) return text
+
+  let result = text
+
+  result = result.replace(/R\$\s*R\$\s*/g, "R$ ")
+  result = result.replace(/R\$\s+/g, "R$ ")
+  result = result.replace(/\s+R\$/g, " R$")
+
+  return result
 }

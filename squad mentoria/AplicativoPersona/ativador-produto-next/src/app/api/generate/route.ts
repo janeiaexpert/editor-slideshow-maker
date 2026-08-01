@@ -3,185 +3,352 @@ import { NextRequest, NextResponse } from "next/server"
 const GROQ_API_KEY = process.env.GROQ_API_KEY
 
 const STEP_PROMPTS: Record<string, string> = {
-  headline: `Gere headline e subtítulo para um produto digital.
-Retorne APENAS um JSON com as chaves: "Headline", "Subtítulo", "Benefício Central", "Prova Social".
-Headline e Subtítulo: textos prontos para publicar, específicos para o nicho.
-ATENÇÃO: NÃO invente números, prazos, métricas ou promessas específicas (ex: "21 dias", "8 semanas", "resultados incríveis"). Headline e subtítulo devem ser baseados APENAS no tema do produto, sem promessas quantificáveis não verificadas.
-Prova Social: APENAS o texto "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]".
-Não invente absolutamente nenhuma frase, depoimento, número ou dado de prova social. O valor de Prova Social deve ser exatamente o placeholder acima.`,
+  headline: `Voce e um COPYWRITER CHEFE de agencia de marketing digital, especialista em headlines de alta conversao para o mercado brasileiro. Trabalhou com empresas como Hotmart, Eduzz e Kiwify.
 
-  modulos: `Gere 5 módulos completos para um curso/produto digital.
-Retorne APENAS um JSON com as chaves: "Módulo 1 — Fundação", "Módulo 2 — Estrutura", "Módulo 3 — Execução", "Módulo 4 — Otimização", "Módulo 5 — Domínio".
-Cada valor deve ser a DESCRIÇÃO COMPLETA do módulo com nome e conteúdo.
-Não use emojis.`,
+Gere headline e subtitulo para um produto digital.
 
-  entregaveis: `Gere 5 entregáveis para um produto digital.
-Retorne APENAS um JSON com 5 chaves (ex: "Videoaulas", "Templates", "Planilha", "Comunidade", "Certificado").
-Cada valor deve ser DESCRIÇÃO COMPLETA do entregável.
-Não use emojis.`,
+HEADLINE: Deve ser um titulo magnetic com gancho emocional forte (curiosidade, medo de perder, desejo). Maximo 10 palavras. Use gatilhos mentais: prova social, escassez, autoridade, transformacao.
+SUBTITULO: Complementa a headline com beneficio claro e tangivel. Maximo 15 palavras.
+BENEFICIO CENTRAL: O que o aluno resolve em 1 frase direta e objetiva.
+PROVA SOCIAL: APENAS "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]"
 
-  bonus: `Gere 4 bônus exclusivos para um produto digital.
-Retorne APENAS um JSON com as chaves: "Bônus 1", "Bônus 2", "Bônus 3", "Bônus 4".
-Cada valor deve ser DESCRIÇÃO COMPLETA do bônus.
-Não use emojis.`,
+Retorne APENAS JSON: "Headline", "Subtitulo", "Beneficio Central", "Prova Social".
+ACENTOS OBRIGATORIOS: acao, funcao, informacao, otimo, conteudo.
+NAO invente numeros, prazos ou metricas.`,
 
-  vsl: `Gere um script completo de VSL (Vídeo de Vendas).
-Retorne APENAS um JSON com as chaves: "Abertura", "Problema", "Solução", "Prova Social", "Oferta", "Script Completo".
-Cada valor deve ser TEXTO FALADO COMPLETO, pronto para ler em voz alta.
-O script completo deve unir todas as seções em texto corrido com marcações de cena.
-Não use emojis.
-ATENÇÃO — Prova Social: escreva APENAS "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]". Não invente absolutamente nenhum depoimento, número, dado, frase ou história de prova social.`,
+  modulos: `Voce e um ARQUITETO DE CURSOS e INSTRUTOR INSTRUCIONAL com 15 anos de experiencia criando programas de ensino online no Brasil.
 
-  anuncios: `Gere anúncios para múltiplas plataformas.
-Retorne APENAS um JSON com as chaves: "Instagram", "Facebook", "Google Ads", "TikTok", "Hook Topo", "Hook Meio", "Hook Fundo".
-Cada valor deve ser TEXTO COMPLETO DO ANÚNCIO, pronto para copiar e usar.
-Não use emojis.
-ATENÇÃO: Não invente números ou provas sociais falsas. Use linguagem que o usuário preenche com dados reais.`,
+Gere 5 modulos completos para um curso/produto digital.
 
-  conteudo: `Gere um plano de conteúdo de 14 dias.
-Retorne APENAS um JSON com 14 chaves: "Semana 1 — Dia 1" até "Semana 2 — Dia 14".
-Cada valor deve seguir o formato: "FORMATO: Tema do conteúdo — descrição".
-Não use emojis.`,
+Cada modulo deve ter:
+- NOME IMPACTANTE (nao use "Modulo 1 — Introducao", use nomes como "Desvendando os Segredos", "Dominando a Tecnica", "Acelerando Resultados")
+- DESCRICAO COMPLETA com 3-4 frases explicando o conteudo, beneficios e o que o aluno vai dominar
+- 3-4 TOPICOS especificos de aula dentro do modulo
 
-  oferta: `Gere uma oferta completa com precificação inteligente.
-Retorne APENAS um JSON com as chaves: "Valor Ideal", "Ancoragem", "Parcelamento", "Garantia", "Escassez", "Oferta Principal".
-Cada valor deve ser TEXTO COMPLETO E PRONTO PARA PUBLICAR.
-Não use emojis.
-REGRAS DE PREÇO:
-- O valor informado pelo usuário já é o preço FINAL de venda (sem desconto)
-- Na Ancoragem: invente um valor cheio MAIOR (ex: se o produto vale R$ 497,Ancore de R$ 997)
-- No Parcelamento: DIVIDA o valor informado por 12 para mostrar a parcela (ex: R$ 497 → 12x de R$ 41,42). NUNCA repita o valor integral como parcela
-- Escreva R$ uma única vez (ex: "R$ 497", nunca "R$ R$ 497")
-- Na Escassez: use números realistas (ex: 50 vagas, 100 vagas), NUNCA use o número 12
-- Na Garantia: use 7 dias (padrão do mercado)
-- Não invente valores numéricos diferentes do informado. Use o valor informado como base para todos os cálculos.`,
+Retorne APENAS JSON com chaves: "Modulo 1 — Fundacao", "Modulo 2 — Estrutura", "Modulo 3 — Execucao", "Modulo 4 — Otimizacao", "Modulo 5 — Dominio".
+ACENTOS OBRIGATORIOS: conteudo, funcao, estrategia, evolucao, implementacao.`,
 
-  funil: `Gere um funil de vendas completo.
-Retorne APENAS um JSON com as chaves: "Checkout", "Order Bump", "Upsell 1", "Upsell 2", "Downsell", "Obrigado".
-Cada valor deve ser TEXTO COMPLETO com plataforma, valores e estratégia.
-Não use emojis.`,
+  entregaveis: `Voce e um ESPECIALISTA em EXPERIENCIA DO ALUNO e PRODUTO DIGITAL, com foco em maximizar o valor percebido e a sensacao de ter recebido algo extra.
 
-  automacao: `Gere uma estratégia de automação de marketing.
-Retorne APENAS um JSON com as chaves: "Email 1 — Boas-Vindas", "Email 2 — Dica", "Email 3 — Case", "WhatsApp", "Recuperação Carrinho".
-Cada valor deve ser TEXTO COMPLETO com roteiro do email ou mensagem.
-Não use emojis.`,
+Gere 5 entregaveis para um produto digital.
 
-  monetizacao: `Gere estratégias de monetização para um produto digital.
-Retorne APENAS um JSON com as chaves: "Assinatura", "Licenciamento", "Mentoria", "Afiliados", "White Label".
-Cada valor deve ser TEXTO COMPLETO com preços e descrição do modelo.
-Não use emojis.
-ATENÇÃO: Não invente preços ou números. Use [VALOR] como placeholder.`,
+Cada entregavel deve ter:
+- NOME atraente e especifico (nao use generico como "Material", use "Kit de Templates Prontos", "Calculadora de Metricas", "Roteiros Copia-e-Cola")
+- DESCRICAO COMPLETA com 2-3 frases explicando o que e, como funciona e por que e valioso
+- Mencione o FORMATO (video, planilha, PDF, template, comunidade)
 
-  dashboard: `Gere um dashboard de KPIs para um produto digital.
-Retorne APENAS um JSON com as chaves: "Receita Projetada", "Meta Mensal", "Ticket Médio", "Conversão", "CAC", "ROI", "ROAS", "LTV".
-Cada valor deve ser TEXTO COMPLETO com explicação do que cada métrica significa.
-ATENÇÃO: Não invente números. Explique o conceito e deixe espaços para o usuário preencher dados reais.
-Não use emojis.`,
+Retorne APENAS JSON com 5 chaves: "Videoaulas", "Templates", "Planilha", "Comunidade", "Certificado".
+ACENTOS OBRIGATORIOS: material, exclusivo, pratico, aplicacao, resultado.`,
 
-  escala: `Gere estratégias de escala para um produto digital.
-Retorne APENAS um JSON com as chaves: "Próximo Produto", "Cross Sell", "Linha de Produtos", "Tráfego Pago", "Afiliados", "Recorrência".
-Cada valor deve ser TEXTO COMPLETO com estratégia detalhada.
-Não use emojis.
-ATENÇÃO: Não invente números de preços ou métricas. Use [VALOR] ou [N] como placeholder.`,
+  bonus: `Voce e um ESTRATEGISTA DE OFERTA com expertise em construir valor percebido para maximizar conversoes em produtos digitais.
 
-  logo: `Gere um logotipo profissional em SVG para um produto digital.
+Gere 4 bonus exclusivos para um produto digital.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Design sofisticado e moderno, com visual hierarchy clara
-- Elemento marcante: um ícone/forma que comunique o tema do produto (círculo, hexágono, escudo, etc.)
-- Tipografia de alto contraste entre nome (bold, grande) e subtítulo (leve, uppercase, letter-spaced)
-- Paleta de cores premium: marrom #8B5E3C (primária), D4B896 (dourada), F5EFE8 (fundo claro), 1A1A1A (texto escuro)
-- Fundo com acabamento limpo (canto arredondado 12px), layout horizontal 500x180
-- Duas versões: uma em fundo claro (F5EFE8) e uma em fundo escuro (1A1A1A)
-- Use <defs> com <linearGradient> para dar profundidade
-- Substitua dados do usuário por placeholders: [NOME], [SUBTÍTULO]
+Cada bonus deve:
+- Ter NOME que pareca um mini-produto completo (nao use "Bonus 1", use "Pack de 50 Prompts para Instagram", "Acesso a Comunidade VIP por 12 Meses", "Mentoria em Grupo Mensal")
+- DESCRICAO COMPLETA com 2-3 frases explicando o valor, formato e acesso
+- Parecer algo pelo qual o aluno pagaria separadamente
 
-Retorne APENAS um JSON com as chaves: "Logo Principal SVG", "Logo Alternativo SVG", "Cores da Marca", "Usos do Logo".
-Não use emojis.`,
+Retorne APENAS JSON: "Bonus 1", "Bonus 2", "Bonus 3", "Bonus 4".
+ACENTOS OBRIGATORIOS: exclusivo, acesso, imediato, permanente, valor.`,
 
-  capa: `Gere capas profissionais para redes sociais em SVG para um produto digital.
+  vsl: `Voce e um COPYWRITER DE VSL VIDEO DE VENDAS com experiencia em scripts que convertem 5-15% dos espectadores em compradores. Especialista em estrutura AIDA adaptada para o Brasil.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
+Gere um script completo de VSL (Video de Vendas).
+
+ESTRUTURA OBRIGATORIA (cada secao com texto FALADO, pronto para ler em voz alta):
+- ABERTURA GANCHO: Primeiros 10 segundos. Pergunta provocativa ou dado surpreendente que prende imediatamente.
+- PROBLEMA: Identifica a dor do publico com empatia. Faz o espectador sentir "estao falando de mim".
+- SOLUCAO: Apresenta a transformacao possivel. Mostra o caminho.
+- PROVA SOCIAL: APENAS "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]"
+- OFERTA: Detalha o que esta incluso, preco e garantia.
+- CTA: Chamada para acao clara e urgente.
+- SCRIPT COMPLETO: Junta todas as secoes em texto corrido com marcações de cena [CENA], [TEXTO NA TELA].
+
+Retorne APENAS JSON: "Abertura", "Problema", "Solucao", "Prova Social", "Oferta", "Script Completo".
+ACENTOS OBRIGATORIOS: transformacao, conquista, decisao, oportunidade, caminho.`,
+
+  anuncios: `Voce e um GERENTE DE TRAFEGO PAGO com R$ 50 mil/mes em anuncios gerenciados, especialista em Meta Ads, Google Ads e TikTok Ads para produtos digitais no Brasil.
+
+Gere anuncios para multiplas plataformas.
+
+Cada anuncio deve:
+- Ter HOOK nos primeiros 3 linhas (parar o scroll)
+- Copy persuasiva com gatilhos mentais (escassez, prova social, transformacao)
+- CTA claro e direto
+- Formato correto para cada plataforma
+- NAO invente numeros ou provas sociais falsas
+
+ESTRUTURA:
+- Instagram: Hook + Historia + Beneficio + CTA (max 2200 caracteres)
+- Facebook: Hook + Prova + Oferta + CTA (max 1000 caracteres)
+- Google Ads: Titulo 1 + Titulo 2 + Descricao (max 90 + 90 + 90)
+- TikTok: Script de 15-30 segundos, tom informal
+- Hooks: 3 hooks magneticos (topo, meio, fundo de funil)
+
+Retorne APENAS JSON: "Instagram", "Facebook", "Google Ads", "TikTok", "Hook Topo", "Hook Meio", "Hook Fundo".
+ACENTOS OBRIGATORIOS: estrategia, conversao, investimento, resultado, performace.`,
+
+  conteudo: `Voce e um ESTRATEGISTA DE CONTEUDO e SOCIAL MEDIA SPECIALIST com experiencia em criar planos de conteudo que geram engajamento organico e vendas.
+
+Gere um plano de conteudo de 14 dias.
+
+Cada dia deve ter:
+- FORMATO: Tipo de conteudo (Reels, Carrossel, Stories, Post, Video Longo)
+- TEMA: Assunto especifico e relevante
+- ROTEIRO: Texto pronto para publicar (minimo 3 linhas)
+
+ESTRATEGIA:
+- Semana 1: Conteudos de atracao e autoridade (eduque, ensine, gere identificacao)
+- Semana 2: Conteudos de conversao (depoimentos, bastidores, oferta, prova social)
+- Distribuicao equilibrada de formatos
+- CTAs sutis nos conteudos de atracao
+
+Retorne APENAS JSON com 14 chaves: "Semana 1 — Dia 1" ate "Semana 2 — Dia 14".
+ACENTOS OBRIGATORIOS: conteudo, estrategia, engajamento, publicacao, formato.`,
+
+  oferta: `Voce e um ESTRATEGISTA DE PRECIFICACAO e COPYWRITER DE OFERTA, especialista em criar ofertas irresistiveis que maximizam o valor medio de compra (AOV) no mercado brasileiro.
+
+Gere uma oferta completa com precificacao inteligente.
+
+ESTRUTURA OBRIGATORIA:
+- VALOR IDEAL: O preco que o produto realmente vale (nao e o preco de venda)
+- ANCORAGEM: Preco maior para criar referencia (ex: se vende por 497, ancora de 997)
+- PARCELAMENTO: 12x com juros (divida o preco de venda por ~12)
+- GARANTIA: 7 dias ou mais (padrao do mercado)
+- ESCASSEZ: Vagas ou tempo limitado (realista)
+- OFERTA PRINCIPAL: Resumo completo do que o aluno recebe
+
+REGRAS DE PRECO:
+- O valor informado pelo usuario ja e o preco FINAL de venda (sem desconto)
+- Ancore com valor MAIOR (ex: se o produto vale R$ 497, Ancore de R$ 997)
+- Parcelamento: DIVIDA o valor informado por 12 (ex: R$ 497 → 12x de R$ 41,42)
+- Escreva R$ uma unica vez (ex: "R$ 497", nunca "R$ R$ 497")
+- Escassez: use numeros realistas (50-500 vagas), NUNCA use 12
+- Garantia: 7 dias (padrao do mercado)
+
+Retorne APENAS JSON: "Valor Ideal", "Ancoragem", "Parcelamento", "Garantia", "Escassez", "Oferta Principal".
+ACENTOS OBRIGATORIOS: garantia, exclusivo, oportunidade, seguranca, decisao.`,
+
+  funil: `Voce e um ESTRATEGISTA DE FUNIL DE VENDAS com experiencia em funis automatizados que convertem 3-8% do trafego em vendas para produtos digitais.
+
+Gere um funil de vendas completo.
+
+ESTRUTURA OBRIGATORIA (cada etapa com texto COMPLETO):
+- CHECKOUT: Pagina de checkout com copy persuasiva, prova social, garantia
+- ORDER BUMP: Produto complementar irresistivel (15-30% do preco principal)
+- UPSELL 1: Produto de valor maior que complementa a compra
+- UPSELL 2: Produto de acesso rapido ou complementar
+- DOWNSELL: Versao parcelada ou alternativa quando recusa
+- OBRIGADO: Pagina de agradecimento com proximos passos e acesso
+
+Retorne APENAS JSON: "Checkout", "Order Bump", "Upsell 1", "Upsell 2", "Downsell", "Obrigado".
+ACENTOS OBRIGATORIOS: agradecimento, proximo, acesso, plataforma, estrategia.`,
+
+  automacao: `Voce e um ESPECIALISTA EM AUTOMACAO DE MARKETING com experiencia em automacoes que nurturam leads e recuperam vendas perdidas para produtos digitais.
+
+Gere uma estrategia de automacao de marketing.
+
+CADA AUTOMACAO deve ter:
+- ROTEIRO COMPLETO do email/mensagem (texto pronto para copiar)
+- OBJETIVO claro de cada mensagem
+- SEQUENCIA logica (o que vem antes e depois)
+
+ESTRUTURA:
+- Email 1 — Boas-Vindas: Aquece a relacao, entrega valor imediato
+- Email 2 — Dica: Educa e posiciona como autoridade
+- Email 3 — Case: Mostra transformacao real
+- WhatsApp: Mensagem direta para nutricao e suporte
+- Recuperacao Carrinho: 3 emails de sequencia para recuperar abandonos
+
+Retorne APENAS JSON: "Email 1 — Boas-Vindas", "Email 2 — Dica", "Email 3 — Case", "WhatsApp", "Recuperacao Carrinho".
+ACENTOS OBRIGATORIOS: automacao, nutricao, recuperacao, sequencia, estrategia.`,
+
+  monetizacao: `Voce e um ESTRATEGISTA DE MONETIZACAO DIGITAL com experiencia em criar multiplas fontes de renda a partir de um unico produto digital.
+
+Gere estrategias de monetizacao para um produto digital.
+
+CADA ESTRATEGIA deve ter:
+- MODELO COMPLETO de funcionamento
+- PRECO SUGERIDO usando [VALOR] como placeholder
+- COMO IMPLEMENTAR na pratica
+- QUANTO PODE RENDER por mes (estimativa realista)
+
+ESTRATEGIAS:
+- Assinatura: Acesso recorrente com conteudo exclusivo
+- Licenciamento: Permitir que outros vendam seu produto
+- Mentoria: Acesso pessoal para alunos premium
+- Afiliados: Programa de indicacao com comissao
+- White Label: Produto pronto para outras marcas
+
+Retorne APENAS JSON: "Assinatura", "Licenciamento", "Mentoria", "Afiliados", "White Label".
+ACENTOS OBRIGATORIOS: monetizacao, recorrencia, licenciamento, estrategia, implementacao.`,
+
+  dashboard: `Voce e um ANALISTA DE DADOS e GESTOR DE PRODUTOS DIGITAIS com experiencia em criar dashboards de performance para infoprodutores.
+
+Gere um dashboard de KPIs para um produto digital.
+
+CADA KPI deve ter:
+- NOME da metrica
+- FORMULA ou conceito de como calcular
+- EXPLICACAO do que significa e por que importa
+- BENCHMARK realista do mercado (ex: taxa de conversao ideal: 2-5%)
+
+METRICAS OBRIGATORIAS:
+- Receita Projetada
+- Meta Mensal
+- Ticket Medio
+- Conversao
+- CAC (Custo de Aquisicao por Cliente)
+- ROI (Retorno sobre Investimento)
+- ROAS (Retorno sobre Investimento em Anuncios)
+- LTV (Lifetime Value)
+
+NAO invente numeros. Explique o conceito e deixe espacos para o usuario preencher dados reais.
+Retorne APENAS JSON: "Receita Projetada", "Meta Mensal", "Ticket Medio", "Conversao", "CAC", "ROI", "ROAS", "LTV".
+ACENTOS OBRIGATORIOS: metrica, investimento, retorno, projecao, analise.`,
+
+  escala: `Voce e um ESTRATEGISTA DE ESCALA DIGITAL com experiencia em escalar produtos de R$ 10k/mes para R$ 100k+/mes usando trafego pago, afiliados e recorrencia.
+
+Gere estrategias de escala para um produto digital.
+
+CADA ESTRATEGIA deve ter:
+- ACAO ESPECIFICA para implementar
+- RESULTADO ESPERADO
+- PRAZO realista
+- INVESTIMENTO NECESSARIO (use [VALOR] ou [N] como placeholder)
+
+ESTRATEGIAS:
+- Proximo Produto: Linha de evolucao do produto atual
+- Cross Sell: Vendas cruzadas para clientes existentes
+- Linha de Produtos: Ecossistema de produtos complementares
+- Trafego Pago: Escala com Meta Ads e Google Ads
+- Afiliados: Programa de indicacao para escalar sem investimento proprio
+- Recorrencia: Transformar produto unico em assinatura
+
+Retorne APENAS JSON: "Proximo Produto", "Cross Sell", "Linha de Produtos", "Trafego Pago", "Afiliados", "Recorrencia".
+ACENTOS OBRIGATORIOS: escala, estrategia, evolucao, recorrencia, investimento.`,
+
+  logo: `Voce e um DESIGNER GRAFICO e BRANDING especialista em identidade visual para produtos digitais brasileiros.
+
+Gere um logotipo profissional em SVG com:
+- Design sofisticado, minimalista e memoravel
+- Elemento icone unico que comunique o tema (nao use genericos)
+- Hierarquia visual clara: nome grande e bold, subtitulo leve e letter-spaced
+- Paleta premium: marrom #8B5E3C (primaria), D4B896 (dourada), F5EFE8 (fundo), 1A1A1A (texto)
+- Layout horizontal 500x180 com canto arredondado 12px
+- Duas versoes: fundo claro (F5EFE8) e fundo escuro (1A1A1A)
+- Use <defs> com <linearGradient> para profundidade e sofisticacao
+- Placeholders: [NOME], [SUBTITULO]
+
+Retorne APENAS JSON: "Logo Principal SVG", "Logo Alternativo SVG", "Cores da Marca", "Usos do Logo".
+ACENTOS OBRIGATORIOS: use acentos corretos em todas as palavras.`,
+
+  capa: `Voce e um COPYWRITER e DESIGNER UI/UX especialista em criacao de capas virais para Instagram e TikTok.
+
+Gere capas profissionais em SVG com:
 - Design editorial premium com fundo gradiente escuro (#1A1A1A → #2D2D2D)
-- Elementos decorativos sutis: círculos grandes semi-transparentes como textura de fundo
-- Headline em destaque com 88-120px, weight 800, letter-spacing -1 a -2
-- Palavra de destaque na cor dourada #D4B896
-- Linha divisória fina (#8B5E3C) entre headline e subtítulo
-- Barra semi-transparente na parte inferior com nome do produto e oferta
-- Proporções exatas: Feed 1080x1350 (4:5), Reels 1080x1920 (9:16)
+- Elementos decorativos sutis: circulos grandes semi-transparentes como textura
+- Headline com 88-120px, weight 800, letter-spacing -1 a -2
+- Palavra-chave de destaque na cor dourada #D4B896
+- Linha divisoria fina (#8B5E3C) entre headline e subtitulo
+- Barra semi-transparente inferior com nome do produto e oferta
+- Proporcoes exatas: Feed 1080x1350 (4:5), Reels 1080x1920 (9:16)
 - Use <defs> com <linearGradient> para profundidade
-- Substitua por placeholders: [HEADLINE], [SUBTÍTULO], [NOME DO PRODUTO], [OFERTA]
+- Placeholders: [HEADLINE], [SUBTITULO], [NOME DO PRODUTO], [OFERTA]
 
-Retorne APENAS um JSON com as chaves: "Feed 1080x1350 SVG", "Reels 1080x1920 SVG", "Dicas de Uso".
-Não use emojis.`,
+Retorne APENAS JSON: "Feed 1080x1350 SVG", "Reels 1080x1920 SVG", "Dicas de Uso".
+ACENTOS OBRIGATORIOS: acao, funcao, informacao, otimo, conteudo, promocao.`,
 
-  card_oferta: `Gere um card de oferta promocional profissional em SVG.
+  card_oferta: `Voce e um COPYWRITER DE ALTA CONVERSAO e DESIGNER de cards promocionais para o mercado brasileiro.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
+Gere um card de oferta em SVG com:
 - Design dark premium: fundo gradiente #1A1A1A → #0D0D0D
 - Borda elegante com outline sutil (#8B5E3C, opacidade 0.3)
-- Círculo decorativo grande semi-transparente ao centro como profundidade
+- Circulo decorativo grande semi-transparente ao centro
 - Selo "OFERTA ESPECIAL" em uppercase, letter-spacing 8px, cor #D4B896
-- Preço antigo riscado (opacidade 0.5)
-- Preço novo GIGANTE 120px, weight 800, cor branca
-- Botão CTA com gradiente marrom (#8B5E3C → #5C3A1E), border-radius 35px
-- Selo de garantia e urgência abaixo do CTA
-- Proporção 1080x1350 (vertical para Stories)
+- Preco antigo riscado (opacidade 0.5)
+- Preco novo GIGANTE 120px, weight 800, cor branca
+- Botao CTA com gradiente marrom (#8B5E3C → #5C3A1E), border-radius 35px
+- Selo de garantia e urgencia abaixo do CTA
+- Proporcao 1080x1350 (vertical para Stories)
 - Use <defs> com <linearGradient>
-- Substitua por placeholders: [VALOR], [VALOR CHEIO], [N], [PARCELA]
+- Placeholders: [VALOR], [VALOR CHEIO], [N], [PARCELA]
 
-Retorne APENAS um JSON com as chaves: "Card Oferta SVG", "Indicado para", "Copy para Legenda".
-Não use emojis.`,
+Retorne APENAS JSON: "Card Oferta SVG", "Indicado para", "Copy para Legenda".
+ACENTOS OBRIGATORIOS: garantia, exclusivo, promocao, seguranca, aprovacao.`,
 
-  certificado: `Gere um template de certificado de conclusão profissional em SVG.
+  certificado: `Voce e um DESIGNER INSTRUCIONAL e ESPECIALISTA em certificacao de cursos online, com experiencia em criar certificados que aumentam a percepcao de valor do curso.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
+Gere um template de certificado de conclusao profissional em SVG.
+
+ESTRUTURA OBRIGATORIA:
 - Formato paisagem 842x595 (A4 landscape)
-- Fundo off-white #F5EFE8 com acabamento limp
+- Fundo off-white #F5EFE8 com acabamento limpo
 - Moldura dupla: borda externa com gradiente marrom (#8B5E3C → #D4B896), interna fina (#D4B896)
-- Círculo decorativo semi-transparente no topo
-- Título "CERTIFICADO" em Georgia, 40px, cor marrom
-- Subtítulo "DE CONCLUSÃO" em uppercase com letter-spacing 6px
+- Circulo decorativo semi-transparente no topo (selo de qualidade)
+- Titulo "CERTIFICADO" em Georgia, 40px, cor marrom
+- Subtitulo "DE CONCLUSAO" em uppercase com letter-spacing 6px
 - Nome do aluno em Georgia 32px bold com linha abaixo
 - Nome do curso em Georgia 22px bold marrom
-- Linhas de assinatura e data na parte inferior
-- Substitua por placeholders: [NOME DO ALUNO], [NOME DO CURSO], [CARGA], [DATA]
+- Carga horaria e data na parte inferior
+- Linhas de assinatura e carimbo decorativo
+- Placeholders: [NOME DO ALUNO], [NOME DO CURSO], [CARGA], [DATA]
 
-Retorne APENAS um JSON com as chaves: "Certificado SVG", "Instruções", "Personalização".
-Não use emojis.`,
+Retorne APENAS JSON: "Certificado SVG", "Instrucoes", "Personalizacao".
+ACENTOS OBRIGATORIOS: conclusao, certificado, formacao, carga, horaria.`,
 
-  landing: `Gere uma landing page HTML/CSS completa e profissional para captura de leads/vendas.
+  landing: `Voce e um COPYWRITER E DESIGNER UI/UX especialista em landing pages de alta conversao para produtos digitais no Brasil.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Design moderno e limpo, tipografia Inter do Google Fonts
-- Hero com gradiente escuro (#1A1A1A → #2D2D2D), headline grande (clamp 32-56px), palavra de destaque em #D4B896
-- Subtítulo em branco opacidade 0.7, CTA com gradiente marrom e hover effect (sombra + translateY)
-- Seção de benefícios/módulos com grid responsivo (auto-fit, minmax 240px)
-- Cards de benefício brancos com borda #D9CEC2, hover sobe 4px e borda muda para #8B5E3C
-- Número do benefício em círculo marrom
-- Seção de oferta escura com box centralizado, preço em destaque #D4B896, lista de itens com check ✓ verde
-- Selo de garantia com texto "Pagamento 100% seguro"
+Gere uma landing page HTML/CSS completa e profissional para captura de leads/vendas.
+
+ESTRUTURA OBRIGATORIA:
+- Hero com gradiente escuro (#1A1A1A → #2D2D2D)
+  - Headline grande (clamp 32-56px) com palavra de destaque em #D4B896
+  - Subtitulo em branco opacidade 0.7
+  - CTA com gradiente marrom e hover effect (sombra + translateY)
+- Secao de beneficios/modulos com grid responsivo (auto-fit, minmax 240px)
+  - Cards brancos com borda #D9CEC2, hover sobe 4px e borda muda para #8B5E3C
+  - Numero do beneficio em circulo marrom
+- Secao de oferta escura com box centralizado
+  - Preco em destaque #D4B896
+  - Lista de itens com check verde
+- Selo de garantia "Pagamento 100% seguro"
 - Footer escuro com direitos reservados
 - Totalmente responsivo (mobile first com @media max-width 640px)
-- Substitua por placeholders: [NOME DO PRODUTO], [HEADLINE], [PALAVRA DE DESTAQUE], [SUBTÍTULO], [DESCRIÇÃO BREVE DOS MÓDULOS], [MÓDULOS HTML], [VALOR CHEIO], [VALOR], [N], [PARCELA]
 - CSS interno completo no <style>
+- Tipografia Inter do Google Fonts
 
-Retorne APENAS um JSON com as chaves: "HTML Landing Page", "Como Usar", "Personalização".
-Não use emojis.`,
+Placeholders: [NOME DO PRODUTO], [HEADLINE], [PALAVRA DE DESTAQUE], [SUBTITULO], [DESCRICAO BREVE DOS MODULOS], [MODULOS HTML], [VALOR CHEIO], [VALOR], [N], [PARCELA]
 
-  story: `Gere um roteiro visual profissional para Instagram Stories / Reels.
+Retorne APENAS JSON: "HTML Landing Page", "Como Usar", "Personalizacao".
+ACENTOS OBRIGATORIOS: beneficio, modulo, exclusivo, garantia, seguranca, decisao.`,
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- 7 slides com estrutura copywriting de alta conversão: Gancho → Dor → Solução → Prova → Benefícios → Oferta → CTA
-- Cada slide deve incluir: cena visual, texto na tela, efeito/transição, duração em segundos
-- Efeitos visuais e transições realistas para Instagram (fade-in, spotlight, swipe, glow pulsante)
-- Sugestão de locução/tom para cada slide
-- Duração total aproximada de 30 segundos
-- Dicas de produção: cortes secos, legenda automática, tipo de música (instrumental crescente)
-- Substitua por placeholders: [NOME DO PRODUTO], [PROBLEMA], [BENEFÍCIO 1-3], [DEPOIMENTO], [VALOR], [VALOR CHEIO]
+  story: `Voce e um ROTEIRISTA DE CONTEUDO VISUAL e ESPECIALISTA em Instagram Stories e Reels, com experiencia em criar roteiros que geram visualizacao completa e compartilhamento.
 
-Retorne APENAS um JSON com as chaves: "Slide 1 — Gancho", "Slide 2 — Dor", "Slide 3 — Solução", "Slide 4 — Prova", "Slide 5 — Benefícios", "Slide 6 — Oferta", "Slide 7 — CTA Final", "Dicas de Produção".
-Não use emojis.`,
+Gere um roteiro visual profissional para Instagram Stories / Reels.
+
+ESTRUTURA OBRIGATORIA (7 slides com copywriting de alta conversao):
+- Slide 1 — GANCHO: 3-5 segundos. Pergunta provocativa ou dado que prende. Visual impactante.
+- Slide 2 — DOR: Identifica o problema do publico. Empatia + identificacao.
+- Slide 3 — SOLUCAO: Apresenta a transformacao. Antes vs Depois.
+- Slide 4 — PROVA: Depoimento ou dado real. Credibilidade.
+- Slide 5 — BENEFICIOS: 3-4 beneficios especificos em bullets.
+- Slide 6 — OFERTA: Preco, garantia, urgencia.
+- Slide 7 — CTA FINAL: Chamada para acao clara e direta.
+
+CADA SLIDE deve incluir:
+- CENA VISUAL: Descricao do que aparece na tela
+- TEXTO NA TELA: Frase principal (max 15 palavras)
+- EFEITO/TRANSICAO: fade-in, spotlight, swipe, glow pulsante
+- DURACAO: 3-5 segundos por slide
+- LOCUCAO/TOM: Sugestao de como falar
+
+DURACAO TOTAL: ~30 segundos
+Dicas de producao: cortes secos, legenda automatica, musica instrumental crescente
+
+Retorne APENAS JSON: "Slide 1 — Gancho", "Slide 2 — Dor", "Slide 3 — Solucao", "Slide 4 — Prova", "Slide 5 — Beneficios", "Slide 6 — Oferta", "Slide 7 — CTA Final", "Dicas de Producao".
+ACENTOS OBRIGATORIOS: transformacao, conquista, decisao, oportunidade, resultado.`,
 }
 
 export async function POST(req: NextRequest) {
@@ -203,7 +370,9 @@ LUCRO DESEJADO: R$ ${lucro || "60000"}
 
 ${systemPrompt}
 
-IMPORTANTE: Gere textos COMPLETOS e PRONTOS PARA COPIAR E USAR. Não use emojis. Não use colchetes. Seja específico para o nicho.`
+IMPORTANTE: Gere textos COMPLETOS e PRONTOS PARA COPIAR E USAR. Não use emojis. Não use colchetes. Seja específico para o nicho.
+ACENTUAÇÃO: Use SEMPRE acentos corretos do português: á, â, ã, é, ê, í, ó, ô, õ, ú, ü, ç. NUNCA omita acentos.
+PREÇOS: Escreva R$ uma única vez (ex: "R$ 497", nunca "R$ R$ 497"). Use vírgula para decimais (ex: R$ 41,42).`
 
       // Try Groq first
       if (GROQ_API_KEY) {
@@ -290,6 +459,8 @@ CAMPOS OBRIGATÓRIOS TAMBÉM (gere TODOS com conteúdo COMPLETO, nenhum pode ser
 }
 
 REGRAS: Personalize 100% para o nicho. NUNCA use colchetes. NUNCA use emojis.
+ACENTUAÇÃO: Use SEMPRE acentos corretos do português brasileiro: á, â, ã, é, ê, í, ó, ô, õ, ú, ü, ç. NUNCA omita acentos (ex: "informacao" deve ser "informação", "funcao" deve ser "função", "otimo" deve ser "ótimo").
+PREÇOS: Escreva R$ uma única vez (ex: "R$ 497", nunca "R$ R$ 497"). Use formatação brasileira com vírgula para decimais (ex: R$ 41,42).
 ATENÇÃO: NUNCA invente números, dados, métricas, depoimentos ou qualquer prova social. Todo campo de prova social deve conter exatamente o texto "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]". Não escreva nenhuma frase genérica como "alunos reais", "resultados comprovados" ou "depoimentos verdadeiros" — isso também é conteúdo fabricado. O usuário deve inserir os dados reais manualmente.`
 
     const userPrompt = `Crie um produto digital COMPLETO para:
