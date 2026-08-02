@@ -263,7 +263,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   },
   capa: (idea) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
-    const headline = idea?.length > 30 ? idea.slice(0, 30) + "..." : idea || "Curso Completo"
+    const headline = idea?.length > 25 ? idea.slice(0, 25) + "..." : idea || "Curso Completo"
     const palavraDestaque = idea?.split(" ")[0] || "Método"
     return {
       "Feed 1080x1350": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" preserveAspectRatio="xMidYMid meet">
@@ -280,13 +280,13 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
         <rect width="1080" height="1350" fill="url(#bgFeed)"/>
         <circle cx="850" cy="200" r="300" fill="#8B5E3C" opacity="0.08"/>
         <circle cx="200" cy="1100" r="250" fill="#D4B896" opacity="0.06"/>
-        <text x="540" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="100" font-weight="800" fill="white" letter-spacing="-2">${headline}</text>
-        <rect x="440" y="520" width="200" height="4" fill="url(#goldFeed)"/>
-        <text x="540" y="620" text-anchor="middle" font-family="Inter, sans-serif" font-size="42" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
-        <text x="540" y="720" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
+        <text x="540" y="520" text-anchor="middle" font-family="Georgia, serif" font-size="64" font-weight="800" fill="white" letter-spacing="-1">${headline}</text>
+        <rect x="440" y="555" width="200" height="4" fill="url(#goldFeed)"/>
+        <text x="540" y="640" text-anchor="middle" font-family="Inter, sans-serif" font-size="30" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
+        <text x="540" y="720" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
         <rect x="0" y="1180" width="1080" height="170" fill="rgba(0,0,0,0.7)"/>
-        <text x="540" y="1250" text-anchor="middle" font-family="Inter, sans-serif" font-size="36" fill="white" font-weight="700">${nome}</text>
-        <text x="540" y="1310" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="#D4B896">Vagas Limitadas • Acesso Imediato</text>
+        <text x="540" y="1250" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="white" font-weight="700">${nome}</text>
+        <text x="540" y="1300" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" fill="#D4B896">Vagas Limitadas • Acesso Imediato</text>
       </svg>`,
       "Reels 1080x1920": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid meet">
         <defs>
@@ -302,13 +302,13 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
         <rect width="1080" height="1920" fill="url(#bgReels)"/>
         <circle cx="900" cy="300" r="350" fill="#8B5E3C" opacity="0.08"/>
         <circle cx="180" cy="1600" r="280" fill="#D4B896" opacity="0.06"/>
-        <text x="540" y="680" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="800" fill="white" letter-spacing="-2">${headline}</text>
-        <rect x="440" y="730" width="200" height="4" fill="url(#goldReels)"/>
-        <text x="540" y="850" text-anchor="middle" font-family="Inter, sans-serif" font-size="48" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
-        <text x="540" y="960" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
+        <text x="540" y="720" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="800" fill="white" letter-spacing="-1">${headline}</text>
+        <rect x="440" y="760" width="200" height="4" fill="url(#goldReels)"/>
+        <text x="540" y="850" text-anchor="middle" font-family="Inter, sans-serif" font-size="36" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
+        <text x="540" y="940" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
         <rect x="0" y="1700" width="1080" height="220" fill="rgba(0,0,0,0.7)"/>
-        <text x="540" y="1790" text-anchor="middle" font-family="Inter, sans-serif" font-size="40" fill="white" font-weight="700">${nome}</text>
-        <text x="540" y="1860" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#D4B896">Deslize para conhecer →</text>
+        <text x="540" y="1790" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="white" font-weight="700">${nome}</text>
+        <text x="540" y="1850" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#D4B896">Deslize para conhecer →</text>
       </svg>`,
       "Dicas de Uso": "Feed: 1080x1350 (proporção 4:5) — ideal para grid do Instagram. Reels: 1080x1920 (proporção 9:16) —Stories e vídeos verticais. Dica: mantenha o texto centralizado para evitar cortes."
     }
@@ -334,19 +334,19 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
         <rect x="40" y="40" width="1000" height="1270" rx="24" fill="none" stroke="#8B5E3C" stroke-opacity="0.3" stroke-width="2"/>
         <circle cx="540" cy="500" r="350" fill="#8B5E3C" opacity="0.06"/>
         <text x="540" y="200" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#D4B896" letter-spacing="8" font-weight="600">OFERTA ESPECIAL</text>
-        <text x="540" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.4)" text-decoration="line-through">R$ ${valorCheio.toLocaleString("pt-BR")}</text>
-        <text x="540" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="800" fill="white">R$ ${valor.toLocaleString("pt-BR")}</text>
-        <text x="540" y="640" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="rgba(255,255,255,0.6)">ou 12x de R$ ${parcela.toLocaleString("pt-BR")}</text>
+        <text x="540" y="400" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.4)" text-decoration="line-through">${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
+        <text x="540" y="540" text-anchor="middle" font-family="Georgia, serif" font-size="100" font-weight="800" fill="white">${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
+        <text x="540" y="620" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">ou 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
         <rect x="290" y="720" width="500" height="70" rx="35" fill="url(#ctaGrad)"/>
         <text x="540" y="765" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="white" font-weight="700" letter-spacing="2">GARANTIR MEU ACESSO</text>
-        <text x="540" y="880" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#D4B896">🔒 Garantia de 7 dias • Acesso Imediato</text>
+        <text x="540" y="880" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#D4B896">Garantia de 7 dias • Acesso Imediato</text>
         <text x="540" y="940" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="rgba(255,255,255,0.5)">Últimas vagas disponíveis</text>
         <rect x="0" y="1150" width="1080" height="200" fill="rgba(0,0,0,0.5)"/>
         <text x="540" y="1230" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="white" font-weight="700">${nome}</text>
         <text x="540" y="1290" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#D4B896">Oferta por tempo limitado</text>
       </svg>`,
       "Indicado para": "Instagram Stories, Facebook Ads, WhatsApp, E-mail Marketing",
-      "Copy para Legenda": `A oferta especial do ${nome} chegou! De R$ ${valorCheio.toLocaleString("pt-BR")} por apenas R$ ${valor.toLocaleString("pt-BR")} a vista ou 12x de R$ ${parcela.toLocaleString("pt-BR")}. Vagas limitadas — garantam a sua agora! Link na bio.`
+      "Copy para Legenda": `A oferta especial do ${nome} chegou! De ${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} por apenas ${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} a vista ou 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}. Vagas limitadas — garantam a sua agora! Link na bio.`
     }
   },
   certificado: (idea) => {
@@ -770,9 +770,9 @@ function DashboardInner() {
                            <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
-                              const filled = fillVars(value, stepIdeia || idea, tom, lucro)
-                              const isHTML = filled.includes("<!DOCTYPE") || filled.includes("<html")
-                              const isSVG = filled.trim().startsWith("<svg")
+                              const isSVG = value.trim().startsWith("<svg")
+                              const isHTML = value.includes("<!DOCTYPE") || value.includes("<html")
+                              const filled = isSVG ? value : fillVars(value, stepIdeia || idea, tom, lucro)
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg overflow-hidden">
