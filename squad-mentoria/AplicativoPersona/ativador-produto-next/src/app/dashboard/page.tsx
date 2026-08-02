@@ -476,6 +476,15 @@ function DashboardInner() {
         const fallback = FALLBACKS[stepId]
         content = fallback ? fallback(ideaText, lucroVal) : { "Conteúdo": "Conteúdo gerado automaticamente" }
       }
+      if (stepId === "oferta" && lucroVal > 0) {
+        const fallbackOferta = FALLBACKS.oferta(ideaText, lucroVal)
+        if (fallbackOferta) {
+          content["Valor Ideal"] = fallbackOferta["Valor Ideal"]
+          content["Ancoragem"] = fallbackOferta["Ancoragem"]
+          content["Parcelamento"] = fallbackOferta["Parcelamento"]
+          content["Oferta Principal"] = fallbackOferta["Oferta Principal"]
+        }
+      }
       updateStepContent(stepId, content)
       return content
     } catch {
