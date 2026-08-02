@@ -618,7 +618,7 @@ function DashboardInner() {
                   </div>
 
                   {expandedSteps.includes(step.id) && (
-                    <div className="border-t border-[#D9CEC2] p-4 space-y-3 animate-in step-card-enter">
+                    <div className="border-t border-[#D9CEC2] p-3 space-y-2 animate-in step-card-enter">
                       {!step.generated ? (
                         <div className="text-center py-4">
                           <p className="text-sm text-[#5C5146] mb-3">Clique em gerar para criar o conteúdo</p>
@@ -634,7 +634,7 @@ function DashboardInner() {
                       ) : (
                         <>
                           {/* Content */}
-                           <div className="space-y-3">
+                           <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
                               const filled = fillVars(value, stepIdeia || idea, tom, lucro)
@@ -642,7 +642,7 @@ function DashboardInner() {
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg overflow-hidden">
-                                <div className="px-3 pt-3 pb-1">
+                                <div className="px-3 py-1.5">
                                   <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{key}</span>
                                 </div>
                                 {isHTML ? (
@@ -650,14 +650,14 @@ function DashboardInner() {
                                     <iframe
                                       srcDoc={filled}
                                       className="w-full rounded-lg border border-[#D9CEC2] bg-white"
-                                      style={{ height: "500px" }}
+                                      style={{ height: "400px" }}
                                       sandbox="allow-scripts allow-same-origin"
                                       title={key}
                                     />
                                   </div>
                                 ) : (
-                                  <div className="px-3 pb-3 max-h-[600px] overflow-y-auto">
-                                    <div className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap" style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>{cleanText}</div>
+                                  <div className="px-3 pb-3 max-h-[320px] overflow-y-auto">
+                                    <div className="text-xs text-[#1A1A1A] leading-relaxed whitespace-pre-wrap" style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>{cleanText}</div>
                                   </div>
                                 )}
                               </div>
