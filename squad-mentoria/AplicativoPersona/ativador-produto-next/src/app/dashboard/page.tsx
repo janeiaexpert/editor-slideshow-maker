@@ -15,7 +15,7 @@ import {
   Image, Palette, Layout, Code, PenTool, Play, RotateCcw
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
-import { sanitizeSvg, sanitizeText } from "@/lib/security"
+import { sanitizeText } from "@/lib/security"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChatBot } from "@/components/chat-bot"
 import { Biblioteca } from "@/components/biblioteca"
@@ -229,34 +229,9 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   // === ARTEFATOS ===
   logo: (idea) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
-    const subtitulo = idea?.split(" ").slice(0, 2).join(" ") || "Curso"
     return {
-      "Logo Principal": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8B5E3C"/>
-            <stop offset="100%" stop-color="#D4B896"/>
-          </linearGradient>
-        </defs>
-        <rect width="500" height="180" rx="12" fill="#F5EFE8"/>
-        <circle cx="60" cy="90" r="40" fill="url(#logoGrad)"/>
-        <text x="60" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="white" font-weight="700">${nome.charAt(0)}</text>
-        <text x="120" y="80" font-family="Georgia, serif" font-size="28" fill="#1A1A1A" font-weight="700">${nome}</text>
-        <text x="120" y="110" font-family="Inter, sans-serif" font-size="14" fill="#8B5E3C" letter-spacing="3">${subtitulo.toUpperCase()}</text>
-      </svg>`,
-      "Logo Alternativo": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="logoGradDark" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8B5E3C"/>
-            <stop offset="100%" stop-color="#D4B896"/>
-          </linearGradient>
-        </defs>
-        <rect width="500" height="180" rx="12" fill="#1A1A1A"/>
-        <circle cx="60" cy="90" r="40" fill="none" stroke="#8B5E3C" stroke-width="2"/>
-        <text x="60" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="white" font-weight="700">${nome.charAt(0)}</text>
-        <text x="120" y="80" font-family="Georgia, serif" font-size="28" fill="white" font-weight="700">${nome}</text>
-        <text x="120" y="110" font-family="Inter, sans-serif" font-size="14" fill="#D4B896" letter-spacing="3">${subtitulo.toUpperCase()}</text>
-      </svg>`,
+      "Logo Principal": `Logotipo com fundo claro (#F5EFE8)\n\n🎨 Ícone: Círculo gradiente marrom #8B5E3C → dourado #D4B896\n📝 Nome: "${nome}" em Georgia 28px bold, cor #1A1A1A\n💬 Subtítulo: palavra-chave em marrom #8B5E3C, letter-spacing 3\n📐 Layout: horizontal 500x180, canto arredondado 12px`,
+      "Logo Alternativo": `Logotipo com fundo escuro (#1A1A1A)\n\n🎨 Ícone: Círculo com borda marrom #8B5E3C\n📝 Nome: "${nome}" em Georgia 28px bold, branco\n💬 Subtítulo: palavra-chave em dourado #D4B896\n📐 Layout: horizontal 500x180, canto arredondado 12px`,
       "Cores da Marca": "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo Claro: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896",
       "Usos do Logo": "Versao Principal: fundo claro, uso geral. Versao Alternativa: fundo escuro, ideal para videos e stories."
     }
@@ -264,53 +239,10 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   capa: (idea) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
     const headline = idea?.length > 25 ? idea.slice(0, 25) + "..." : idea || "Curso Completo"
-    const palavraDestaque = idea?.split(" ")[0] || "Método"
     return {
-      "Feed 1080x1350": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="bgFeed" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#1A1A1A"/>
-            <stop offset="100%" stop-color="#2D2D2D"/>
-          </linearGradient>
-          <linearGradient id="goldFeed" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#D4B896"/>
-            <stop offset="100%" stop-color="#C9A87A"/>
-          </linearGradient>
-        </defs>
-        <rect width="1080" height="1350" fill="url(#bgFeed)"/>
-        <circle cx="850" cy="200" r="300" fill="#8B5E3C" opacity="0.08"/>
-        <circle cx="200" cy="1100" r="250" fill="#D4B896" opacity="0.06"/>
-        <text x="540" y="520" text-anchor="middle" font-family="Georgia, serif" font-size="64" font-weight="800" fill="white" letter-spacing="-1">${headline}</text>
-        <rect x="440" y="555" width="200" height="4" fill="url(#goldFeed)"/>
-        <text x="540" y="640" text-anchor="middle" font-family="Inter, sans-serif" font-size="30" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
-        <text x="540" y="720" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
-        <rect x="0" y="1180" width="1080" height="170" fill="rgba(0,0,0,0.7)"/>
-        <text x="540" y="1250" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="white" font-weight="700">${nome}</text>
-        <text x="540" y="1300" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" fill="#D4B896">Vagas Limitadas • Acesso Imediato</text>
-      </svg>`,
-      "Reels 1080x1920": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="bgReels" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1A1A1A"/>
-            <stop offset="100%" stop-color="#2D2D2D"/>
-          </linearGradient>
-          <linearGradient id="goldReels" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#D4B896"/>
-            <stop offset="100%" stop-color="#C9A87A"/>
-          </linearGradient>
-        </defs>
-        <rect width="1080" height="1920" fill="url(#bgReels)"/>
-        <circle cx="900" cy="300" r="350" fill="#8B5E3C" opacity="0.08"/>
-        <circle cx="180" cy="1600" r="280" fill="#D4B896" opacity="0.06"/>
-        <text x="540" y="720" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="800" fill="white" letter-spacing="-1">${headline}</text>
-        <rect x="440" y="760" width="200" height="4" fill="url(#goldReels)"/>
-        <text x="540" y="850" text-anchor="middle" font-family="Inter, sans-serif" font-size="36" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
-        <text x="540" y="940" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
-        <rect x="0" y="1700" width="1080" height="220" fill="rgba(0,0,0,0.7)"/>
-        <text x="540" y="1790" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="white" font-weight="700">${nome}</text>
-        <text x="540" y="1850" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#D4B896">Deslize para conhecer →</text>
-      </svg>`,
-      "Dicas de Uso": "Feed: 1080x1350 (proporção 4:5) — ideal para grid do Instagram. Reels: 1080x1920 (proporção 9:16) —Stories e vídeos verticais. Dica: mantenha o texto centralizado para evitar cortes."
+      "Feed 1080x1350": `Capa para feed do Instagram (proporção 4:5)\n\n🎨 Design: Fundo gradiente escuro (#1A1A1A → #2D2D2D)\n📝 Headline: "${headline}" em fonte Georgia 64px, branco, weight 800\n✨ Destaque: Palavra-chave em dourado #D4B896\n📐 Linha divisória fina dourada abaixo da headline\n📍 Barra inferior semi-transparente com nome: "${nome}"\n💬 Tagline: "Vagas Limitadas • Acesso Imediato"\n\n📐 Tamanho: 1080x1350px (4:5)`,
+      "Reels 1080x1920": `Capa para Reels e Stories (proporção 9:16)\n\n🎨 Design: Fundo gradiente escuro (#1A1A1A → #2D2D2D)\n📝 Headline: "${headline}" em fonte Georgia 72px, branco, weight 800\n✨ Destaque: Palavra-chave em dourado #D4B896\n📐 Linha divisória fina dourada abaixo da headline\n📍 Barra inferior semi-transparente com nome: "${nome}"\n💬 Tagline: "Deslize para conhecer →"\n\n📐 Tamanho: 1080x1920px (9:16)`,
+      "Dicas de Uso": "Feed: 1080x1350 (4:5) — post no grid. Reels: 1080x1920 (9:16) — capa de vídeo. Mantenha o texto centralizado."
     }
   },
   card_oferta: (idea, lucro) => {
@@ -319,32 +251,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
     const valorCheio = Math.round(valor * 2.5)
     const parcela = Math.round(valor / 12 * 100) / 100
     return {
-      "Card Oferta": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="bgCard" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1A1A1A"/>
-            <stop offset="100%" stop-color="#0D0D0D"/>
-          </linearGradient>
-          <linearGradient id="ctaGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8B5E3C"/>
-            <stop offset="100%" stop-color="#5C3A1E"/>
-          </linearGradient>
-        </defs>
-        <rect width="1080" height="1350" fill="url(#bgCard)"/>
-        <rect x="40" y="40" width="1000" height="1270" rx="24" fill="none" stroke="#8B5E3C" stroke-opacity="0.3" stroke-width="2"/>
-        <circle cx="540" cy="500" r="350" fill="#8B5E3C" opacity="0.06"/>
-        <text x="540" y="200" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#D4B896" letter-spacing="8" font-weight="600">OFERTA ESPECIAL</text>
-        <text x="540" y="400" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.4)" text-decoration="line-through">${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
-        <text x="540" y="540" text-anchor="middle" font-family="Georgia, serif" font-size="100" font-weight="800" fill="white">${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
-        <text x="540" y="620" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">ou 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}</text>
-        <rect x="290" y="720" width="500" height="70" rx="35" fill="url(#ctaGrad)"/>
-        <text x="540" y="765" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="white" font-weight="700" letter-spacing="2">GARANTIR MEU ACESSO</text>
-        <text x="540" y="880" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#D4B896">Garantia de 7 dias • Acesso Imediato</text>
-        <text x="540" y="940" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="rgba(255,255,255,0.5)">Últimas vagas disponíveis</text>
-        <rect x="0" y="1150" width="1080" height="200" fill="rgba(0,0,0,0.5)"/>
-        <text x="540" y="1230" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="white" font-weight="700">${nome}</text>
-        <text x="540" y="1290" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#D4B896">Oferta por tempo limitado</text>
-      </svg>`,
+      "Card Oferta": `Card promocional para Instagram Stories (1080x1350)\n\n🎨 Design: Fundo gradiente escuro (#1A1A1A → #0D0D0D)\n🏷️ Selo: "OFERTA ESPECIAL" em dourado #D4B896, letter-spacing 8\n💰 Preço antigo riscado: ${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}\n💰 Preço novo: ${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} em branco, 100px bold\n💳 Parcelamento: 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}\n🔘 Botão CTA: gradiente marrom (#8B5E3C → #5C3A1E)\n🔒 Selos: "Garantia de 7 dias" e "Acesso Imediato"`,
       "Indicado para": "Instagram Stories, Facebook Ads, WhatsApp, E-mail Marketing",
       "Copy para Legenda": `A oferta especial do ${nome} chegou! De ${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} por apenas ${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} a vista ou 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}. Vagas limitadas — garantam a sua agora! Link na bio.`
     }
@@ -352,32 +259,8 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   certificado: (idea) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Curso"
     return {
-      "Certificado": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#8B5E3C"/>
-            <stop offset="100%" stop-color="#D4B896"/>
-          </linearGradient>
-        </defs>
-        <rect width="842" height="595" fill="#F5EFE8"/>
-        <rect x="20" y="20" width="802" height="555" rx="8" fill="none" stroke="url(#borderGrad)" stroke-width="8"/>
-        <rect x="35" y="35" width="772" height="525" rx="4" fill="none" stroke="#D4B896" stroke-width="1"/>
-        <text x="421" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="#8B5E3C" font-weight="700">CERTIFICADO</text>
-        <text x="421" y="160" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#8B5E3C" letter-spacing="6" font-weight="600">DE CONCLUSÃO</text>
-        <line x1="291" y1="180" x2="551" y2="180" stroke="#D4B896" stroke-width="1"/>
-        <text x="421" y="230" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#5C5146">Certificamos que</text>
-        <text x="421" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="#1A1A1A" font-weight="700">[NOME DO ALUNO]</text>
-        <line x1="271" y1="305" x2="571" y2="305" stroke="#D4B896" stroke-width="1"/>
-        <text x="421" y="350" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#5C5146">concluiu com êxito o curso</text>
-        <text x="421" y="395" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#8B5E3C" font-weight="700">${nome}</text>
-        <text x="421" y="440" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5C5146">Carga horária: 40 horas</text>
-        <text x="421" y="470" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5C5146">Data: ${new Date().toLocaleDateString("pt-BR")}</text>
-        <line x1="150" y1="520" x2="350" y2="520" stroke="#1A1A1A" stroke-width="1"/>
-        <text x="250" y="540" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#5C5146">Assinatura</text>
-        <line x1="492" y1="520" x2="692" y2="520" stroke="#1A1A1A" stroke-width="1"/>
-        <text x="592" y="540" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#5C5146">Diretor do Curso</text>
-      </svg>`,
-      "Instrucoes": "Substitua [NOME DO ALUNO] pelo nome real. O certificado pode ser salvo como imagem ou convertido para PDF.",
+      "Certificado": `Template de certificado de conclusão (A4 landscape)\n\n🎨 Design: Fundo off-white #F5EFE8\n📐 Moldura: Borda externa gradiente marrom (#8B5E3C → #D4B896), interna fina dourada\n📝 Título: "CERTIFICADO" em Georgia 40px marrom\n💬 Subtítulo: "DE CONCLUSÃO" em uppercase, letter-spacing 6\n👤 Nome do aluno: "[NOME DO ALUNO]" em Georgia 32px bold\n📚 Curso: "${nome}" em Georgia 22px marrom\n⏰ Carga horária: 40 horas\n📅 Data: ${new Date().toLocaleDateString("pt-BR")}\n✍️ Linhas de assinatura na base`,
+      "Instrucoes": "Substitua [NOME DO ALUNO] pelo nome real. Salve como imagem ou converta para PDF.",
       "Personalizacao": "Adicione seu logo no canto superior esquerdo. Troque as cores para combinar com sua marca."
     }
   },
@@ -779,23 +662,15 @@ function DashboardInner() {
                            <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
-                              const isSVG = value.trim().startsWith("<svg")
                               const isHTML = value.includes("<!DOCTYPE") || value.includes("<html")
-                              const filled = isSVG ? value : fillVars(value, stepIdeia || idea, tom, lucro)
+                              const filled = fillVars(value, stepIdeia || idea, tom, lucro)
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg overflow-hidden">
                                 <div className="px-3 py-1.5">
                                   <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{key}</span>
                                 </div>
-                                {isSVG ? (
-                                  <div className="px-3 pb-3">
-                                    <div 
-                                      className="w-full rounded-lg overflow-hidden"
-                                      dangerouslySetInnerHTML={{ __html: filled }}
-                                    />
-                                  </div>
-                                ) : isHTML ? (
+                                {isHTML ? (
                                   <div className="px-3 pb-3">
                                     <iframe
                                       srcDoc={filled}
