@@ -681,7 +681,7 @@ function DashboardInner() {
                                     />
                                   </div>
                                 ) : (
-                                  <div className="px-3 pb-3 max-h-[320px] overflow-y-auto">
+                                  <div className="px-3 pb-3">
                                     <div className="text-xs text-[#1A1A1A] leading-relaxed whitespace-pre-wrap" style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>{cleanText}</div>
                                   </div>
                                 )}
