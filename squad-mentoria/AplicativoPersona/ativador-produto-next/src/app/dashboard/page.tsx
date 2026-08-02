@@ -781,9 +781,11 @@ function DashboardInner() {
                                 </div>
                                 {isSVG ? (
                                   <div className="px-3 pb-3">
-                                    <div 
-                                      className="w-full rounded-lg overflow-hidden bg-[#1A1A1A]"
-                                      dangerouslySetInnerHTML={{ __html: sanitizeSvg(filled) }}
+                                    <iframe
+                                      srcDoc={`<!DOCTYPE html><html><head><style>*{margin:0;padding:0}body{background:#1A1A1A;display:flex;justify-content:center;align-items:center;min-height:100vh}svg{width:100%;height:auto;display:block}</style></head><body>${filled}</body></html>`}
+                                      className="w-full rounded-lg border border-[#D9CEC2]"
+                                      style={{ height: "500px" }}
+                                      title={key}
                                     />
                                   </div>
                                 ) : isHTML ? (
