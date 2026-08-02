@@ -176,7 +176,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   oferta: (idea, lucro) => {
     const valor = lucro && lucro > 0 ? lucro : 497
     const parcela = Math.round(valor / 12 * 100) / 100
-    const valorCheio = Math.round(valor * 2)
+    const valorCheio = Math.round(valor * 2.5)
     return {
       "Valor Ideal": `R$ ${formatBRL(valor)} à vista ou 12x de R$ ${formatBRL(parcela)}`,
       "Ancoragem": `De R$ ${formatBRL(valorCheio)} por apenas R$ ${formatBRL(valor)} — economia de 50%`,

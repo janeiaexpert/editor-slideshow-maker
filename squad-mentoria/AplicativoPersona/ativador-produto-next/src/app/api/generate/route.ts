@@ -113,7 +113,7 @@ Gere uma oferta completa com precificacao inteligente.
 
 ESTRUTURA OBRIGATORIA:
 - VALOR IDEAL: O preco que o produto realmente vale (nao e o preco de venda)
-- ANCORAGEM: Preco maior para criar referencia (ex: se vende por 497, ancora de 997)
+- ANCORAGEM: Preco maior para criar referencia (ex: se vende por 497, ancora de 1243 = 2.5x)
 - PARCELAMENTO: 12x com juros (divida o preco de venda por ~12)
 - GARANTIA: 7 dias ou mais (padrao do mercado)
 - ESCASSEZ: Vagas ou tempo limitado (realista)
@@ -121,7 +121,7 @@ ESTRUTURA OBRIGATORIA:
 
 REGRAS DE PRECO:
 - O valor informado pelo usuario ja e o preco FINAL de venda (sem desconto)
-- Ancore com valor MAIOR (ex: se o produto vale R$ 497, Ancore de R$ 997)
+- Ancore com valor 2.5x maior (ex: se o produto vale R$ 497, Ancore de R$ 1.243,00)
 - Parcelamento: DIVIDA o valor informado por 12 (ex: R$ 497 → 12x de R$ 41,42)
 - Escreva R$ uma unica vez (ex: "R$ 497", nunca "R$ R$ 497")
 - Escassez: use numeros realistas (50-500 vagas), NUNCA use 12
