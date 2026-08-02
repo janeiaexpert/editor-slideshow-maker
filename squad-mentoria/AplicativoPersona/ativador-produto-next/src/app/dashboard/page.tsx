@@ -227,27 +227,160 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
     "Recorrência": "Implementar clube de assinatura para receita recorrente"
   }),
   // === ARTEFATOS ===
-  logo: () => ({
-    "Logo Principal": "Logotipo profissional com design sofisticado e minimalista. Elemento icone unico que comunique o tema do produto. Hierarquia visual clara: nome grande e bold, subtitulo leve e letter-spaced. Paleta premium: marrom #8B5E3C (primaria), D4B896 (dourada), F5EFE8 (fundo), 1A1A1A (texto). Layout horizontal 500x180 com canto arredondado 12px.",
-    "Logo Alternativo": "Versao em fundo escuro (1A1A1A) do logotipo. Circulo decorativo com borda marrom #8B5E3C. Nome do produto em branco com subtitulo em dourado #D4B896. Ideal para videos, stories e fundos escuros.",
-    "Cores da Marca": "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo Claro: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896",
-    "Usos do Logo": "Versao Principal: fundo claro, uso geral. Versao Alternativa: fundo escuro, ideal para videos e stories.",
-  }),
-  capa: () => ({
-    "Feed 1080x1350": "Capa para feed do Instagram com design editorial premium. Fundo gradiente escuro (#1A1A1A para #2D2D2D). Headline em destaque com 88-120px, weight 800. Palavra-chave de destaque na cor dourada #D4B896. Linha divisoria fina (#8B5E3C) entre headline e subtitulo. Barra semi-transparente inferior com nome do produto e oferta. Proporcao 4:5.",
-    "Reels 1080x1920": "Capa para Reels e Stories com design editorial premium. Fundo gradiente escuro (#1A1A1A para #2D2D2D). Headline com 120px, weight 800. Palavra-chave em dourado #D4B896. Elementos decorativos sutis com circulos semi-transparentes. Proporcao 9:16.",
-    "Dicas de Uso": "Feed: poste como imagem no grid. Reels: use como capa de video. Instagram recomenda tamanhos minimos de 600px.",
-  }),
-  card_oferta: () => ({
-    "Card Oferta": "Card promocional com design dark premium. Fundo gradiente #1A1A1A para #0D0D0D. Borda elegante com outline sutil (#8B5E3C, opacidade 0.3). Selo OFERTA ESPECIAL em uppercase, letter-spacing 8px, cor #D4B896. Preco antigo riscado (opacidade 0.5). Preco novo GIGANTE 120px, weight 800, cor branca. Botao CTA com gradiente marrom (#8B5E3C para #5C3A1E), border-radius 35px. Selo de garantia e urgencia abaixo do CTA. Proporcao 1080x1350 (vertical para Stories).",
-    "Indicado para": "Instagram Stories, Facebook Ads, WhatsApp, E-mail Marketing",
-    "Copy para Legenda": "A oferta especial do [NOME DO PRODUTO] chegou! De R$ [VALOR CHEIO] por apenas R$ [VALOR] a vista ou [N]x de R$ [PARCELA]. Vagas limitadas — garantam a sua agora! Link na bio.",
-  }),
-  certificado: () => ({
-    "Certificado": "Template de certificado de conclusao profissional. Formato paisagem 842x595 (A4 landscape). Fundo off-white #F5EFE8 com acabamento limpo. Moldura dupla: borda externa com gradiente marrom (#8B5E3C para #D4B896), interna fina (#D4B896). Titulo CERTIFICADO em Georgia, 40px, cor marrom. Subtitulo DE CONCLUSAO em uppercase com letter-spacing 6px. Nome do aluno em Georgia 32px bold com linha abaixo. Nome do curso em Georgia 22px bold marrom. Carga horaria e data na parte inferior. Linhas de assinatura e carimbo decorativo.",
-    "Instrucoes": "Substitua os placeholders entre colchetes. O conteudo pode ser salvo como imagem, impresso ou convertido para PDF diretamente no navegador.",
-    "Personalizacao": "Adicione seu logo no canto superior esquerdo. Troque a paleta de cores para combinar com sua marca.",
-  }),
+  logo: (idea) => {
+    const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
+    const subtitulo = idea?.split(" ").slice(0, 2).join(" ") || "Curso"
+    return {
+      "Logo Principal": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8B5E3C"/>
+            <stop offset="100%" stop-color="#D4B896"/>
+          </linearGradient>
+        </defs>
+        <rect width="500" height="180" rx="12" fill="#F5EFE8"/>
+        <circle cx="60" cy="90" r="40" fill="url(#logoGrad)"/>
+        <text x="60" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="white" font-weight="700">${nome.charAt(0)}</text>
+        <text x="120" y="80" font-family="Georgia, serif" font-size="28" fill="#1A1A1A" font-weight="700">${nome}</text>
+        <text x="120" y="110" font-family="Inter, sans-serif" font-size="14" fill="#8B5E3C" letter-spacing="3">${subtitulo.toUpperCase()}</text>
+      </svg>`,
+      "Logo Alternativo": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="logoGradDark" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8B5E3C"/>
+            <stop offset="100%" stop-color="#D4B896"/>
+          </linearGradient>
+        </defs>
+        <rect width="500" height="180" rx="12" fill="#1A1A1A"/>
+        <circle cx="60" cy="90" r="40" fill="none" stroke="#8B5E3C" stroke-width="2"/>
+        <text x="60" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="white" font-weight="700">${nome.charAt(0)}</text>
+        <text x="120" y="80" font-family="Georgia, serif" font-size="28" fill="white" font-weight="700">${nome}</text>
+        <text x="120" y="110" font-family="Inter, sans-serif" font-size="14" fill="#D4B896" letter-spacing="3">${subtitulo.toUpperCase()}</text>
+      </svg>`,
+      "Cores da Marca": "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo Claro: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896",
+      "Usos do Logo": "Versao Principal: fundo claro, uso geral. Versao Alternativa: fundo escuro, ideal para videos e stories."
+    }
+  },
+  capa: (idea) => {
+    const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
+    const headline = idea?.length > 30 ? idea.slice(0, 30) + "..." : idea || "Curso Completo"
+    const palavraDestaque = idea?.split(" ")[0] || "Método"
+    return {
+      "Feed 1080x1350": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="bgFeed" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1A1A1A"/>
+            <stop offset="100%" stop-color="#2D2D2D"/>
+          </linearGradient>
+          <linearGradient id="goldFeed" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#D4B896"/>
+            <stop offset="100%" stop-color="#C9A87A"/>
+          </linearGradient>
+        </defs>
+        <rect width="1080" height="1350" fill="url(#bgFeed)"/>
+        <circle cx="850" cy="200" r="300" fill="#8B5E3C" opacity="0.08"/>
+        <circle cx="200" cy="1100" r="250" fill="#D4B896" opacity="0.06"/>
+        <text x="540" y="480" text-anchor="middle" font-family="Georgia, serif" font-size="100" font-weight="800" fill="white" letter-spacing="-2">${headline}</text>
+        <rect x="440" y="520" width="200" height="4" fill="url(#goldFeed)"/>
+        <text x="540" y="620" text-anchor="middle" font-family="Inter, sans-serif" font-size="42" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
+        <text x="540" y="720" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
+        <rect x="0" y="1180" width="1080" height="170" fill="rgba(0,0,0,0.7)"/>
+        <text x="540" y="1250" text-anchor="middle" font-family="Inter, sans-serif" font-size="36" fill="white" font-weight="700">${nome}</text>
+        <text x="540" y="1310" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="#D4B896">Vagas Limitadas • Acesso Imediato</text>
+      </svg>`,
+      "Reels 1080x1920": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="bgReels" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1A1A1A"/>
+            <stop offset="100%" stop-color="#2D2D2D"/>
+          </linearGradient>
+          <linearGradient id="goldReels" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#D4B896"/>
+            <stop offset="100%" stop-color="#C9A87A"/>
+          </linearGradient>
+        </defs>
+        <rect width="1080" height="1920" fill="url(#bgReels)"/>
+        <circle cx="900" cy="300" r="350" fill="#8B5E3C" opacity="0.08"/>
+        <circle cx="180" cy="1600" r="280" fill="#D4B896" opacity="0.06"/>
+        <text x="540" y="680" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="800" fill="white" letter-spacing="-2">${headline}</text>
+        <rect x="440" y="730" width="200" height="4" fill="url(#goldReels)"/>
+        <text x="540" y="850" text-anchor="middle" font-family="Inter, sans-serif" font-size="48" fill="#D4B896" letter-spacing="3" font-weight="600">${palavraDestaque.toUpperCase()}</text>
+        <text x="540" y="960" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="rgba(255,255,255,0.6)">Transforme seu conhecimento em resultados</text>
+        <rect x="0" y="1700" width="1080" height="220" fill="rgba(0,0,0,0.7)"/>
+        <text x="540" y="1790" text-anchor="middle" font-family="Inter, sans-serif" font-size="40" fill="white" font-weight="700">${nome}</text>
+        <text x="540" y="1860" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#D4B896">Deslize para conhecer →</text>
+      </svg>`,
+      "Dicas de Uso": "Feed: 1080x1350 (proporção 4:5) — ideal para grid do Instagram. Reels: 1080x1920 (proporção 9:16) —Stories e vídeos verticais. Dica: mantenha o texto centralizado para evitar cortes."
+    }
+  },
+  card_oferta: (idea, lucro) => {
+    const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
+    const valor = lucro && lucro > 0 ? lucro : 497
+    const valorCheio = Math.round(valor * 2.5)
+    const parcela = Math.round(valor / 12 * 100) / 100
+    return {
+      "Card Oferta": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="bgCard" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1A1A1A"/>
+            <stop offset="100%" stop-color="#0D0D0D"/>
+          </linearGradient>
+          <linearGradient id="ctaGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8B5E3C"/>
+            <stop offset="100%" stop-color="#5C3A1E"/>
+          </linearGradient>
+        </defs>
+        <rect width="1080" height="1350" fill="url(#bgCard)"/>
+        <rect x="40" y="40" width="1000" height="1270" rx="24" fill="none" stroke="#8B5E3C" stroke-opacity="0.3" stroke-width="2"/>
+        <circle cx="540" cy="500" r="350" fill="#8B5E3C" opacity="0.06"/>
+        <text x="540" y="200" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="#D4B896" letter-spacing="8" font-weight="600">OFERTA ESPECIAL</text>
+        <text x="540" y="420" text-anchor="middle" font-family="Inter, sans-serif" font-size="28" fill="rgba(255,255,255,0.4)" text-decoration="line-through">R$ ${valorCheio.toLocaleString("pt-BR")}</text>
+        <text x="540" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="120" font-weight="800" fill="white">R$ ${valor.toLocaleString("pt-BR")}</text>
+        <text x="540" y="640" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="rgba(255,255,255,0.6)">ou 12x de R$ ${parcela.toLocaleString("pt-BR")}</text>
+        <rect x="290" y="720" width="500" height="70" rx="35" fill="url(#ctaGrad)"/>
+        <text x="540" y="765" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" fill="white" font-weight="700" letter-spacing="2">GARANTIR MEU ACESSO</text>
+        <text x="540" y="880" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#D4B896">🔒 Garantia de 7 dias • Acesso Imediato</text>
+        <text x="540" y="940" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="rgba(255,255,255,0.5)">Últimas vagas disponíveis</text>
+        <rect x="0" y="1150" width="1080" height="200" fill="rgba(0,0,0,0.5)"/>
+        <text x="540" y="1230" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="white" font-weight="700">${nome}</text>
+        <text x="540" y="1290" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#D4B896">Oferta por tempo limitado</text>
+      </svg>`,
+      "Indicado para": "Instagram Stories, Facebook Ads, WhatsApp, E-mail Marketing",
+      "Copy para Legenda": `A oferta especial do ${nome} chegou! De R$ ${valorCheio.toLocaleString("pt-BR")} por apenas R$ ${valor.toLocaleString("pt-BR")} a vista ou 12x de R$ ${parcela.toLocaleString("pt-BR")}. Vagas limitadas — garantam a sua agora! Link na bio.`
+    }
+  },
+  certificado: (idea) => {
+    const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Curso"
+    return {
+      "Certificado": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#8B5E3C"/>
+            <stop offset="100%" stop-color="#D4B896"/>
+          </linearGradient>
+        </defs>
+        <rect width="842" height="595" fill="#F5EFE8"/>
+        <rect x="20" y="20" width="802" height="555" rx="8" fill="none" stroke="url(#borderGrad)" stroke-width="8"/>
+        <rect x="35" y="35" width="772" height="525" rx="4" fill="none" stroke="#D4B896" stroke-width="1"/>
+        <text x="421" y="120" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="#8B5E3C" font-weight="700">CERTIFICADO</text>
+        <text x="421" y="160" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#8B5E3C" letter-spacing="6" font-weight="600">DE CONCLUSÃO</text>
+        <line x1="291" y1="180" x2="551" y2="180" stroke="#D4B896" stroke-width="1"/>
+        <text x="421" y="230" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#5C5146">Certificamos que</text>
+        <text x="421" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="32" fill="#1A1A1A" font-weight="700">[NOME DO ALUNO]</text>
+        <line x1="271" y1="305" x2="571" y2="305" stroke="#D4B896" stroke-width="1"/>
+        <text x="421" y="350" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#5C5146">concluiu com êxito o curso</text>
+        <text x="421" y="395" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#8B5E3C" font-weight="700">${nome}</text>
+        <text x="421" y="440" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5C5146">Carga horária: 40 horas</text>
+        <text x="421" y="470" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#5C5146">Data: ${new Date().toLocaleDateString("pt-BR")}</text>
+        <line x1="150" y1="520" x2="350" y2="520" stroke="#1A1A1A" stroke-width="1"/>
+        <text x="250" y="540" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#5C5146">Assinatura</text>
+        <line x1="492" y1="520" x2="692" y2="520" stroke="#1A1A1A" stroke-width="1"/>
+        <text x="592" y="540" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#5C5146">Diretor do Curso</text>
+      </svg>`,
+      "Instrucoes": "Substitua [NOME DO ALUNO] pelo nome real. O certificado pode ser salvo como imagem ou convertido para PDF.",
+      "Personalizacao": "Adicione seu logo no canto superior esquerdo. Troque as cores para combinar com sua marca."
+    }
+  },
   landing: () => ({
     "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>[NOME DO PRODUTO]</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;color:#1A1A1A;background:#F5EFE8;line-height:1.6}.hero{background:linear-gradient(135deg,#1A1A1A 0%,#2D2D2D 100%);color:#fff;padding:100px 24px;text-align:center;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(139,94,60,0.1) 0%,transparent 50%)}.hero-content{position:relative;z-index:1;max-width:720px;margin:0 auto}.hero h1{font-size:clamp(32px,6vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;letter-spacing:-1px}.hero h1 span{color:#D4B896}.hero p{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:540px;margin-left:auto;margin-right:auto}.btn-primary{display:inline-block;background:linear-gradient(135deg,#8B5E3C,#6B4226);color:#fff;padding:18px 48px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:2px;text-transform:uppercase;transition:transform 0.2s,box-shadow 0.2s}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,94,60,0.4)}.section{padding:80px 24px;max-width:800px;margin:0 auto}.section h2{font-size:32px;font-weight:700;color:#8B5E3C;margin-bottom:12px}.section>p{color:#5C5146;margin-bottom:32px;font-size:16px}.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}.benefit-card{background:#fff;padding:28px;border-radius:12px;border:1px solid #D9CEC2;transition:border-color 0.2s,transform 0.2s}.benefit-card:hover{border-color:#8B5E3C;transform:translateY(-4px)}.benefit-card .num{width:36px;height:36px;border-radius:50%;background:#8B5E3C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-bottom:12px}.benefit-card h3{font-size:16px;font-weight:700;margin-bottom:6px}.benefit-card p{font-size:14px;color:#5C5146}.offer-section{background:linear-gradient(135deg,#1A1A1A,#2D2D2D);color:#fff;padding:80px 24px;text-align:center}.offer-box{max-width:440px;margin:0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(139,94,60,0.3);border-radius:16px;padding:48px 32px}.offer-box .old-price{color:rgba(255,255,255,0.4);text-decoration:line-through;font-size:18px}.offer-box .price{font-size:56px;font-weight:800;color:#D4B896;margin:8px 0}.offer-box .installments{color:rgba(255,255,255,0.6);font-size:16px}.offer-box ul{list-style:none;margin:24px 0;text-align:left}.offer-box ul li{padding:8px 0;font-size:14px;color:rgba(255,255,255,0.8)}.offer-box ul li::before{content:'✓';color:#4CAF50;margin-right:10px;font-weight:700}.guarantee{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:24px;font-size:13px;color:rgba(255,255,255,0.5)}.footer{background:#0D0D0D;color:rgba(255,255,255,0.4);text-align:center;padding:32px 24px;font-size:12px}@media(max-width:640px){.hero{padding:60px 20px}.section{padding:48px 20px}.offer-box{padding:32px 20px}.benefits-grid{grid-template-columns:1fr}}</style></head><body><section class="hero"><div class="hero-content"><h1>[HEADLINE] <span>[PALAVRA DE DESTAQUE]</span></h1><p>[SUBTÍTULO]</p><a href="#" class="btn-primary">Quero Meu Acesso</a></div></section><section class="section"><h2>O que você vai aprender</h2><p>[DESCRIÇÃO BREVE DOS MÓDULOS]</p><div class="benefits-grid">[MÓDULOS HTML]</div></section><section class="offer-section"><div class="offer-box"><p class="old-price">De R$ [VALOR CHEIO]</p><p class="price">R$ [VALOR]</p><p class="installments">ou [N]x de R$ [PARCELA]</p><ul><li>Acesso vitalício ao conteúdo</li><li>Todas as atualizações futuras</li><li>Certificado de conclusão</li><li>Suporte via grupo VIP</li><li>7 dias de garantia incondicional</li></ul><a href="#" class="btn-primary">Garantir Minha Vaga</a><div class="guarantee">🔒 Pagamento 100% seguro</div></div></section><section class="footer"><p>© 2026 [NOME DO PRODUTO]. Todos os direitos reservados.</p></section></body></html>`,
     "Como Usar": "Copie o HTML completo, substitua os placeholders entre colchetes []. Salve como .html e abra no navegador.",
@@ -639,13 +772,21 @@ function DashboardInner() {
                               if (key === "Video") return null
                               const filled = fillVars(value, stepIdeia || idea, tom, lucro)
                               const isHTML = filled.includes("<!DOCTYPE") || filled.includes("<html")
+                              const isSVG = filled.trim().startsWith("<svg")
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg overflow-hidden">
                                 <div className="px-3 py-1.5">
                                   <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{key}</span>
                                 </div>
-                                {isHTML ? (
+                                {isSVG ? (
+                                  <div className="px-3 pb-3">
+                                    <div 
+                                      className="w-full rounded-lg overflow-hidden bg-[#1A1A1A]"
+                                      dangerouslySetInnerHTML={{ __html: sanitizeSvg(filled) }}
+                                    />
+                                  </div>
+                                ) : isHTML ? (
                                   <div className="px-3 pb-3">
                                     <iframe
                                       srcDoc={filled}
