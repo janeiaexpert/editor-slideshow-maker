@@ -665,12 +665,90 @@ function DashboardInner() {
                               const isHTML = value.includes("<!DOCTYPE") || value.includes("<html")
                               const filled = fillVars(value, stepIdeia || idea, tom, lucro)
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
+                              
+                              const isFeed = step.id === "capa" && key === "Feed 1080x1350"
+                              const isReels = step.id === "capa" && key === "Reels 1080x1920"
+                              const isCardOferta = step.id === "card_oferta" && key === "Card Oferta"
+                              const isCapaPreview = isFeed || isReels
+                              const isVisualPreview = isCapaPreview || isCardOferta
+
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg overflow-hidden">
                                 <div className="px-3 py-1.5">
                                   <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{key}</span>
                                 </div>
-                                {isHTML ? (
+                                {isVisualPreview ? (
+                                  <div className="px-3 pb-3">
+                                    {isCardOferta ? (
+                                      <div 
+                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-8"
+                                        style={{
+                                          background: "linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%)",
+                                          aspectRatio: "4/5"
+                                        }}
+                                      >
+                                        <div className="text-center w-full">
+                                          {cleanText.split("\n").filter((l: string) => l.trim()).map((line: string, i: number) => {
+                                            const isSelo = line.toUpperCase().includes("OFERTA") || line.toUpperCase().includes("ESPECIAL")
+                                            const isPriceOld = line.includes("De R$") || line.includes("~~R$")
+                                            const isPriceNew = line.includes("por apenas") || (line.includes("R$") && !line.includes("De") && !line.includes("x de"))
+                                            const isParcela = line.includes("x de R$")
+                                            const isCta = line.toUpperCase().includes("GARANTIR") || line.toUpperCase().includes("ACESSO")
+                                            const isGarantia = line.includes("Garantia") || line.includes("garantia")
+                                            return (
+                                              <div key={i} className={i > 0 ? "mt-2" : ""}>
+                                                {isSelo ? (
+                                                  <div className="text-[#D4B896] tracking-[6px] text-[10px] font-semibold uppercase">{line}</div>
+                                                ) : isPriceOld ? (
+                                                  <div className="text-white/40 text-sm line-through">{line}</div>
+                                                ) : isPriceNew ? (
+                                                  <div className="text-white text-2xl font-bold mt-2">{line}</div>
+                                                ) : isParcela ? (
+                                                  <div className="text-white/60 text-xs">{line}</div>
+                                                ) : isCta ? (
+                                                  <div className="mt-4 px-6 py-3 rounded-full text-white text-xs font-bold tracking-wider" style={{ background: "linear-gradient(90deg, #8B5E3C, #5C3A1E)" }}>{line}</div>
+                                                ) : isGarantia ? (
+                                                  <div className="text-[#D4B896] text-[10px] mt-3">{line}</div>
+                                                ) : (
+                                                  <div className="text-white/70 text-[11px]">{line}</div>
+                                                )}
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div 
+                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-6"
+                                        style={{
+                                          background: "linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%)",
+                                          aspectRatio: isFeed ? "4/5" : "9/16"
+                                        }}
+                                      >
+                                        <div className="text-center w-full">
+                                          {cleanText.split("\n").filter((l: string) => l.trim()).map((line: string, i: number) => {
+                                            const isHeadline = i === 0 && line.length > 10
+                                            const isKeyword = line === line.toUpperCase() && line.length > 3 && line.length < 30
+                                            const isTagline = line.includes("Vagas") || line.includes("Deslize") || line.includes("Acesso")
+                                            return (
+                                              <div key={i} className={i > 0 ? "mt-3" : ""}>
+                                                {isHeadline ? (
+                                                  <div className="text-white font-bold" style={{ fontSize: isFeed ? "1.4rem" : "1.6rem", fontFamily: "Georgia, serif" }}>{line}</div>
+                                                ) : isKeyword ? (
+                                                  <div className="text-[#D4B896] tracking-[3px] text-xs font-semibold uppercase">{line}</div>
+                                                ) : isTagline ? (
+                                                  <div className="text-white/60 text-[10px] mt-2">{line}</div>
+                                                ) : (
+                                                  <div className="text-white/80 text-xs">{line}</div>
+                                                )}
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : isHTML ? (
                                   <div className="px-3 pb-3">
                                     <iframe
                                       srcDoc={filled}
