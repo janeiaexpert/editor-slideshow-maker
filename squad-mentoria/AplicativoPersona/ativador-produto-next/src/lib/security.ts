@@ -172,6 +172,7 @@ export function sanitizeText(text: string): string {
   result = result.replace(/R\$\s*R\$\s*/g, "R$ ")
   result = result.replace(/R\$\s+/g, "R$ ")
   result = result.replace(/\s+R\$/g, " R$")
+  result = result.replace(/\$(\d)/g, "R$ $1")
 
   return result
 }
