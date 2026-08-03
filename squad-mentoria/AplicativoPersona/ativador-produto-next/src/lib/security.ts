@@ -169,10 +169,13 @@ export function sanitizeText(text: string): string {
 
   let result = text
 
-  result = result.replace(/R\$\s*R\$\s*/g, "R$ ")
+  result = result.replace(/\$(\d)/g, "R$ $1")
+  result = result.replace(/\bRS\b/g, "R$")
   result = result.replace(/R\$\s+/g, "R$ ")
   result = result.replace(/\s+R\$/g, " R$")
-  result = result.replace(/\$(\d)/g, "R$ $1")
+  while (result.includes("R$ R$") || result.includes("R$  R$")) {
+    result = result.replace(/R\$\s*R\$/g, "R$")
+  }
 
   return result
 }

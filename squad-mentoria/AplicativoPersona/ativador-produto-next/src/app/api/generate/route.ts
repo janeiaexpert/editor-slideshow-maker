@@ -470,7 +470,7 @@ ATENÇÃO: NUNCA invente números, dados, métricas, depoimentos ou qualquer pro
     const userPrompt = `Crie um produto digital COMPLETO para:
 IDEIA: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "60000"}
+LUCRO DESEJADO: R$ ${lucro || "0"}
 
 Gere TODOS os campos com conteúdo COMPLETO. Não use emojis. Não use colchetes.`
 

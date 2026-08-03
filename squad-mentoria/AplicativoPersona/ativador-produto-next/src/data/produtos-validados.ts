@@ -6,6 +6,7 @@ export interface ProdutoValidado {
   publico: string
   iconeSvg: string
   ideia: string
+  precoSugerido: number
 }
 
 function coverSvg(p: ProdutoValidado): string {
@@ -40,7 +41,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Aprenda a usar ChatGPT para automatizar vendas, criar scripts, nutrir leads e fechar mais clientes sem esforço manual.",
     publico: "Empreendedores e Vendedores",
     iconeSvg: ICONES["chatgpt-vendas"],
-    ideia: "Quero criar um treinamento completo sobre como usar ChatGPT e IAs conversacionais para automatizar o processo de vendas: desde a abordagem inicial até o fechamento. Inclui scripts prontos, integrações com CRM, nutrição de leads e recuperação de carrinhos abandonados."
+    ideia: "Quero criar um treinamento completo sobre como usar ChatGPT e IAs conversacionais para automatizar o processo de vendas: desde a abordagem inicial até o fechamento. Inclui scripts prontos, integrações com CRM, nutrição de leads e recuperação de carrinhos abandonados.",
+    precoSugerido: 497
   },
   {
     id: "avatares-ia",
@@ -49,7 +51,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Gere avatares realistas com IA para vídeos, apresentações e marketing digital sem precisar gravar sua imagem.",
     publico: "Criadores de Conteúdo",
     iconeSvg: ICONES["avatares-ia"],
-    ideia: "Quero ensinar criadores de conteúdo e empreendedores a criar avatares digitais realistas usando ferramentas de IA generativa. Do prompt ao vídeo finalizado, com dublagem, expressões e personalização completa."
+    ideia: "Quero ensinar criadores de conteúdo e empreendedores a criar avatares digitais realistas usando ferramentas de IA generativa. Do prompt ao vídeo finalizado, com dublagem, expressões e personalização completa.",
+    precoSugerido: 397
   },
   {
     id: "carrosseis-virais",
@@ -58,7 +61,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Produza carrosséis do Instagram que geram alta retenção usando IA no roteiro, design e Storytelling.",
     publico: "Social Media e Criadores",
     iconeSvg: ICONES["carrosseis-virais"],
-    ideia: "Quero criar um método para produzir carrosséis virais no Instagram usando inteligência artificial em todas as etapas: pesquisa de tópicos, roteiro, design de slides, copy de legenda e hashtags. Foco em engajamento e retenção."
+    ideia: "Quero criar um método para produzir carrosséis virais no Instagram usando inteligência artificial em todas as etapas: pesquisa de tópicos, roteiro, design de slides, copy de legenda e hashtags. Foco em engajamento e retenção.",
+    precoSugerido: 297
   },
   {
     id: "ia-iniciantes",
@@ -67,7 +71,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Do zero ao primeiro projeto de IA: entenda os conceitos, ferramentas e aplicações práticas sem programação.",
     publico: "Iniciantes em Tecnologia",
     iconeSvg: ICONES["ia-iniciantes"],
-    ideia: "Quero criar um curso introdutório sobre inteligência artificial para pessoas sem experiência técnica. Abordagem prática com ferramentas prontas, exemplos do dia a dia e projetos simples usando ChatGPT, Midjourney e outras IAs populares."
+    ideia: "Quero criar um curso introdutório sobre inteligência artificial para pessoas sem experiência técnica. Abordagem prática com ferramentas prontas, exemplos do dia a dia e projetos simples usando ChatGPT, Midjourney e outras IAs populares.",
+    precoSugerido: 197
   },
   {
     id: "copy-ia",
@@ -76,7 +81,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Gere anúncios, e-mails, páginas de vendas e scripts de VSL com IA. Prompt engineering aplicado à copy.",
     publico: "Marketers e Copywriters",
     iconeSvg: ICONES["copy-ia"],
-    ideia: "Quero ensinar copywriters e profissionais de marketing a usar IA generativa para criar textos persuasivos de alta conversão: anúncios, e-mails, landing pages, scripts de VSL e posts. Foco em prompt engineering e revisão estratégica."
+    ideia: "Quero ensinar copywriters e profissionais de marketing a usar IA generativa para criar textos persuasivos de alta conversão: anúncios, e-mails, landing pages, scripts de VSL e posts. Foco em prompt engineering e revisão estratégica.",
+    precoSugerido: 497
   },
   {
     id: "video-ia",
@@ -85,7 +91,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Edite vídeos completos com ferramentas de IA: roteiro, voz sintética, avatar e edição automatizada.",
     publico: "Criadores de Vídeo",
     iconeSvg: ICONES["video-ia"],
-    ideia: "Quero criar um guia prático para produção de vídeos com IA: roteirização, geração de voz sintética, criação de avatar digital, edição automatizada e publicação. Para YouTube, Instagram Reels e TikTok."
+    ideia: "Quero criar um guia prático para produção de vídeos com IA: roteirização, geração de voz sintética, criação de avatar digital, edição automatizada e publicação. Para YouTube, Instagram Reels e TikTok.",
+    precoSugerido: 397
   },
   {
     id: "cursos-ia",
@@ -94,7 +101,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Produza cursos completos usando IA no roteiro, design, edição e plataforma. Lance mais rápido.",
     publico: "Infoprodutores",
     iconeSvg: ICONES["cursos-ia"],
-    ideia: "Quero ensinar infoprodutores a usar inteligência artificial na produção de cursos digitais completos: pesquisa de mercado, roteiro, criação de slides, edição de vídeo, plataforma de hospedagem e estratégia de lançamento."
+    ideia: "Quero ensinar infoprodutores a usar inteligência artificial na produção de cursos digitais completos: pesquisa de mercado, roteiro, criação de slides, edição de vídeo, plataforma de hospedagem e estratégia de lançamento.",
+    precoSugerido: 597
   },
   {
     id: "automacao-marketing",
@@ -103,7 +111,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Monte um sistema de marketing automatizado com IA: chatbot, e-mail, CRM e funil sem toque manual.",
     publico: "Empreendedores Digitais",
     iconeSvg: ICONES["automacao-marketing"],
-    ideia: "Quero criar um sistema completo de automação de marketing usando inteligência artificial: chatbot para atendimento, nutrição automática por e-mail, recuperação de carrinho, segmentação de leads e relatórios inteligentes."
+    ideia: "Quero criar um sistema completo de automação de marketing usando inteligência artificial: chatbot para atendimento, nutrição automática por e-mail, recuperação de carrinho, segmentação de leads e relatórios inteligentes.",
+    precoSugerido: 697
   },
   {
     id: "design-ia",
@@ -112,7 +121,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Crie designs profissionais com IA: logos, posts, banners, apresentações e identidade visual.",
     publico: "Designers e Empreendedores",
     iconeSvg: ICONES["design-ia"],
-    ideia: "Quero ensinar designers e não-designers a usar ferramentas de IA generativa para criação de design gráfico: logotipos, posts para redes sociais, banners, apresentações, identidade visual e mockups."
+    ideia: "Quero ensinar designers e não-designers a usar ferramentas de IA generativa para criação de design gráfico: logotipos, posts para redes sociais, banners, apresentações, identidade visual e mockups.",
+    precoSugerido: 397
   },
   {
     id: "afiliados-ia",
@@ -121,7 +131,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Use IA para criar conteúdo, analisar produtos, anúncios e automatizar suas vendas como afiliado.",
     publico: "Afiliados Digitais",
     iconeSvg: ICONES["afiliados-ia"],
-    ideia: "Quero criar um método para afiliados usarem inteligência artificial em todas as etapas: pesquisa de produtos viáveis, criação de conteúdo, análise de concorrência, geração de anúncios e automação de vendas."
+    ideia: "Quero criar um método para afiliados usarem inteligência artificial em todas as etapas: pesquisa de produtos viáveis, criação de conteúdo, análise de concorrência, geração de anúncios e automação de vendas.",
+    precoSugerido: 497
   },
   {
     id: "trafego-ia",
@@ -130,7 +141,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Otimize campanhas de tráfego pago com IA: criação de anúncios, segmentação e lances inteligentes.",
     publico: "Gestores de Tráfego",
     iconeSvg: ICONES["trafego-ia"],
-    ideia: "Quero ensinar gestores de tráfego a usar inteligência artificial para criar e otimizar campanhas de anúncios: geração de criativos, segmentação inteligente, otimização de lances e análise de resultados em tempo real."
+    ideia: "Quero ensinar gestores de tráfego a usar inteligência artificial para criar e otimizar campanhas de anúncios: geração de criativos, segmentação inteligente, otimização de lances e análise de resultados em tempo real.",
+    precoSugerido: 597
   },
   {
     id: "musica-ia",
@@ -139,7 +151,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Produza músicas, efeitos sonoros e narrações com IA para seus projetos criativos.",
     publico: "Produtores e Criadores",
     iconeSvg: ICONES["musica-ia"],
-    ideia: "Quero criar um curso sobre produção musical e de áudio com inteligência artificial: geração de músicas, efeitos sonoros, narrações com voz sintética, mixagem e masterização automática."
+    ideia: "Quero criar um curso sobre produção musical e de áudio com inteligência artificial: geração de músicas, efeitos sonoros, narrações com voz sintética, mixagem e masterização automática.",
+    precoSugerido: 347
   },
   {
     id: "chatbot-atendimento",
@@ -148,7 +161,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Crie chatbots inteligentes para atendimento ao cliente, suporte e vendas 24 horas.",
     publico: "Empresas e Loja Virtual",
     iconeSvg: ICONES["chatbot-atendimento"],
-    ideia: "Quero ensinar empreendedores a criar chatbots com IA para atendimento ao cliente: configuração, fluxo de conversa, integração com WhatsApp, base de conhecimento automática e análise de métricas."
+    ideia: "Quero ensinar empreendedores a criar chatbots com IA para atendimento ao cliente: configuração, fluxo de conversa, integração com WhatsApp, base de conhecimento automática e análise de métricas.",
+    precoSugerido: 497
   },
   {
     id: "ebook-ia",
@@ -157,7 +171,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Escreva e-books completos com IA: pesquisa, estruturação, escrita, diagramação e capa.",
     publico: "Escritores e Infoprodutores",
     iconeSvg: ICONES["ebook-ia"],
-    ideia: "Quero criar um guia completo para produção de e-books com inteligência artificial: pesquisa de tópicos viáveis, estruturação de capítulos, escrita com IA, revisão, diagramação, criação de capa e publicação."
+    ideia: "Quero criar um guia completo para produção de e-books com inteligência artificial: pesquisa de tópicos viáveis, estruturação de capítulos, escrita com IA, revisão, diagramação, criação de capa e publicação.",
+    precoSugerido: 197
   },
   {
     id: "dados-ia",
@@ -166,7 +181,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Analise dados e gere insights com IA: dashboards, relatórios e decisões baseadas em dados.",
     publico: "Analistas e Gestores",
     iconeSvg: ICONES["dados-ia"],
-    ideia: "Quero ensinar profissionais a usar inteligência artificial para análise de dados: coleta, limpeza, visualização, geração de relatórios inteligentes e insights para tomada de decisão."
+    ideia: "Quero ensinar profissionais a usar inteligência artificial para análise de dados: coleta, limpeza, visualização, geração de relatórios inteligentes e insights para tomada de decisão.",
+    precoSugerido: 497
   },
   {
     id: "personas-ia",
@@ -175,7 +191,8 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     descricao: "Use IA para criar personas detalhadas, mapas de jornada e estratégias de marketing personalizadas.",
     publico: "Marketers e Estrategistas",
     iconeSvg: ICONES["personas-ia"],
-    ideia: "Quero ensinar profissionais de marketing a usar inteligência artificial para criar personas detalhadas, mapas de jornada do cliente e estratégias de marketing personalizadas baseadas em dados comportamentais."
+    ideia: "Quero ensinar profissionais de marketing a usar inteligência artificial para criar personas detalhadas, mapas de jornada do cliente e estratégias de marketing personalizadas baseadas em dados comportamentais.",
+    precoSugerido: 397
   },
 ]
 

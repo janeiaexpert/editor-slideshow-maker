@@ -35,7 +35,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
         {PRODUTOS_VALIDADOS.map(p => (
           <button
             key={p.id}
-            onClick={() => { setSelected(p.id); setLucro(0) }}
+            onClick={() => { setSelected(p.id); setLucro(p.precoSugerido) }}
             className="relative rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5]"
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "transparent" }}
           >
@@ -75,7 +75,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
 
               <div>
                 <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">
-                  Quanto quer ganhar com este produto?
+                  Preço de venda
                 </label>
                 <div className="relative mt-1.5">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#5C5146] font-semibold">R$</span>
@@ -84,10 +84,11 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                     value={lucro || ""}
                     onChange={e => setLucro(e.target.value === "" ? 0 : Number(e.target.value))}
                     className="pl-8"
-                    placeholder="Quanto quer ganhar? (ex: 10000)"
+                    placeholder={`Sugerido: R$ ${produto.precoSugerido}`}
                     onKeyDown={e => e.stopPropagation()}
                   />
                 </div>
+                <p className="text-[10px] text-[#A67C52] mt-1">Preço médio de mercado para este tipo de produto</p>
               </div>
 
               <Button

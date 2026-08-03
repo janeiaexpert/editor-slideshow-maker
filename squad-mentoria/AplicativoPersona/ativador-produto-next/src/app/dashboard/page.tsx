@@ -108,13 +108,11 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
   for (const [key, val] of Object.entries(map)) {
     result = result.replaceAll(key, val)
   }
-  while (result.includes("R$ R$")) {
+  result = result.replace(/\bRS\b/g, "R$")
+  while (result.includes("R$ R$") || result.includes("R$  R$")) {
     result = result.replace(/R\$\s*R\$/g, "R$")
   }
   result = result.replace(/R\$\s+/g, "R$ ")
-  result = result.replace(/\$(\d)/g, "R$ $1")
-  result = result.replace(/\bRS\b/g, "R$")
-    result = result.replace(/\bR\$\b(?!\s*\d)/g, "")
   return result
 }
 
@@ -138,9 +136,9 @@ function forceReplacePlaceholders(text: string, lucro: number): string {
   r = r.replace(/\{VALOR\}/gi, valor)
   r = r.replace(/\{PARCELA\}/gi, parcela)
   r = r.replace(/\{N\}/gi, n)
-  r = r.replace(/\$(\d)/g, "R$ $1")
   r = r.replace(/\bRS\b/g, "R$")
   while (r.includes("R$ R$")) { r = r.replace(/R\$\s*R\$/g, "R$") }
+  while (r.includes("R$  R$")) { r = r.replace(/R\$\s*R\$/g, "R$") }
   r = r.replace(/\[.*?VALOR.*?\]/gi, valor)
   r = r.replace(/\|.*?VALOR.*?\|/gi, valor)
   r = r.replace(/\{.*?VALOR.*?\}/gi, valor)
@@ -212,7 +210,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
     "Semana 2 — Dia 14": "Reels: Convite para conhecer o método completo"
   }),
   oferta: (idea, lucro) => {
-    const valor = lucro && lucro > 0 ? lucro : 497
+    const valor = lucro && lucro > 0 ? lucro : 297
     const parcela = Math.round(valor / 12 * 100) / 100
     const valorCheio = Math.round(valor * 2.5 * 100) / 100
     const economia = Math.round((1 - valor / valorCheio) * 100)
@@ -286,7 +284,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   },
   card_oferta: (idea, lucro) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
-    const valor = lucro && lucro > 0 ? lucro : 497
+    const valor = lucro && lucro > 0 ? lucro : 297
     const valorCheio = Math.round(valor * 2.5 * 100) / 100
     const parcela = Math.round(valor / 12 * 100) / 100
     return {
@@ -573,7 +571,7 @@ function DashboardInner() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">Lucro Desejado</label>
+                <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">Preço de Venda</label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#5C5146] font-semibold">R$</span>
                   <Input
