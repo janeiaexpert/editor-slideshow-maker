@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect, Suspense } from "react"
+import { useState, useCallback, useEffect, useRef, Suspense } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -303,6 +303,8 @@ function DashboardInner() {
     const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean }>>("stepsData", {})
     return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated } : s)
   })
+  const stepsRef = useRef(steps)
+  stepsRef.current = steps
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState(() => loadState("lucro", 0))
   const [activeTab, setActiveTab] = useState(() => loadState("activeTab", "produto"))
@@ -379,18 +381,18 @@ function DashboardInner() {
     setLucro(lucroVal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    setSteps(INITIAL_STEPS.map(s => ({ ...s, content: {}, generated: false })))
     setExpandedSteps([])
     toast("Produto selecionado! Gerando conteúdo...")
 
     const tomText = tom || "Persuasivo e direto"
-    const produtoSteps = steps.filter(s => s.tab === "produto")
+    const produtoSteps = INITIAL_STEPS.filter(s => s.tab === "produto")
     for (const step of produtoSteps) {
       setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
       await doGenerate(step.id, ideia, tomText, lucroVal)
     }
     toast("Produto modelado com sucesso!")
-  }, [steps, tom, doGenerate])
+  }, [tom, doGenerate])
 
   const generateStep = useCallback(async (step: StepData) => {
     if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return }
