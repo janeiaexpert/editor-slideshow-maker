@@ -149,7 +149,7 @@ function Index() {
   const [qrName, setQrName] = useState("");
   const [cloudTab, setCloudTab] = useState<"local" | "nuvem">("local");
   const [exporting, setExporting] = useState<string | null>(null);
-  const [imageBank, setImageBank] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("carrossel-image-bank") || "[]"); } catch { return []; } });
+  
   const [hlWord, setHlWord] = useState("");
   const [hlColor, setHlColor] = useState("#ffeb3b");
   const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt">("rect");
