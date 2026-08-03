@@ -99,7 +99,9 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
   for (const [key, val] of Object.entries(map)) {
     result = result.replaceAll(key, val)
   }
-  result = result.replace(/R\$\s*R\$/g, "R$")
+  while (result.includes("R$ R$")) {
+    result = result.replace(/R\$\s*R\$/g, "R$")
+  }
   result = result.replace(/R\$\s+/g, "R$ ")
   return result
 }
