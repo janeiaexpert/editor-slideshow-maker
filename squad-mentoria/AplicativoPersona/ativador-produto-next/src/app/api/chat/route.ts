@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY
 
 const SYSTEM_PROMPT = `Você é o Assistente Virtual do Ativador Automático de Produtos Virais — um sistema que gera produtos digitais completos em 14 etapas.
 
@@ -50,24 +51,20 @@ export async function POST(req: NextRequest) {
     const { message, history, ideia, tom, lucro, steps } = await req.json()
     if (!message) return NextResponse.json({ error: "Mensagem obrigatória" }, { status: 400 })
 
-    if (!GROQ_API_KEY) return NextResponse.json({ error: "API não configurada" }, { status: 500 })
+    const contextBlock = ideia ? `\nPRODUTO DO USUARIO:\nIdeia: ${ideia}\nTom: ${tom || "Persuasivo e direto"}\nLucro desejado: R$ ${lucro || "0"}\n` : ""
+    const contextBlockSteps = steps && typeof steps === "object"
+      ? (() => {
+          const generatedSteps = Object.entries(steps)
+            .filter(([, v]) => v && typeof v === "object" && Object.keys(v as object).length > 0)
+            .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`)
+          if (generatedSteps.length > 0) {
+            return `Conteudos ja gerados:\n${generatedSteps.slice(0, 3).join("\n")}\n(mais ${Math.max(0, generatedSteps.length - 3)} etapas geradas)\n`
+          }
+          return ""
+        })()
+      : ""
 
-    // Montar contexto do produto do usuário
-    let contextBlock = ""
-    if (ideia) {
-      contextBlock += `\nPRODUTO DO USUÁRIO:\nIdeia: ${ideia}\nTom: ${tom || "Persuasivo e direto"}\nLucro desejado: R$ ${lucro || "60.000"}\n`
-    }
-    if (steps && typeof steps === "object") {
-      const generatedSteps = Object.entries(steps)
-        .filter(([, v]) => v && typeof v === "object" && Object.keys(v as object).length > 0)
-        .map(([k, v]) => `  ${k}: ${JSON.stringify(v)}`)
-      if (generatedSteps.length > 0) {
-        contextBlock += `Conteúdos já gerados:\n${generatedSteps.slice(0, 3).join("\n")}\n`
-        contextBlock += `(mais ${Math.max(0, generatedSteps.length - 3)} etapas geradas não listadas por espaço)\n`
-      }
-    }
-
-    const systemContent = SYSTEM_PROMPT + (contextBlock ? `\n\n---\n${contextBlock}` : "")
+    const systemContent = SYSTEM_PROMPT + (contextBlock || contextBlockSteps ? `\n\n---\n${contextBlock}${contextBlockSteps}` : "")
 
     const messages = [
       { role: "system", content: systemContent },
@@ -75,24 +72,28 @@ export async function POST(req: NextRequest) {
       { role: "user", content: message },
     ]
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages,
-        temperature: 0.75,
-        max_tokens: 600,
-      }),
-    })
+    const models = [
+      { url: "https://api.groq.com/openai/v1/chat/completions", key: GROQ_API_KEY, model: "llama-3.3-70b-versatile" },
+      { url: "https://openrouter.ai/api/v1/chat/completions", key: OPENROUTER_KEY, model: "google/gemini-2.0-flash-001" },
+    ]
 
-    if (!res.ok) return NextResponse.json({ error: "Erro na API" }, { status: 502 })
+    let reply = "Desculpe, nao consegui processar sua pergunta. Tente novamente."
 
-    const data = await res.json()
-    const reply = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua pergunta."
+    for (const m of models) {
+      if (!m.key) continue
+      try {
+        const res = await fetch(m.url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.key}` },
+          body: JSON.stringify({ model: m.model, messages, temperature: 0.75, max_tokens: 600 }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const content = data.choices?.[0]?.message?.content
+          if (content) { reply = content; break }
+        }
+      } catch {}
+    }
 
     return NextResponse.json({ reply })
   } catch {

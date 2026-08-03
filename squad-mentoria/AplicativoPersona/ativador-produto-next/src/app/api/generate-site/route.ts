@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY
+
+async function callAI(systemPrompt: string, userPrompt: string): Promise<string | null> {
+  const models = [
+    { url: "https://api.groq.com/openai/v1/chat/completions", key: GROQ_API_KEY, model: "llama-3.3-70b-versatile" },
+    { url: "https://openrouter.ai/api/v1/chat/completions", key: OPENROUTER_KEY, model: "google/gemini-2.0-flash-001" },
+  ]
+  for (const m of models) {
+    if (!m.key) continue
+    try {
+      const res = await fetch(m.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.key}` },
+        body: JSON.stringify({
+          model: m.model,
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+          temperature: 0.8,
+          max_tokens: 4000,
+        }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const content = data.choices?.[0]?.message?.content
+        if (content) return content
+      }
+    } catch {}
+  }
+  return null
+}
 
 const COPYWRITER_SYSTEM = `Voce e um COPYWRITER e DESIGNER UI/UX especialista em paginas de alta conversao para o mercado brasileiro.
 
@@ -55,35 +84,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt e obrigatorio" }, { status: 400 })
     }
 
-    if (GROQ_API_KEY) {
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: COPYWRITER_SYSTEM },
-              { role: "user", content: COPYWRITER_USER(prompt, template) },
-            ],
-            temperature: 0.8,
-            max_tokens: 4000,
-          }),
-        })
+    const content = await callAI(COPYWRITER_SYSTEM, COPYWRITER_USER(prompt, template))
 
-        if (res.ok) {
-          const data = await res.json()
-          const content = data.choices?.[0]?.message?.content
-          if (content) {
-            const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
-            const html = htmlMatch ? htmlMatch[0] : content
-            return NextResponse.json({ html })
-          }
-        }
-      } catch {}
+    if (content) {
+      const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
+      const html = htmlMatch ? htmlMatch[0] : content
+      return NextResponse.json({ html })
     }
 
     return NextResponse.json({ html: null })

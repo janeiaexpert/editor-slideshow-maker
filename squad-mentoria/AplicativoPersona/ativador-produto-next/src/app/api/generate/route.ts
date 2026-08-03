@@ -1,6 +1,45 @@
 import { NextRequest, NextResponse } from "next/server"
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY
+
+async function callGroq(systemPrompt: string, userPrompt: string, maxTokens: number) {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: 0.8,
+      max_tokens: maxTokens,
+    }),
+  })
+  if (!res.ok) throw new Error(`Groq ${res.status}`)
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content
+}
+
+async function callOpenRouter(systemPrompt: string, userPrompt: string, maxTokens: number) {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
+    body: JSON.stringify({
+      model: "google/gemini-2.0-flash-001",
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: 0.8,
+      max_tokens: maxTokens,
+    }),
+  })
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}`)
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content
+}
+
+async function generate(systemPrompt: string, userPrompt: string, maxTokens: number): Promise<string | null> {
+  try { return await callGroq(systemPrompt, userPrompt, maxTokens) } catch {}
+  try { return await callOpenRouter(systemPrompt, userPrompt, maxTokens) } catch {}
+  return null
+}
 
 const STEP_PROMPTS: Record<string, string> = {
   headline: `Voce e um COPYWRITER CHEFE de agencia de marketing digital, especialista em headlines de alta conversao para o mercado brasileiro. Trabalhou com empresas como Hotmart, Eduzz e Kiwify.
@@ -378,45 +417,22 @@ ACENTUAÇÃO: Use SEMPRE acentos corretos do português: á, â, ã, é, ê, í,
 PREÇOS: O VALOR DEFINIDO PELO USUARIO É R$ ${lucro || "0"}. Use ESTE VALOR em toda a pagina. Escreva R$ uma única vez (ex: "R$ 45", nunca "R$ R$ 45"). Use vírgula para decimais (ex: R$ 3,75).
 CORES: O usuario pode ter escolhido uma paleta de cores. Se a ideia mencionar cores ou paleta, use-as. Caso contrário, use: #1A1A1A, #8B5E3C, #D4B896, #F5EFE8.`
 
-      // Try Groq first
-      if (GROQ_API_KEY) {
-        try {
-          const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${GROQ_API_KEY}`,
-            },
-            body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
-              messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: userPrompt },
-              ],
-              temperature: 0.8,
-              max_tokens: 4000,
-            }),
-          })
+      // Try Groq first, then OpenRouter
+      const content = await generate(systemPrompt, userPrompt, 4000)
 
-          if (res.ok) {
-            const data = await res.json()
-            const content = data.choices?.[0]?.message?.content
-            if (content) {
-              try {
-                const parsed = JSON.parse(content)
-                return NextResponse.json(parsed)
-              } catch {
-                const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-                if (jsonMatch) {
-                  try {
-                    const parsed = JSON.parse(jsonMatch[1])
-                    return NextResponse.json(parsed)
-                  } catch {}
-                }
-              }
-            }
+      if (content) {
+        try {
+          const parsed = JSON.parse(content)
+          return NextResponse.json(parsed)
+        } catch {
+          const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+          if (jsonMatch) {
+            try {
+              const parsed = JSON.parse(jsonMatch[1])
+              return NextResponse.json(parsed)
+            } catch {}
           }
-        } catch {}
+        }
       }
 
       // Fallback: return null so the frontend uses local fallback
@@ -474,53 +490,23 @@ LUCRO DESEJADO: R$ ${lucro || "0"}
 
 Gere TODOS os campos com conteúdo COMPLETO. Não use emojis. Não use colchetes.`
 
-    if (GROQ_API_KEY) {
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-            temperature: 0.8,
-            max_tokens: 7800,
-          }),
-        })
+    const content = await generate(systemPrompt, userPrompt, 7800)
 
-        if (!res.ok) {
-          return NextResponse.json({ error: "Erro na API Groq" }, { status: 502 })
-        }
-
-        const data = await res.json()
-        const content = data.choices?.[0]?.message?.content
-
-        if (!content) {
-          return NextResponse.json({ error: "Resposta vazia da Groq" }, { status: 502 })
-        }
-
-        try {
-          const parsed = JSON.parse(content)
-          return NextResponse.json(parsed)
-        } catch {
-          const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[1])
-            return NextResponse.json(parsed)
-          }
-          return NextResponse.json({ error: "Formato invalido", raw: content }, { status: 502 })
-        }
-      } catch (error: unknown) {
-        return NextResponse.json({ error: "Erro interno", detail: (error as Error).message }, { status: 500 })
-      }
+    if (!content) {
+      return NextResponse.json({ error: "API indisponível" }, { status: 502 })
     }
 
-    return NextResponse.json({ error: "GROQ_API_KEY não configurada" }, { status: 500 })
+    try {
+      const parsed = JSON.parse(content)
+      return NextResponse.json(parsed)
+    } catch {
+      const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[1])
+        return NextResponse.json(parsed)
+      }
+      return NextResponse.json({ error: "Formato invalido", raw: content }, { status: 502 })
+    }
   } catch {
     return NextResponse.json({ error: "Requisição inválida" }, { status: 400 })
   }
