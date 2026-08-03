@@ -149,6 +149,7 @@ function Index() {
   const [qrName, setQrName] = useState("");
   const [cloudTab, setCloudTab] = useState<"local" | "nuvem">("local");
   const [exporting, setExporting] = useState<string | null>(null);
+  const [showProgressBar, setShowProgressBar] = useState(false);
   
   const [hlWord, setHlWord] = useState("");
   const [hlColor, setHlColor] = useState("#ffeb3b");
@@ -645,11 +646,13 @@ function Index() {
                       </div>
                       <div className="flex-none flex items-center justify-between text-[11px] pt-4 pb-1" style={{ opacity: .65 }}>
                         <span>{s.handle} · {s.author}</span>
-                        <span>{activeIndex + 1}/{cards.length}</span>
+                        <span>{activeIndex + 1}/10</span>
                       </div>
-                      <div className="flex-none h-[5px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-                        <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((activeIndex + 1) / cards.length) * 100}%`, background: effectiveAccent }} />
-                      </div>
+                      {showProgressBar && (
+                        <div className="flex-none h-[5px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+                          <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((activeIndex + 1) / cards.length) * 100}%`, background: effectiveAccent }} />
+                        </div>
+                      )}
                     </div>
                   {isSplit && s.imagePosition === "right" && s.image && (
                     <div className="w-1/2 h-full overflow-hidden shrink-0 relative">
@@ -877,6 +880,11 @@ function Index() {
                     </div>
                   </Field>
                 </div>
+                <Field label="Barra de progresso">
+                  <button onClick={() => setShowProgressBar(v => !v)} className={`w-full rounded-md py-1.5 text-[10px] font-semibold ${showProgressBar ? "bg-white/20 text-white" : "bg-white/5 text-white/60"}`}>
+                    {showProgressBar ? "Visível" : "Oculta"}
+                  </button>
+                </Field>
                 <Field label="Imagem de fundo">
                   <div className="mb-2 space-y-1">
                     <label className="block cursor-pointer rounded-md bg-white/5 px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10">
