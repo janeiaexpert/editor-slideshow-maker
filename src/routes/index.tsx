@@ -625,7 +625,7 @@ function Index() {
 
                     <div className={`flex h-full flex-col ${isSplit ? "relative flex-1 overflow-auto" : "relative z-10 w-full"}`} style={{ padding: isSplit ? "28px 20px" : "48px 40px", background: isSplit ? effectiveBg : undefined }}>
                       <div className="flex flex-col overflow-hidden" style={{ flex: "1 1 0%", minHeight: 0, ...verticalStyle }}>
-                        <div style={horizontalStyle} className="w-full overflow-hidden space-y-[2.5%]">
+                        <div style={{ ...horizontalStyle, transform: s.textTilt ? `rotate(${s.textTilt}deg)` : undefined, transformOrigin: s.textAlign === "center" ? "center center" : "left center" }} className="w-full overflow-hidden space-y-[2.5%]">
                           {brand.logo && <img src={brand.logo} alt="logo" className="h-10 object-contain" style={s.textAlign === "center" ? { margin: "0 auto" } : {}} />}
                           <div style={{ color: effectiveAccent, fontSize: typography.fontSizeKicker, fontWeight: 700, letterSpacing: "0.28em" }}>{s.kicker}</div>
                           <h2 className="whitespace-pre-line" style={{ color: brandTextColor ?? undefined, fontFamily: brand.fontTitle || typography.fontTitle || "Georgia, serif", fontSize: autoTitleSize * textScale / 100, fontWeight: typography.fontWeightTitle, lineHeight: typography.lineHeight, letterSpacing: typography.letterSpacing, textWrap: "balance" }}><WordHighlighter text={s.title} highlights={s.highlights || []} /></h2>
