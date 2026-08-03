@@ -4,35 +4,49 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY
 
 async function callGroq(systemPrompt: string, userPrompt: string, maxTokens: number) {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-      temperature: 0.8,
-      max_tokens: maxTokens,
-    }),
-  })
-  if (!res.ok) throw new Error(`Groq ${res.status}`)
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        temperature: 0.8,
+        max_tokens: maxTokens,
+      }),
+      signal: controller.signal,
+    })
+    if (!res.ok) throw new Error(`Groq ${res.status}`)
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 async function callOpenRouter(systemPrompt: string, userPrompt: string, maxTokens: number) {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-flash-001",
-      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-      temperature: 0.8,
-      max_tokens: maxTokens,
-    }),
-  })
-  if (!res.ok) throw new Error(`OpenRouter ${res.status}`)
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-001",
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+        temperature: 0.8,
+        max_tokens: maxTokens,
+      }),
+      signal: controller.signal,
+    })
+    if (!res.ok) throw new Error(`OpenRouter ${res.status}`)
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 async function generate(systemPrompt: string, userPrompt: string, maxTokens: number): Promise<string | null> {

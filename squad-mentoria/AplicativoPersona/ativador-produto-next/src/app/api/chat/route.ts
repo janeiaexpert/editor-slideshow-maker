@@ -81,18 +81,21 @@ export async function POST(req: NextRequest) {
 
     for (const m of models) {
       if (!m.key) continue
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 8000)
       try {
         const res = await fetch(m.url, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${m.key}` },
           body: JSON.stringify({ model: m.model, messages, temperature: 0.75, max_tokens: 600 }),
+          signal: controller.signal,
         })
         if (res.ok) {
           const data = await res.json()
           const content = data.choices?.[0]?.message?.content
           if (content) { reply = content; break }
         }
-      } catch {}
+      } catch {} finally { clearTimeout(timeout) }
     }
 
     return NextResponse.json({ reply })

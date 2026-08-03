@@ -10,6 +10,8 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string 
   ]
   for (const m of models) {
     if (!m.key) continue
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 8000)
     try {
       const res = await fetch(m.url, {
         method: "POST",
@@ -20,13 +22,14 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string 
           temperature: 0.8,
           max_tokens: 4000,
         }),
+        signal: controller.signal,
       })
       if (res.ok) {
         const data = await res.json()
         const content = data.choices?.[0]?.message?.content
         if (content) return content
       }
-    } catch {}
+    } catch {} finally { clearTimeout(timeout) }
   }
   return null
 }
