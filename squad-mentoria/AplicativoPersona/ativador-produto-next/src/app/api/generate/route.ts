@@ -367,13 +367,16 @@ export async function POST(req: NextRequest) {
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para:
 IDEIA: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "60000"}
+LUCRO DESEJADO: R$ ${lucro || "0"}
+
+IMPORTANTE - VALOR EXATO: O usuario definiu R$ ${lucro || "0"} como valor do produto. TODOS os precos na pagina DEVEM ser baseados NESTE VALOR EXATO. NAO invente outros valores.
 
 ${systemPrompt}
 
 IMPORTANTE: Gere textos COMPLETOS e PRONTOS PARA COPIAR E USAR. Não use emojis. Não use colchetes. Seja específico para o nicho.
 ACENTUAÇÃO: Use SEMPRE acentos corretos do português: á, â, ã, é, ê, í, ó, ô, õ, ú, ü, ç. NUNCA omita acentos.
-PREÇOS: Escreva R$ uma única vez (ex: "R$ 497", nunca "R$ R$ 497"). Use vírgula para decimais (ex: R$ 41,42).`
+PREÇOS: O VALOR DEFINIDO PELO USUARIO É R$ ${lucro || "0"}. Use ESTE VALOR em toda a pagina. Escreva R$ uma única vez (ex: "R$ 45", nunca "R$ R$ 45"). Use vírgula para decimais (ex: R$ 3,75).
+CORES: O usuario pode ter escolhido uma paleta de cores. Se a ideia mencionar cores ou paleta, use-as. Caso contrário, use: #1A1A1A, #8B5E3C, #D4B896, #F5EFE8.`
 
       // Try Groq first
       if (GROQ_API_KEY) {
