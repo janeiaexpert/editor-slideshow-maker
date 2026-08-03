@@ -149,7 +149,7 @@ function Index() {
   const [qrName, setQrName] = useState("");
   const [cloudTab, setCloudTab] = useState<"local" | "nuvem">("local");
   const [exporting, setExporting] = useState<string | null>(null);
-  const [imageBank, setImageBank] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("carrossel-image-bank") || "[]"); } catch { return []; } });
+  
   const [hlWord, setHlWord] = useState("");
   const [hlColor, setHlColor] = useState("#ffeb3b");
   const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt">("rect");
@@ -883,80 +883,10 @@ function Index() {
                       {s.image ? "Trocar foto" : "Enviar foto"}
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && (() => { const reader = new FileReader(); reader.onload = () => updateCard(activeIndex, { image: reader.result as string }); reader.readAsDataURL(e.target.files[0]); })()} />
                     </label>
-                    <textarea
-                      readOnly
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        const item = e.clipboardData?.items?.[0];
-                        if (!item?.type.startsWith("image/")) return;
-                        const blob = item.getAsFile();
-                        if (!blob) return;
-                        const reader = new FileReader();
-                        reader.onload = () => { updateCard(activeIndex, { image: reader.result as string }); setFeedback("Imagem colada!"); setTimeout(() => setFeedback(""), 1500); };
-                        reader.readAsDataURL(blob);
-                      }}
-                      value=""
-                      onClick={(e) => (e.target as HTMLTextAreaElement).focus()}
-                      rows={1}
-                      className="block w-full resize-none rounded-md border-2 border-dashed border-white/10 bg-white/[0.02] px-3 py-4 text-center text-[10px] text-white/40 outline-none caret-transparent cursor-pointer hover:border-white/30 hover:text-white/60 focus:border-[#c2a25b] focus:text-white/80"
-                      placeholder="Clique ou toque e segure para colar imagem"
-                    />
                   </div>
                   {s.image && <button onClick={() => updateCard(activeIndex, { image: null })} className="mt-1 w-full text-[10px] text-white/50 hover:text-white">remover foto</button>}
                 </Field>
 
-                {/* Banco de Imagens */}
-                <details className="group rounded-lg border border-white/10 bg-white/[0.02]">
-                  <summary className="cursor-pointer px-3 py-2 text-[11px] font-semibold tracking-wider text-white/50 hover:text-white flex items-center gap-2">
-                    <span>Banco de Imagens</span>
-                    <span className="text-[9px] text-white/30">{imageBank.length} salvas</span>
-                  </summary>
-                  <div className="px-3 pb-3 space-y-2">
-                    <textarea
-                      readOnly
-                      onPaste={(e) => {
-                        e.preventDefault();
-                        const items = e.clipboardData?.items;
-                        if (!items) return;
-                        for (const item of items) {
-                          if (item.type.startsWith("image/")) {
-                            const blob = item.getAsFile();
-                            if (!blob) continue;
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const url = reader.result as string;
-                              const updated = [...imageBank, url];
-                              setImageBank(updated);
-                              localStorage.setItem("carrossel-image-bank", JSON.stringify(updated));
-                            };
-                            reader.readAsDataURL(blob);
-                          }
-                        }
-                      }}
-                      value=""
-                      onClick={(e) => (e.target as HTMLTextAreaElement).focus()}
-                      rows={1}
-                      className="block w-full resize-none rounded-md border-2 border-dashed border-white/10 bg-white/[0.02] px-3 py-4 text-center text-[10px] text-white/40 outline-none caret-transparent cursor-pointer hover:border-white/30 hover:text-white/60 focus:border-[#c2a25b] focus:text-white/80"
-                      placeholder="Toque e segure para colar imagem"
-                    />
-                    {imageBank.length > 0 && (
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {imageBank.map((url, i) => (
-                          <div key={i} className="group/img relative aspect-[1080/1350] overflow-hidden rounded-md bg-black/40">
-                            <img src={url} alt="" className="h-full w-full object-cover" />
-                            <div className="absolute inset-0 flex items-center justify-center gap-1 opacity-0 transition group-hover/img:opacity-100 bg-black/60">
-                              <button onClick={() => { updateCard(activeIndex, { image: url }); setFeedback("Imagem aplicada!"); setTimeout(() => setFeedback(""), 1500); }} className="rounded bg-[#c2a25b] px-1.5 py-0.5 text-[9px] font-bold text-black">Usar</button>
-                              <button onClick={() => { const updated = imageBank.filter((_, j) => j !== i); setImageBank(updated); localStorage.setItem("carrossel-image-bank", JSON.stringify(updated)); }} className="rounded bg-red-500/60 px-1.5 py-0.5 text-[9px] text-white">X</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {imageBank.length > 0 && (
-                      <button onClick={() => { setImageBank([]); localStorage.removeItem("carrossel-image-bank"); }} className="w-full text-[10px] text-white/40 hover:text-white/70">limpar todas</button>
-                    )}
-                  </div>
-                </details>
                 <Field label="Posição da imagem">
                   <div className="flex gap-1">
                     {(["top", "left", "right"] as const).map((a) => (
