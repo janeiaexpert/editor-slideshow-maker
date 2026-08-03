@@ -28,7 +28,7 @@ type StepData = {
   title: string
   description: string
   icon: React.ReactNode
-  tab: "produto" | "vendas" | "operacao" | "artefatos"
+  tab: "produto" | "vendas" | "operacao"
   content: Record<string, string>
   generated: boolean
 }
@@ -52,14 +52,6 @@ const INITIAL_STEPS: StepData[] = [
   // === OPERACAO TAB ===
   { id:"dashboard", title:"Dashboard", description:"KPIs, métricas e gráficos", icon:<BarChart3 className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
   { id:"escala", title:"Estratégias de Escala", description:"Próximo produto, cross sell, ascensão de valor", icon:<Zap className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
-
-  // === ARTEFATOS TAB ===
-  { id:"logo", title:"Logo", description:"Logotipo profissional", icon:<Image className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"capa", title:"Capa para Redes Sociais", description:"Capa Feed (4:5) e Reels/Stories (9:16)", icon:<Palette className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"card_oferta", title:"Card de Oferta", description:"Card promocional para divulgação", icon:<Layout className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"certificado", title:"Certificado", description:"Template de certificado de conclusão", icon:<FileText className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"landing", title:"Landing Page HTML", description:"Página de captura completa em HTML/CSS", icon:<Code className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"story", title:"Roteiro para Story/Reel", description:"Storyboard visual para stories", icon:<PenTool className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
 ]
 
 function Book({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> }
@@ -485,7 +477,7 @@ function DashboardInner() {
               Novo Produto
             </button>
             <Badge className="bg-white text-[#8B5E3C] text-[10px] font-semibold">
-              {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "artefatos" ? "Artefatos" : activeTab === "custom" ? "Meu Produto" : activeTab === "biblioteca" ? "Biblioteca" : "Operação"}
+              {activeTab === "produto" ? "Produto" : activeTab === "vendas" ? "Vendas" : activeTab === "custom" ? "Meu Produto" : activeTab === "biblioteca" ? "Biblioteca" : "Operação"}
             </Badge>
           </div>
         </div>
@@ -590,14 +582,11 @@ function DashboardInner() {
             <TabsTrigger value="produto" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
               Produto
             </TabsTrigger>
-            <TabsTrigger value="vendas" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
+<TabsTrigger value="vendas" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
               Vendas
             </TabsTrigger>
             <TabsTrigger value="operacao" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
               Operação
-            </TabsTrigger>
-            <TabsTrigger value="artefatos" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
-              Artefatos
             </TabsTrigger>
             <TabsTrigger value="biblioteca" className="text-xs data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] flex-1 min-w-0">
               Biblioteca
@@ -607,7 +596,7 @@ function DashboardInner() {
             </TabsTrigger>
           </TabsList>
 
-          {["produto", "vendas", "operacao", "artefatos"].map(tab => (
+          {["produto", "vendas", "operacao", "biblioteca", "custom"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               {/* Generate All Button */}
               <Button
