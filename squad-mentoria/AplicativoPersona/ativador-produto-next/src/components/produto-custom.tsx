@@ -85,6 +85,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
               onChange={e => setNome(e.target.value)}
               placeholder="Ex: Curso de Fotografia com IA"
               className="mt-1.5"
+              onKeyDown={e => e.stopPropagation()}
             />
           </div>
 
@@ -97,6 +98,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
               onChange={e => setDescricao(e.target.value)}
               placeholder="Descreva o que o produto entrega, o problema que resolve, como funciona..."
               className="mt-1.5 min-h-[80px]"
+              onKeyDown={e => e.stopPropagation()}
             />
           </div>
 
@@ -110,6 +112,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                 onChange={e => setPublico(e.target.value)}
                 placeholder="Ex: Criadores de conteúdo"
                 className="mt-1.5"
+                onKeyDown={e => e.stopPropagation()}
               />
             </div>
             <div>
@@ -121,6 +124,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                 onChange={e => setInstagram(e.target.value)}
                 placeholder="@seuperfil"
                 className="mt-1.5"
+                onKeyDown={e => e.stopPropagation()}
               />
             </div>
           </div>
@@ -197,6 +201,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                 onChange={e => setLucro(e.target.value === "" ? 0 : Number(e.target.value))}
                 className="pl-8"
                 placeholder="Ex: 997"
+                onKeyDown={e => e.stopPropagation()}
               />
             </div>
           </div>

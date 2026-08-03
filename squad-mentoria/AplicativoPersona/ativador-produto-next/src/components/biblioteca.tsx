@@ -85,6 +85,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                     onChange={e => setLucro(e.target.value === "" ? 0 : Number(e.target.value))}
                     className="pl-8"
                     placeholder="Quanto quer ganhar? (ex: 10000)"
+                    onKeyDown={e => e.stopPropagation()}
                   />
                 </div>
               </div>
