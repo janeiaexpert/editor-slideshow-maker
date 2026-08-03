@@ -149,6 +149,7 @@ function Index() {
   const [qrName, setQrName] = useState("");
   const [cloudTab, setCloudTab] = useState<"local" | "nuvem">("local");
   const [exporting, setExporting] = useState<string | null>(null);
+  const [showProgressBar, setShowProgressBar] = useState(false);
   
   const [hlWord, setHlWord] = useState("");
   const [hlColor, setHlColor] = useState("#ffeb3b");
