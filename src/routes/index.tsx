@@ -880,6 +880,11 @@ function Index() {
                     </div>
                   </Field>
                 </div>
+                <Field label="Barra de progresso">
+                  <button onClick={() => setShowProgressBar(v => !v)} className={`w-full rounded-md py-1.5 text-[10px] font-semibold ${showProgressBar ? "bg-white/20 text-white" : "bg-white/5 text-white/60"}`}>
+                    {showProgressBar ? "Visível" : "Oculta"}
+                  </button>
+                </Field>
                 <Field label="Imagem de fundo">
                   <div className="mb-2 space-y-1">
                     <label className="block cursor-pointer rounded-md bg-white/5 px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10">
