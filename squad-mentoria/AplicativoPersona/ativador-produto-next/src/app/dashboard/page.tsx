@@ -114,7 +114,34 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
   result = result.replace(/R\$\s+/g, "R$ ")
   result = result.replace(/\$(\d)/g, "R$ $1")
   result = result.replace(/\bRS\b/g, "R$")
+    result = result.replace(/\bR\$\b(?!\s*\d)/g, "")
   return result
+}
+
+function forceReplacePlaceholders(text: string, lucro: number): string {
+  if (lucro <= 0) return text
+  let r = text
+  const valor = formatBRL(lucro)
+  const valorCheio = formatBRL(Math.round(lucro * 2.5 * 100) / 100)
+  const parcela = formatBRL(Math.round(lucro / 12 * 100) / 100)
+  const n = "12"
+  r = r.replace(/\[VALOR CHEIO\]/gi, valorCheio)
+  r = r.replace(/\[VALOR\]/gi, valor)
+  r = r.replace(/\[PARCELA\]/gi, parcela)
+  r = r.replace(/\[N\]/gi, n)
+  r = r.replace(/\[OFERTA\]/gi, valor)
+  r = r.replace(/\|VALOR CHEIO\|/gi, valorCheio)
+  r = r.replace(/\|VALOR\|/gi, valor)
+  r = r.replace(/\|PARCELA\|/gi, parcela)
+  r = r.replace(/\|N\|/gi, n)
+  r = r.replace(/\{VALOR CHEIO\}/gi, valorCheio)
+  r = r.replace(/\{VALOR\}/gi, valor)
+  r = r.replace(/\{PARCELA\}/gi, parcela)
+  r = r.replace(/\{N\}/gi, n)
+  r = r.replace(/\$(\d)/g, "R$ $1")
+  r = r.replace(/\bRS\b/g, "R$")
+  while (r.includes("R$ R$")) { r = r.replace(/R\$\s*R\$/g, "R$") }
+  return r
 }
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
@@ -674,7 +701,7 @@ function DashboardInner() {
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
                               const isHTML = value.includes("<!DOCTYPE") || value.includes("<html")
-                              const filled = fillVars(value, stepIdeia || idea, tom, lucro)
+                              const filled = forceReplacePlaceholders(fillVars(value, stepIdeia || idea, tom, lucro), lucro)
                               const cleanText = filled.replace(/<[^>]*>/g, "").trim()
                               
                               const isFeed = step.id === "capa" && key === "Feed 1080x1350"
