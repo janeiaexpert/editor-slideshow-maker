@@ -93,6 +93,15 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
     "[DESCRIÇÃO BREVE DOS MÓDULOS]": ideia.slice(0, 80) + (ideia.length > 80 ? "..." : ""),
     "[MÓDULOS HTML]": words.slice(0, 3).map((w, i) => `<div class="benefit-card"><div class="num">${i+1}</div><h3>Módulo ${i+1}</h3><p>Aprenda ${w} na prática, passo a passo.</p></div>`).join(""),
     "[VALOR COM DESCONTO]": lucro > 0 ? formatBRL(Math.round(lucro * 0.8)) : "[VALOR COM DESCONTO]",
+    "|VALOR|": lucro > 0 ? formatBRL(lucro) : "0,00",
+    "|VALOR CHEIO|": lucro > 0 ? formatBRL(Math.round(lucro * 2.5 * 100) / 100) : "0,00",
+    "|PARCELA|": lucro > 0 ? formatBRL(Math.round(lucro / 12 * 100) / 100) : "0,00",
+    "|N|": n,
+    "|OFERTA|": lucro > 0 ? formatBRL(lucro) : "0,00",
+    "{VALOR}": lucro > 0 ? formatBRL(lucro) : "0,00",
+    "{VALOR CHEIO}": lucro > 0 ? formatBRL(Math.round(lucro * 2.5 * 100) / 100) : "0,00",
+    "{PARCELA}": lucro > 0 ? formatBRL(Math.round(lucro / 12 * 100) / 100) : "0,00",
+    "{N}": n,
   }
 
   let result = text
@@ -104,6 +113,7 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
   }
   result = result.replace(/R\$\s+/g, "R$ ")
   result = result.replace(/\$(\d)/g, "R$ $1")
+  result = result.replace(/\bRS\b/g, "R$")
   return result
 }
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
