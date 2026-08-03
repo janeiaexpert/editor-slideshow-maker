@@ -316,6 +316,7 @@ function DashboardInner() {
   const [activeTab, setActiveTab] = useState(() => loadState("activeTab", "produto"))
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedSteps, setExpandedSteps] = useState<string[]>(() => loadState("expandedSteps", []))
+  const [resetKey, setResetKey] = useState(0)
   const [stepIdeia, setStepIdeia] = useState(() => loadState("stepIdeia", ""))
   const [showIdeiaForm, setShowIdeiaForm] = useState(() => loadState("showIdeiaForm", true))
   const [idea, setIdea] = useState("")
@@ -425,7 +426,8 @@ function DashboardInner() {
     setActiveTab("produto")
     setShowIdeiaForm(true)
     setExpandedSteps([])
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    setSteps(INITIAL_STEPS.map(s => ({ ...s, content: {}, generated: false })))
+    setResetKey(k => k + 1)
     toast("Pronto! Comece um novo produto.")
   }, [])
 
@@ -867,12 +869,12 @@ function DashboardInner() {
 
           {/* Biblioteca Tab */}
           <TabsContent value="biblioteca" className="mt-3">
-            <Biblioteca onSelectProduto={handleSelectProduto} />
+            <Biblioteca key={resetKey} onSelectProduto={handleSelectProduto} />
           </TabsContent>
 
           {/* Meu Produto Tab */}
           <TabsContent value="custom" className="mt-3">
-            <ProdutoCustom onGerar={handleSelectProduto} />
+            <ProdutoCustom key={resetKey} onGerar={handleSelectProduto} />
           </TabsContent>
         </Tabs>
       </div>
