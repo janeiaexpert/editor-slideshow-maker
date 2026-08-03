@@ -307,6 +307,10 @@ function DashboardInner() {
   })
   const stepsRef = useRef(steps)
   stepsRef.current = steps
+  const tomRef = useRef(tom)
+  tomRef.current = tom
+  const lucroRef = useRef(lucro)
+  lucroRef.current = lucro
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState(() => loadState("lucro", 0))
   const [activeTab, setActiveTab] = useState(() => loadState("activeTab", "produto"))
@@ -387,14 +391,14 @@ function DashboardInner() {
     setExpandedSteps([])
     toast("Produto selecionado! Gerando conteúdo...")
 
-    const tomText = tom || "Persuasivo e direto"
+    const tomText = tomRef.current || "Persuasivo e direto"
     const produtoSteps = INITIAL_STEPS.filter(s => s.tab === "produto")
     for (const step of produtoSteps) {
       setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
       await doGenerate(step.id, ideia, tomText, lucroVal)
     }
     toast("Produto modelado com sucesso!")
-  }, [tom, doGenerate])
+  }, [doGenerate])
 
   const generateStep = useCallback(async (step: StepData) => {
     if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return }

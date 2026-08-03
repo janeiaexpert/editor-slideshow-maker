@@ -296,26 +296,33 @@ ACENTOS OBRIGATORIOS: conclusao, certificado, formacao, carga, horaria.`,
 
 Gere uma landing page HTML/CSS completa e profissional para captura de leads/vendas.
 
+REGRAS DE PRECO (OBRIGATORIO):
+- Use APENAS os placeholders: [VALOR], [VALOR CHEIO], [PARCELA], [N]
+- NUNCA coloque valores numericos fixos (ex: 200, 997, 497)
+- O sistema substitui os placeholders automaticamente
+
+REGRAS DE CORES (OBRIGATORIO):
+- Use APENAS estas cores no CSS: #1A1A1A, #2D2D2D, #8B5E3C, #6B4226, #D4B896, #F5EFE8, #D9CEC2, #5C5146
+- NUNCA use cores diferentes (ex: #FF0000, #00FF00, azuis, verdes)
+- Fundo: #F5EFE8 | Cards: #fff | Borda: #D9CEC2 | Destaque: #D4B896 | Botao: #8B5E3C
+
+HOOK OBRIGATORIO (Hero Section):
+- Headline que gera curiosidade e dor (max 10 palavras)
+- Subtitulo que promete transformacao
+- CTA grande com gradiente marrom
+- Palavra de destaque em #D4B896
+
 ESTRUTURA OBRIGATORIA:
-- Hero com gradiente escuro (#1A1A1A → #2D2D2D)
-  - Headline grande (clamp 32-56px) com palavra de destaque em #D4B896
-  - Subtitulo em branco opacidade 0.7
-  - CTA com gradiente marrom e hover effect (sombra + translateY)
-- Secao de beneficios/modulos com grid responsivo (auto-fit, minmax 240px)
-  - Cards brancos com borda #D9CEC2, hover sobe 4px e borda muda para #8B5E3C
-  - Numero do beneficio em circulo marrom
-- Secao de oferta escura com box centralizado
-  - Preco em destaque #D4B896
-  - Lista de itens com check verde
-- Selo de garantia "Pagamento 100% seguro"
+- Hero: gradiente escuro (#1A1A1A → #2D2D2D), headline com [HEADLINE], [PALAVRA DE DESTAQUE] em #D4B896
+- Beneficios: grid responsivo com cards brancos, borda #D9CEC2, hover com borda #8B5E3C
+- Oferta escura: preco em destaque [VALOR] em #D4B896, parcelamento [N]x de [PARCELA]
+- Garantia: selo "7 dias de garantia" e "Pagamento 100% seguro"
 - Footer escuro com direitos reservados
-- Totalmente responsivo (mobile first com @media max-width 640px)
-- CSS interno completo no <style>
-- Tipografia Inter do Google Fonts
+- Totalmente responsivo (mobile first)
 
-Placeholders: [NOME DO PRODUTO], [HEADLINE], [PALAVRA DE DESTAQUE], [SUBTITULO], [DESCRICAO BREVE DOS MODULOS], [MODULOS HTML], [VALOR CHEIO], [VALOR], [N], [PARCELA]
+Placeholders OBRIGATORIOS: [NOME DO PRODUTO], [HEADLINE], [PALAVRA DE DESTAQUE], [SUBTITULO], [DESCRICAO BREVE DOS MODULOS], [MODULOS HTML], [VALOR CHEIO], [VALOR], [N], [PARCELA]
 
-Retorne APENAS JSON: "HTML Landing Page", "Como Usar", "Personalizacao".
+Retorne APENAS JSON: "HTML Landing Page" (string com HTML completo), "Como Usar" (texto curto), "Personalizacao" (texto curto).
 ACENTOS OBRIGATORIOS: beneficio, modulo, exclusivo, garantia, seguranca, decisao.`,
 
   story: `Voce e um ROTEIRISTA DE CONTEUDO VISUAL e ESPECIALISTA em Instagram Stories e Reels, com experiencia em criar roteiros que geram visualizacao completa e compartilhamento.
