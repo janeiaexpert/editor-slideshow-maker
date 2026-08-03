@@ -678,16 +678,16 @@ function DashboardInner() {
                                   <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{key}</span>
                                 </div>
                                 {isVisualPreview ? (
-                                  <div className="px-3 pb-3">
+                                  <div className="px-3 pb-3 overflow-hidden">
                                     {isCardOferta ? (
                                       <div 
-                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-8"
+                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-6 w-full"
                                         style={{
                                           background: "linear-gradient(180deg, #1A1A1A 0%, #0D0D0D 100%)",
                                           aspectRatio: "4/5"
                                         }}
                                       >
-                                        <div className="text-center w-full">
+                                        <div className="text-center w-full overflow-hidden">
                                           {cleanText.split("\n").filter((l: string) => l.trim()).map((line: string, i: number) => {
                                             const isSelo = line.toUpperCase().includes("OFERTA") || line.toUpperCase().includes("ESPECIAL")
                                             const isPriceOld = line.includes("De R$") || line.includes("~~R$")
@@ -696,21 +696,21 @@ function DashboardInner() {
                                             const isCta = line.toUpperCase().includes("GARANTIR") || line.toUpperCase().includes("ACESSO")
                                             const isGarantia = line.includes("Garantia") || line.includes("garantia")
                                             return (
-                                              <div key={i} className={i > 0 ? "mt-2" : ""}>
+                                              <div key={i} className={`${i > 0 ? "mt-2" : ""} overflow-hidden`}>
                                                 {isSelo ? (
-                                                  <div className="text-[#D4B896] tracking-[6px] text-[10px] font-semibold uppercase">{line}</div>
+                                                  <div className="text-[#D4B896] tracking-[6px] text-[10px] font-semibold uppercase truncate">{line}</div>
                                                 ) : isPriceOld ? (
-                                                  <div className="text-white/40 text-sm line-through">{line}</div>
+                                                  <div className="text-white/40 text-sm line-through truncate">{line}</div>
                                                 ) : isPriceNew ? (
-                                                  <div className="text-white text-2xl font-bold mt-2">{line}</div>
+                                                  <div className="text-white text-xl sm:text-2xl font-bold mt-2 truncate">{line}</div>
                                                 ) : isParcela ? (
-                                                  <div className="text-white/60 text-xs">{line}</div>
+                                                  <div className="text-white/60 text-xs truncate">{line}</div>
                                                 ) : isCta ? (
-                                                  <div className="mt-4 px-6 py-3 rounded-full text-white text-xs font-bold tracking-wider" style={{ background: "linear-gradient(90deg, #8B5E3C, #5C3A1E)" }}>{line}</div>
+                                                  <div className="mt-4 px-4 py-2 rounded-full text-white text-[10px] sm:text-xs font-bold tracking-wider truncate" style={{ background: "linear-gradient(90deg, #8B5E3C, #5C3A1E)" }}>{line}</div>
                                                 ) : isGarantia ? (
-                                                  <div className="text-[#D4B896] text-[10px] mt-3">{line}</div>
+                                                  <div className="text-[#D4B896] text-[10px] mt-3 truncate">{line}</div>
                                                 ) : (
-                                                  <div className="text-white/70 text-[11px]">{line}</div>
+                                                  <div className="text-white/70 text-[10px] sm:text-[11px] truncate">{line}</div>
                                                 )}
                                               </div>
                                             )
@@ -719,27 +719,27 @@ function DashboardInner() {
                                       </div>
                                     ) : (
                                       <div 
-                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-6"
+                                        className="rounded-lg overflow-hidden flex flex-col items-center justify-center p-4 sm:p-6 w-full"
                                         style={{
                                           background: "linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%)",
                                           aspectRatio: isFeed ? "4/5" : "9/16"
                                         }}
                                       >
-                                        <div className="text-center w-full">
+                                        <div className="text-center w-full overflow-hidden">
                                           {cleanText.split("\n").filter((l: string) => l.trim()).map((line: string, i: number) => {
                                             const isHeadline = i === 0 && line.length > 10
                                             const isKeyword = line === line.toUpperCase() && line.length > 3 && line.length < 30
                                             const isTagline = line.includes("Vagas") || line.includes("Deslize") || line.includes("Acesso")
                                             return (
-                                              <div key={i} className={i > 0 ? "mt-3" : ""}>
+                                              <div key={i} className={`${i > 0 ? "mt-2 sm:mt-3" : ""} overflow-hidden`}>
                                                 {isHeadline ? (
-                                                  <div className="text-white font-bold" style={{ fontSize: isFeed ? "1.4rem" : "1.6rem", fontFamily: "Georgia, serif" }}>{line}</div>
+                                                  <div className="text-white font-bold truncate" style={{ fontSize: isFeed ? "1.2rem" : "1.4rem", fontFamily: "Georgia, serif" }}>{line}</div>
                                                 ) : isKeyword ? (
-                                                  <div className="text-[#D4B896] tracking-[3px] text-xs font-semibold uppercase">{line}</div>
+                                                  <div className="text-[#D4B896] tracking-[3px] text-[10px] sm:text-xs font-semibold uppercase truncate">{line}</div>
                                                 ) : isTagline ? (
-                                                  <div className="text-white/60 text-[10px] mt-2">{line}</div>
+                                                  <div className="text-white/60 text-[9px] sm:text-[10px] mt-2 truncate">{line}</div>
                                                 ) : (
-                                                  <div className="text-white/80 text-xs">{line}</div>
+                                                  <div className="text-white/80 text-[10px] sm:text-xs truncate">{line}</div>
                                                 )}
                                               </div>
                                             )
