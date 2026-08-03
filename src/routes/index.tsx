@@ -646,11 +646,13 @@ function Index() {
                       </div>
                       <div className="flex-none flex items-center justify-between text-[11px] pt-4 pb-1" style={{ opacity: .65 }}>
                         <span>{s.handle} · {s.author}</span>
-                        <span>{activeIndex + 1}/{cards.length}</span>
+                        <span>{activeIndex + 1}/10</span>
                       </div>
-                      <div className="flex-none h-[5px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-                        <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((activeIndex + 1) / cards.length) * 100}%`, background: effectiveAccent }} />
-                      </div>
+                      {showProgressBar && (
+                        <div className="flex-none h-[5px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+                          <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((activeIndex + 1) / cards.length) * 100}%`, background: effectiveAccent }} />
+                        </div>
+                      )}
                     </div>
                   {isSplit && s.imagePosition === "right" && s.image && (
                     <div className="w-1/2 h-full overflow-hidden shrink-0 relative">
