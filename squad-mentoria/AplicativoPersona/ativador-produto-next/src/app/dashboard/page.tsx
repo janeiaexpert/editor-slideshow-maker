@@ -414,6 +414,16 @@ function DashboardInner() {
           content["Oferta Principal"] = fallbackOferta["Oferta Principal"]
         }
       }
+      if (stepId === "card_oferta" && lucroVal > 0) {
+        const fallbackCard = FALLBACKS.card_oferta(ideaText, lucroVal)
+        if (fallbackCard) {
+          for (const [k, v] of Object.entries(fallbackCard)) {
+            if (content[k] && (content[k].includes("[VALOR") || content[k].includes("|VALOR") || content[k].includes("$ ") || content[k].includes("RS "))) {
+              content[k] = v
+            }
+          }
+        }
+      }
       updateStepContent(stepId, content)
       return content
     } catch {
