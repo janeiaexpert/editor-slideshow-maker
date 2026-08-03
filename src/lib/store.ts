@@ -72,7 +72,33 @@ export type Card = {
   textAlign: TextAlign;
   textVerticalAlign: TextVerticalAlign;
   highlights: WordHighlight[];
+  textTilt?: number;
 };
+
+/** Ganchos validados de alta retenção (PT-BR) */
+export const COPY_HOOKS: { label: string; text: string }[] = [
+  { label: "Erro comum", text: "O erro que 9 em cada 10 cometem\nsem perceber" },
+  { label: "Contradição", text: "Tudo que te ensinaram sobre isso\nestá desatualizado" },
+  { label: "Custo oculto", text: "O que esse detalhe\nestá te custando por mês" },
+  { label: "Antes/depois", text: "De travado a previsível\nem 30 dias" },
+  { label: "Lista curta", text: "3 decisões que mudam\no resultado inteiro" },
+  { label: "Prova", text: "Testei por 90 dias.\nO que sobrou foi isto" },
+  { label: "Segredo do topo", text: "O que os melhores fazem\ne quase ninguém copia" },
+  { label: "Pergunta direta", text: "Por que você trabalha mais\ne fatura o mesmo?" },
+];
+
+/** CTAs estratégicas validadas por objetivo */
+export const COPY_CTAS: { label: string; text: string; caption: string }[] = [
+  { label: "Salvar", text: "Salve para aplicar hoje", caption: "Você vai querer reler isto depois" },
+  { label: "Comentar", text: "Comente PLANO", caption: "Envio o passo a passo no direct" },
+  { label: "Direct", text: "Chame no direct", caption: "Respondo pessoalmente" },
+  { label: "Link bio", text: "Link na bio", caption: "Acesso imediato, sem burocracia" },
+  { label: "Diagnóstico", text: "Quero meu diagnóstico", caption: "Leva 2 minutos e é gratuito" },
+  { label: "Vaga limitada", text: "Garantir minha vaga", caption: "Turma pequena, atenção real" },
+  { label: "Compartilhar", text: "Envie para quem precisa ler", caption: "Um print pode mudar a semana dela" },
+  { label: "Seguir", text: "Siga para a parte 2", caption: "Continuo esse assunto amanhã" },
+];
+
 
 export type WordHighlight = {
   word: string;

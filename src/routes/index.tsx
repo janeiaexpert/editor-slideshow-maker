@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
+import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -625,7 +625,7 @@ function Index() {
 
                     <div className={`flex h-full flex-col ${isSplit ? "relative flex-1 overflow-auto" : "relative z-10 w-full"}`} style={{ padding: isSplit ? "28px 20px" : "48px 40px", background: isSplit ? effectiveBg : undefined }}>
                       <div className="flex flex-col overflow-hidden" style={{ flex: "1 1 0%", minHeight: 0, ...verticalStyle }}>
-                        <div style={horizontalStyle} className="w-full overflow-hidden space-y-[2.5%]">
+                        <div style={{ ...horizontalStyle, transform: s.textTilt ? `rotate(${s.textTilt}deg)` : undefined, transformOrigin: s.textAlign === "center" ? "center center" : "left center" }} className="w-full overflow-hidden space-y-[2.5%]">
                           {brand.logo && <img src={brand.logo} alt="logo" className="h-10 object-contain" style={s.textAlign === "center" ? { margin: "0 auto" } : {}} />}
                           <div style={{ color: effectiveAccent, fontSize: typography.fontSizeKicker, fontWeight: 700, letterSpacing: "0.28em" }}>{s.kicker}</div>
                           <h2 className="whitespace-pre-line" style={{ color: brandTextColor ?? undefined, fontFamily: brand.fontTitle || typography.fontTitle || "Georgia, serif", fontSize: autoTitleSize * textScale / 100, fontWeight: typography.fontWeightTitle, lineHeight: typography.lineHeight, letterSpacing: typography.letterSpacing, textWrap: "balance" }}><WordHighlighter text={s.title} highlights={s.highlights || []} /></h2>
@@ -863,7 +863,56 @@ function Index() {
                     </select>
                     <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || [])]; hls.push({ word: hlWord.trim(), color: hlColor, shape: hlShape }); updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
                   </div>
+                  <button
+                    onClick={() => {
+                      if (!hlWord.trim()) return;
+                      const hl = { word: hlWord.trim(), color: hlColor, shape: hlShape };
+                      cards.forEach((c, i) => updateCard(i, { highlights: [...(c.highlights || []), hl] }));
+                      setHlWord("");
+                      setFeedback("Marcador aplicado em todos os cards!");
+                      setTimeout(() => setFeedback(""), 2000);
+                    }}
+                    className="mt-1.5 w-full rounded-md bg-white/10 py-1.5 text-[10px] font-semibold text-white/70 hover:text-white"
+                  >
+                    marcar em todos os cards
+                  </button>
                 </div>
+
+                {/* Inclinação do texto */}
+                <Field label="Inclinação do texto">
+                  <div className="flex items-center gap-2">
+                    <input type="range" min={-10} max={10} step={1} value={s.textTilt ?? 0} onChange={(e) => updateCard(activeIndex, { textTilt: Number(e.target.value) })} className="flex-1 accent-[#c2a25b]" />
+                    <span className="w-9 shrink-0 text-right text-[10px] text-white/60">{s.textTilt ?? 0}°</span>
+                  </div>
+                  <div className="mt-1.5 flex gap-1">
+                    <button onClick={() => updateCard(activeIndex, { textTilt: 0 })} className="flex-1 rounded-md bg-white/5 py-1.5 text-[10px] font-semibold text-white/70 hover:text-white">reto</button>
+                    <button onClick={() => { const v = s.textTilt ?? 0; cards.forEach((_, i) => updateCard(i, { textTilt: v })); setFeedback("Inclinação aplicada em todos!"); setTimeout(() => setFeedback(""), 2000); }} className="flex-1 rounded-md bg-white/10 py-1.5 text-[10px] font-semibold text-white/70 hover:text-white">todos os cards</button>
+                  </div>
+                </Field>
+
+                {/* Copy validada */}
+                <details className="group rounded-lg border border-white/10 bg-white/[0.02]">
+                  <summary className="cursor-pointer px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-white/50 hover:text-white">Copy que converte</summary>
+                  <div className="space-y-3 px-3 pb-3">
+                    <div>
+                      <div className="mb-1 text-[9px] uppercase tracking-wider text-white/40">Hooks fortes</div>
+                      <div className="flex flex-wrap gap-1">
+                        {COPY_HOOKS.map((h) => (
+                          <button key={h.label} onClick={() => updateCard(activeIndex, { title: h.text })} title={h.text} className="rounded-full bg-white/5 px-2 py-1 text-[9px] text-white/70 hover:bg-white/15 hover:text-white">{h.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="mb-1 text-[9px] uppercase tracking-wider text-white/40">CTAs estratégicas</div>
+                      <div className="flex flex-wrap gap-1">
+                        {COPY_CTAS.map((c) => (
+                          <button key={c.label} onClick={() => updateCard(activeIndex, { buttonText: c.text, buttonCaption: c.caption })} title={`${c.text} — ${c.caption}`} className="rounded-full bg-white/5 px-2 py-1 text-[9px] text-white/70 hover:bg-white/15 hover:text-white">{c.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </details>
+
                 <Field label="Texto do botão"><input value={s.buttonText} onChange={(e) => updateCard(activeIndex, { buttonText: e.target.value })} className={inputCls} /></Field>
                 <Field label="Legenda do botão"><input value={s.buttonCaption} onChange={(e) => updateCard(activeIndex, { buttonCaption: e.target.value })} className={inputCls} /></Field>
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
