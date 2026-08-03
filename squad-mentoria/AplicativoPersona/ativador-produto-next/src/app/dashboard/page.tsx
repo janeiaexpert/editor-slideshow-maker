@@ -79,7 +79,7 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
     "[PALAVRA DE DESTAQUE]": destaque,
     "[OFERTA]": lucro > 0 ? formatBRL(lucro) : "[VALOR]",
     "[VALOR]": lucro > 0 ? formatBRL(lucro) : "[VALOR]",
-    "[VALOR CHEIO]": lucro > 0 ? formatBRL(Math.round(lucro * 2.5)) : "[VALOR CHEIO]",
+    "[VALOR CHEIO]": lucro > 0 ? formatBRL(Math.round(lucro * 2.5 * 100) / 100) : "[VALOR CHEIO]",
     "[N]": n,
     "[PARCELA]": lucro > 0 ? formatBRL(Math.round(lucro / 12 * 100) / 100) : "[PARCELA]",
     "[CARGA]": "40",
@@ -168,10 +168,11 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   oferta: (idea, lucro) => {
     const valor = lucro && lucro > 0 ? lucro : 497
     const parcela = Math.round(valor / 12 * 100) / 100
-    const valorCheio = Math.round(valor * 2.5)
+    const valorCheio = Math.round(valor * 2.5 * 100) / 100
+    const economia = Math.round((1 - valor / valorCheio) * 100)
     return {
       "Valor Ideal": `R$ ${formatBRL(valor)} à vista ou 12x de R$ ${formatBRL(parcela)}`,
-      "Ancoragem": `De R$ ${formatBRL(valorCheio)} por apenas R$ ${formatBRL(valor)} — economia de 50%`,
+      "Ancoragem": `De R$ ${formatBRL(valorCheio)} por apenas R$ ${formatBRL(valor)} — economia de ${economia}%`,
       "Parcelamento": `12x de R$ ${formatBRL(parcela)} sem juros no cartão. PIX com 10% de desconto.`,
       "Garantia": "7 dias de garantia incondicional. Risco zero.",
       "Escassez": "Últimas 50 vagas com acesso aos bônus exclusivos",
@@ -240,7 +241,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number) => Record<string,
   card_oferta: (idea, lucro) => {
     const nome = idea?.split(" ").slice(0, 3).join(" ") || "Seu Produto"
     const valor = lucro && lucro > 0 ? lucro : 497
-    const valorCheio = Math.round(valor * 2.5)
+    const valorCheio = Math.round(valor * 2.5 * 100) / 100
     const parcela = Math.round(valor / 12 * 100) / 100
     return {
       "Card Oferta": `Card promocional para Instagram Stories (1080x1350)\n\n🎨 Design: Fundo gradiente escuro (#1A1A1A → #0D0D0D)\n🏷️ Selo: "OFERTA ESPECIAL" em dourado #D4B896, letter-spacing 8\n💰 Preço antigo riscado: ${valorCheio.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}\n💰 Preço novo: ${valor.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})} em branco, 100px bold\n💳 Parcelamento: 12x de ${parcela.toLocaleString("pt-BR", {style:"currency",currency:"BRL"})}\n🔘 Botão CTA: gradiente marrom (#8B5E3C → #5C3A1E)\n🔒 Selos: "Garantia de 7 dias" e "Acesso Imediato"`,
