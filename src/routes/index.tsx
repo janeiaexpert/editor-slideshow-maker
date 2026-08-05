@@ -164,6 +164,36 @@ function Index() {
   const [hlColor, setHlColor] = useState("#ffeb3b");
   const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt" | "none">("rect");
   const [hlTilt, setHlTilt] = useState(0);
+  const [hlFont, setHlFont] = useState("");
+  const [hlWeight, setHlWeight] = useState(700);
+  const [hlItalic, setHlItalic] = useState(false);
+  const [hlUpper, setHlUpper] = useState(false);
+  const [hlPreset, setHlPreset] = useState<string | null>(null);
+
+  const buildHighlight = () => ({
+    word: hlWord.trim(),
+    color: hlColor,
+    shape: hlShape,
+    tilt: hlTilt,
+    fontFamily: hlFont || undefined,
+    fontWeight: hlWeight,
+    italic: hlItalic,
+    uppercase: hlUpper,
+  });
+
+  const applyWordPreset = (p: WordPreset) => {
+    setHlPreset(p.label);
+    setHlColor(p.color);
+    setHlShape(p.shape);
+    setHlTilt(p.tilt);
+    setHlFont(p.fontFamily || "");
+    setHlWeight(p.fontWeight ?? 700);
+    setHlItalic(!!p.italic);
+    setHlUpper(!!p.uppercase);
+  };
+
+  const restyleHighlights = (hls: WordHighlight[] | undefined, p: WordPreset): WordHighlight[] =>
+    (hls || []).map((h) => ({ ...h, color: p.color, shape: p.shape, tilt: p.tilt, fontFamily: p.fontFamily, fontWeight: p.fontWeight, italic: p.italic, uppercase: p.uppercase }));
 
   // Garante que applyByDefault tenha efeito ao carregar página com estado persistido
   useEffect(() => {
