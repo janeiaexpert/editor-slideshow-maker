@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
+import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, WORD_PRESETS, type WordPreset, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   component: Index,
