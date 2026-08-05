@@ -104,7 +104,34 @@ export type WordHighlight = {
   color: string;
   shape: "rect" | "oval" | "marker" | "tilt" | "none";
   tilt?: number;
+  fontFamily?: string;
+  fontWeight?: number;
+  italic?: boolean;
+  uppercase?: boolean;
 };
+
+/** Presets de estilo para palavras destacadas */
+export type WordPreset = {
+  label: string;
+  color: string;
+  shape: WordHighlight["shape"];
+  tilt: number;
+  fontFamily?: string;
+  fontWeight?: number;
+  italic?: boolean;
+  uppercase?: boolean;
+};
+
+export const WORD_PRESETS: WordPreset[] = [
+  { label: "Marca-texto", color: "#ffeb3b", shape: "marker", tilt: 0, fontWeight: 700 },
+  { label: "Etiqueta", color: "#c2a25b", shape: "rect", tilt: 0, fontWeight: 800, uppercase: true },
+  { label: "Pílula", color: "#8b5a2b", shape: "oval", tilt: 0, fontWeight: 700 },
+  { label: "Editorial", color: "#c2a25b", shape: "none", tilt: 0, fontFamily: "Georgia, serif", fontWeight: 700, italic: true },
+  { label: "Manuscrito", color: "#ffffff", shape: "none", tilt: -6, fontFamily: "Georgia, serif", fontWeight: 600, italic: true },
+  { label: "Adesivo", color: "#ff5252", shape: "rect", tilt: -8, fontWeight: 900, uppercase: true },
+  { label: "Mono técnico", color: "#7de2c3", shape: "none", tilt: 0, fontFamily: "ui-monospace, monospace", fontWeight: 700 },
+  { label: "Neon leve", color: "#4fc3f7", shape: "marker", tilt: 3, fontWeight: 800 },
+];
 
 export type DesignPreset = "minimalista" | "corporativo" | "moderno" | "autoridade" | "tech" | "educacional" | "identidade" | "arialbold" | "clean" | "techbold";
 export type ColorTheme = "marrom" | "preto" | "bege" | "azul" | "roxo" | "verde" | "vermelho" | "laranja" | "cinza" | "verdeagua" | "rosa" | "azulclaro";

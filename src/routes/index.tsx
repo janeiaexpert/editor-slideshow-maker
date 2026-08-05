@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
+import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, WORD_PRESETS, type WordPreset, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -118,11 +118,18 @@ function WordHighlighter({ text, highlights }: { text: string; highlights: WordH
     if (!p.hl) return <span key={i}>{p.text}</span>;
     const c = p.hl.color;
     const tilt = p.hl.shape === "tilt" ? (p.hl.tilt ?? -4) : (p.hl.tilt ?? 0);
-    const base: React.CSSProperties = { display: "inline-block", transform: tilt ? `rotate(${tilt}deg)` : undefined };
-    if (p.hl.shape === "none") return <span key={i} style={{ ...base, color: c }}>{p.text}</span>;
-    if (p.hl.shape === "oval") return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{p.text}</span>;
-    if (p.hl.shape === "marker") return <span key={i} style={{ ...base, background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{p.text}</span>;
-    return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{p.text}</span>;
+    const label = p.hl.uppercase ? p.text.toUpperCase() : p.text;
+    const base: React.CSSProperties = {
+      display: "inline-block",
+      transform: tilt ? `rotate(${tilt}deg)` : undefined,
+      fontFamily: p.hl.fontFamily || undefined,
+      fontWeight: p.hl.fontWeight || undefined,
+      fontStyle: p.hl.italic ? "italic" : undefined,
+    };
+    if (p.hl.shape === "none") return <span key={i} style={{ ...base, color: c }}>{label}</span>;
+    if (p.hl.shape === "oval") return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{label}</span>;
+    if (p.hl.shape === "marker") return <span key={i} style={{ ...base, background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{label}</span>;
+    return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{label}</span>;
   })}</>;
 }
 const CARD_TYPES: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
@@ -157,6 +164,36 @@ function Index() {
   const [hlColor, setHlColor] = useState("#ffeb3b");
   const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt" | "none">("rect");
   const [hlTilt, setHlTilt] = useState(0);
+  const [hlFont, setHlFont] = useState("");
+  const [hlWeight, setHlWeight] = useState(700);
+  const [hlItalic, setHlItalic] = useState(false);
+  const [hlUpper, setHlUpper] = useState(false);
+  const [hlPreset, setHlPreset] = useState<string | null>(null);
+
+  const buildHighlight = () => ({
+    word: hlWord.trim(),
+    color: hlColor,
+    shape: hlShape,
+    tilt: hlTilt,
+    fontFamily: hlFont || undefined,
+    fontWeight: hlWeight,
+    italic: hlItalic,
+    uppercase: hlUpper,
+  });
+
+  const applyWordPreset = (p: WordPreset) => {
+    setHlPreset(p.label);
+    setHlColor(p.color);
+    setHlShape(p.shape);
+    setHlTilt(p.tilt);
+    setHlFont(p.fontFamily || "");
+    setHlWeight(p.fontWeight ?? 700);
+    setHlItalic(!!p.italic);
+    setHlUpper(!!p.uppercase);
+  };
+
+  const restyleHighlights = (hls: WordHighlight[] | undefined, p: WordPreset): WordHighlight[] =>
+    (hls || []).map((h) => ({ ...h, color: p.color, shape: p.shape, tilt: p.tilt, fontFamily: p.fontFamily, fontWeight: p.fontWeight, italic: p.italic, uppercase: p.uppercase }));
 
   // Garante que applyByDefault tenha efeito ao carregar página com estado persistido
   useEffect(() => {
@@ -845,6 +882,50 @@ function Index() {
                       ))}
                     </div>
                   )}
+                  {/* Presets de estilo de palavra */}
+                  <div className="mb-2 rounded-md bg-white/[0.03] p-2">
+                    <div className="mb-1.5 text-[9px] uppercase tracking-wider text-white/40">Presets de estilo</div>
+                    <div className="flex flex-wrap gap-1">
+                      {WORD_PRESETS.map((p) => (
+                        <button
+                          key={p.label}
+                          onClick={() => applyWordPreset(p)}
+                          className={`rounded-full px-2 py-1 text-[9px] ring-1 transition ${hlPreset === p.label ? "ring-[#c2a25b] text-white" : "ring-white/10 text-white/60 hover:text-white"}`}
+                          style={{ background: p.color + "22", fontFamily: p.fontFamily, fontWeight: p.fontWeight, fontStyle: p.italic ? "italic" : undefined, transform: p.tilt ? `rotate(${p.tilt / 2}deg)` : undefined }}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-1.5 flex gap-1.5">
+                      <button
+                        disabled={!hlPreset}
+                        onClick={() => {
+                          const p = WORD_PRESETS.find((x) => x.label === hlPreset);
+                          if (!p) return;
+                          updateCard(activeIndex, { highlights: restyleHighlights(s.highlights, p) });
+                          setFeedback("Estilo aplicado neste card!");
+                          setTimeout(() => setFeedback(""), 2000);
+                        }}
+                        className="flex-1 rounded-md bg-white/10 py-1.5 text-[9px] font-semibold text-white/70 hover:text-white disabled:opacity-40"
+                      >
+                        aplicar neste card
+                      </button>
+                      <button
+                        disabled={!hlPreset}
+                        onClick={() => {
+                          const p = WORD_PRESETS.find((x) => x.label === hlPreset);
+                          if (!p) return;
+                          cards.forEach((c, i) => updateCard(i, { highlights: restyleHighlights(c.highlights, p) }));
+                          setFeedback("Estilo aplicado em todos os cards!");
+                          setTimeout(() => setFeedback(""), 2000);
+                        }}
+                        className="flex-1 rounded-md bg-[#c2a25b]/80 py-1.5 text-[9px] font-bold text-black hover:bg-[#c2a25b] disabled:opacity-40"
+                      >
+                        aplicar em todos
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex gap-1.5 items-end">
                     <input
                       placeholder="palavra..."
@@ -864,17 +945,34 @@ function Index() {
                       <option value="marker">Marca-texto</option>
                       <option value="none">Só cor</option>
                     </select>
-                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || [])]; hls.push({ word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt }); updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || []), buildHighlight()]; updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <select value={hlFont} onChange={(e) => { setHlFont(e.target.value); setHlPreset(null); }} className="min-w-0 flex-1 rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
+                      <option value="">Fonte do texto</option>
+                      <option value="Inter, sans-serif">Inter</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="Arial Black, sans-serif">Arial Black</option>
+                      <option value="ui-monospace, monospace">Mono</option>
+                    </select>
+                    <select value={hlWeight} onChange={(e) => { setHlWeight(Number(e.target.value)); setHlPreset(null); }} className="rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
+                      <option value={400}>Regular</option>
+                      <option value={600}>Semi</option>
+                      <option value={700}>Bold</option>
+                      <option value={900}>Black</option>
+                    </select>
+                    <button onClick={() => { setHlItalic(!hlItalic); setHlPreset(null); }} className={`rounded-md px-2 py-1.5 text-[10px] italic ring-1 ${hlItalic ? "bg-[#c2a25b] text-black ring-transparent" : "bg-white/5 text-white/60 ring-white/10"}`}>I</button>
+                    <button onClick={() => { setHlUpper(!hlUpper); setHlPreset(null); }} className={`rounded-md px-2 py-1.5 text-[10px] font-bold ring-1 ${hlUpper ? "bg-[#c2a25b] text-black ring-transparent" : "bg-white/5 text-white/60 ring-white/10"}`}>AA</button>
                   </div>
                   <div className="mt-1.5 flex items-center gap-2">
                     <span className="shrink-0 text-[10px] text-white/40">inclinar palavra</span>
-                    <input type="range" min={-15} max={15} step={1} value={hlTilt} onChange={(e) => setHlTilt(Number(e.target.value))} className="flex-1 accent-[#c2a25b]" />
+                    <input type="range" min={-15} max={15} step={1} value={hlTilt} onChange={(e) => { setHlTilt(Number(e.target.value)); setHlPreset(null); }} className="flex-1 accent-[#c2a25b]" />
                     <span className="w-9 shrink-0 text-right text-[10px] text-white/60">{hlTilt}°</span>
                   </div>
                   <button
                     onClick={() => {
                       if (!hlWord.trim()) return;
-                      const hl = { word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt };
+                      const hl = buildHighlight();
                       cards.forEach((c, i) => updateCard(i, { highlights: [...(c.highlights || []), hl] }));
                       setHlWord("");
                       setFeedback("Marcador aplicado em todos os cards!");
