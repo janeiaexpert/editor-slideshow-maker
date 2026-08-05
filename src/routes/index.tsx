@@ -118,11 +118,18 @@ function WordHighlighter({ text, highlights }: { text: string; highlights: WordH
     if (!p.hl) return <span key={i}>{p.text}</span>;
     const c = p.hl.color;
     const tilt = p.hl.shape === "tilt" ? (p.hl.tilt ?? -4) : (p.hl.tilt ?? 0);
-    const base: React.CSSProperties = { display: "inline-block", transform: tilt ? `rotate(${tilt}deg)` : undefined };
-    if (p.hl.shape === "none") return <span key={i} style={{ ...base, color: c }}>{p.text}</span>;
-    if (p.hl.shape === "oval") return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{p.text}</span>;
-    if (p.hl.shape === "marker") return <span key={i} style={{ ...base, background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{p.text}</span>;
-    return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{p.text}</span>;
+    const label = p.hl.uppercase ? p.text.toUpperCase() : p.text;
+    const base: React.CSSProperties = {
+      display: "inline-block",
+      transform: tilt ? `rotate(${tilt}deg)` : undefined,
+      fontFamily: p.hl.fontFamily || undefined,
+      fontWeight: p.hl.fontWeight || undefined,
+      fontStyle: p.hl.italic ? "italic" : undefined,
+    };
+    if (p.hl.shape === "none") return <span key={i} style={{ ...base, color: c }}>{label}</span>;
+    if (p.hl.shape === "oval") return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{label}</span>;
+    if (p.hl.shape === "marker") return <span key={i} style={{ ...base, background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{label}</span>;
+    return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{label}</span>;
   })}</>;
 }
 const CARD_TYPES: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
