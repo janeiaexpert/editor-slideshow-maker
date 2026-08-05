@@ -72,7 +72,6 @@ export type Card = {
   textAlign: TextAlign;
   textVerticalAlign: TextVerticalAlign;
   highlights: WordHighlight[];
-  textTilt?: number;
 };
 
 /** Ganchos validados de alta retenção (PT-BR) */
@@ -103,7 +102,8 @@ export const COPY_CTAS: { label: string; text: string; caption: string }[] = [
 export type WordHighlight = {
   word: string;
   color: string;
-  shape: "rect" | "oval" | "marker" | "tilt";
+  shape: "rect" | "oval" | "marker" | "tilt" | "none";
+  tilt?: number;
 };
 
 export type DesignPreset = "minimalista" | "corporativo" | "moderno" | "autoridade" | "tech" | "educacional" | "identidade" | "arialbold" | "clean" | "techbold";
