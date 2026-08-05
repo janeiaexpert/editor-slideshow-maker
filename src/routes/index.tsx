@@ -882,6 +882,50 @@ function Index() {
                       ))}
                     </div>
                   )}
+                  {/* Presets de estilo de palavra */}
+                  <div className="mb-2 rounded-md bg-white/[0.03] p-2">
+                    <div className="mb-1.5 text-[9px] uppercase tracking-wider text-white/40">Presets de estilo</div>
+                    <div className="flex flex-wrap gap-1">
+                      {WORD_PRESETS.map((p) => (
+                        <button
+                          key={p.label}
+                          onClick={() => applyWordPreset(p)}
+                          className={`rounded-full px-2 py-1 text-[9px] ring-1 transition ${hlPreset === p.label ? "ring-[#c2a25b] text-white" : "ring-white/10 text-white/60 hover:text-white"}`}
+                          style={{ background: p.color + "22", fontFamily: p.fontFamily, fontWeight: p.fontWeight, fontStyle: p.italic ? "italic" : undefined, transform: p.tilt ? `rotate(${p.tilt / 2}deg)` : undefined }}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-1.5 flex gap-1.5">
+                      <button
+                        disabled={!hlPreset}
+                        onClick={() => {
+                          const p = WORD_PRESETS.find((x) => x.label === hlPreset);
+                          if (!p) return;
+                          updateCard(activeIndex, { highlights: restyleHighlights(s.highlights, p) });
+                          setFeedback("Estilo aplicado neste card!");
+                          setTimeout(() => setFeedback(""), 2000);
+                        }}
+                        className="flex-1 rounded-md bg-white/10 py-1.5 text-[9px] font-semibold text-white/70 hover:text-white disabled:opacity-40"
+                      >
+                        aplicar neste card
+                      </button>
+                      <button
+                        disabled={!hlPreset}
+                        onClick={() => {
+                          const p = WORD_PRESETS.find((x) => x.label === hlPreset);
+                          if (!p) return;
+                          cards.forEach((c, i) => updateCard(i, { highlights: restyleHighlights(c.highlights, p) }));
+                          setFeedback("Estilo aplicado em todos os cards!");
+                          setTimeout(() => setFeedback(""), 2000);
+                        }}
+                        className="flex-1 rounded-md bg-[#c2a25b]/80 py-1.5 text-[9px] font-bold text-black hover:bg-[#c2a25b] disabled:opacity-40"
+                      >
+                        aplicar em todos
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex gap-1.5 items-end">
                     <input
                       placeholder="palavra..."
@@ -901,17 +945,34 @@ function Index() {
                       <option value="marker">Marca-texto</option>
                       <option value="none">Só cor</option>
                     </select>
-                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || [])]; hls.push({ word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt }); updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || []), buildHighlight()]; updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <select value={hlFont} onChange={(e) => { setHlFont(e.target.value); setHlPreset(null); }} className="min-w-0 flex-1 rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
+                      <option value="">Fonte do texto</option>
+                      <option value="Inter, sans-serif">Inter</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="Arial Black, sans-serif">Arial Black</option>
+                      <option value="ui-monospace, monospace">Mono</option>
+                    </select>
+                    <select value={hlWeight} onChange={(e) => { setHlWeight(Number(e.target.value)); setHlPreset(null); }} className="rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
+                      <option value={400}>Regular</option>
+                      <option value={600}>Semi</option>
+                      <option value={700}>Bold</option>
+                      <option value={900}>Black</option>
+                    </select>
+                    <button onClick={() => { setHlItalic(!hlItalic); setHlPreset(null); }} className={`rounded-md px-2 py-1.5 text-[10px] italic ring-1 ${hlItalic ? "bg-[#c2a25b] text-black ring-transparent" : "bg-white/5 text-white/60 ring-white/10"}`}>I</button>
+                    <button onClick={() => { setHlUpper(!hlUpper); setHlPreset(null); }} className={`rounded-md px-2 py-1.5 text-[10px] font-bold ring-1 ${hlUpper ? "bg-[#c2a25b] text-black ring-transparent" : "bg-white/5 text-white/60 ring-white/10"}`}>AA</button>
                   </div>
                   <div className="mt-1.5 flex items-center gap-2">
                     <span className="shrink-0 text-[10px] text-white/40">inclinar palavra</span>
-                    <input type="range" min={-15} max={15} step={1} value={hlTilt} onChange={(e) => setHlTilt(Number(e.target.value))} className="flex-1 accent-[#c2a25b]" />
+                    <input type="range" min={-15} max={15} step={1} value={hlTilt} onChange={(e) => { setHlTilt(Number(e.target.value)); setHlPreset(null); }} className="flex-1 accent-[#c2a25b]" />
                     <span className="w-9 shrink-0 text-right text-[10px] text-white/60">{hlTilt}°</span>
                   </div>
                   <button
                     onClick={() => {
                       if (!hlWord.trim()) return;
-                      const hl = { word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt };
+                      const hl = buildHighlight();
                       cards.forEach((c, i) => updateCard(i, { highlights: [...(c.highlights || []), hl] }));
                       setHlWord("");
                       setFeedback("Marcador aplicado em todos os cards!");
