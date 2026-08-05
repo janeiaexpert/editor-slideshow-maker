@@ -117,10 +117,12 @@ function WordHighlighter({ text, highlights }: { text: string; highlights: WordH
   return <>{parts.map((p, i) => {
     if (!p.hl) return <span key={i}>{p.text}</span>;
     const c = p.hl.color;
-    if (p.hl.shape === "rect") return <span key={i} style={{ display: "inline-block", background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{p.text}</span>;
-    if (p.hl.shape === "oval") return <span key={i} style={{ display: "inline-block", background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{p.text}</span>;
-    if (p.hl.shape === "tilt") return <span key={i} style={{ display: "inline-block", transform: "rotate(-4deg)", background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{p.text}</span>;
-    return <span key={i} style={{ display: "inline-block", background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{p.text}</span>;
+    const tilt = p.hl.shape === "tilt" ? (p.hl.tilt ?? -4) : (p.hl.tilt ?? 0);
+    const base: React.CSSProperties = { display: "inline-block", transform: tilt ? `rotate(${tilt}deg)` : undefined };
+    if (p.hl.shape === "none") return <span key={i} style={{ ...base, color: c }}>{p.text}</span>;
+    if (p.hl.shape === "oval") return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 999, padding: "0 8px" }}>{p.text}</span>;
+    if (p.hl.shape === "marker") return <span key={i} style={{ ...base, background: `linear-gradient(transparent 25%, ${c}BB 25%, ${c}BB 75%, transparent 75%)`, padding: "0 3px" }}>{p.text}</span>;
+    return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{p.text}</span>;
   })}</>;
 }
 const CARD_TYPES: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
@@ -153,7 +155,8 @@ function Index() {
   
   const [hlWord, setHlWord] = useState("");
   const [hlColor, setHlColor] = useState("#ffeb3b");
-  const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt">("rect");
+  const [hlShape, setHlShape] = useState<"rect" | "oval" | "marker" | "tilt" | "none">("rect");
+  const [hlTilt, setHlTilt] = useState(0);
 
   // Garante que applyByDefault tenha efeito ao carregar página com estado persistido
   useEffect(() => {
@@ -625,7 +628,7 @@ function Index() {
 
                     <div className={`flex h-full flex-col ${isSplit ? "relative flex-1 overflow-auto" : "relative z-10 w-full"}`} style={{ padding: isSplit ? "28px 20px" : "48px 40px", background: isSplit ? effectiveBg : undefined }}>
                       <div className="flex flex-col overflow-hidden" style={{ flex: "1 1 0%", minHeight: 0, ...verticalStyle }}>
-                        <div style={{ ...horizontalStyle, transform: s.textTilt ? `rotate(${s.textTilt}deg)` : undefined, transformOrigin: s.textAlign === "center" ? "center center" : "left center" }} className="w-full overflow-hidden space-y-[2.5%]">
+                        <div style={{ ...horizontalStyle }} className="w-full overflow-hidden space-y-[2.5%]">
                           {brand.logo && <img src={brand.logo} alt="logo" className="h-10 object-contain" style={s.textAlign === "center" ? { margin: "0 auto" } : {}} />}
                           <div style={{ color: effectiveAccent, fontSize: typography.fontSizeKicker, fontWeight: 700, letterSpacing: "0.28em" }}>{s.kicker}</div>
                           <h2 className="whitespace-pre-line" style={{ color: brandTextColor ?? undefined, fontFamily: brand.fontTitle || typography.fontTitle || "Georgia, serif", fontSize: autoTitleSize * textScale / 100, fontWeight: typography.fontWeightTitle, lineHeight: typography.lineHeight, letterSpacing: typography.letterSpacing, textWrap: "balance" }}><WordHighlighter text={s.title} highlights={s.highlights || []} /></h2>
@@ -855,18 +858,23 @@ function Index() {
                       onChange={(e) => setHlColor(e.target.value)}
                       className="h-7 w-7 shrink-0 rounded-md cursor-pointer bg-white/5"
                     />
-                    <select value={hlShape} onChange={(e) => setHlShape(e.target.value as "rect" | "oval" | "marker" | "tilt")} className="rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
+                    <select value={hlShape} onChange={(e) => setHlShape(e.target.value as typeof hlShape)} className="rounded-md bg-white/5 px-1.5 py-1.5 text-[10px] text-white outline-none ring-1 ring-white/10">
                       <option value="rect">Rect</option>
                       <option value="oval">Oval</option>
                       <option value="marker">Marca-texto</option>
-                      <option value="tilt">Inclinado</option>
+                      <option value="none">Só cor</option>
                     </select>
-                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || [])]; hls.push({ word: hlWord.trim(), color: hlColor, shape: hlShape }); updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                    <button onClick={() => { if (!hlWord.trim()) return; const hls = [...(s.highlights || [])]; hls.push({ word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt }); updateCard(activeIndex, { highlights: hls }); setHlWord(""); }} className="shrink-0 rounded-md bg-[#c2a25b] px-2.5 py-1.5 text-[10px] font-bold text-black">+</button>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="shrink-0 text-[10px] text-white/40">inclinar palavra</span>
+                    <input type="range" min={-15} max={15} step={1} value={hlTilt} onChange={(e) => setHlTilt(Number(e.target.value))} className="flex-1 accent-[#c2a25b]" />
+                    <span className="w-9 shrink-0 text-right text-[10px] text-white/60">{hlTilt}°</span>
                   </div>
                   <button
                     onClick={() => {
                       if (!hlWord.trim()) return;
-                      const hl = { word: hlWord.trim(), color: hlColor, shape: hlShape };
+                      const hl = { word: hlWord.trim(), color: hlColor, shape: hlShape, tilt: hlTilt };
                       cards.forEach((c, i) => updateCard(i, { highlights: [...(c.highlights || []), hl] }));
                       setHlWord("");
                       setFeedback("Marcador aplicado em todos os cards!");
@@ -877,18 +885,6 @@ function Index() {
                     marcar em todos os cards
                   </button>
                 </div>
-
-                {/* Inclinação do texto */}
-                <Field label="Inclinação do texto">
-                  <div className="flex items-center gap-2">
-                    <input type="range" min={-10} max={10} step={1} value={s.textTilt ?? 0} onChange={(e) => updateCard(activeIndex, { textTilt: Number(e.target.value) })} className="flex-1 accent-[#c2a25b]" />
-                    <span className="w-9 shrink-0 text-right text-[10px] text-white/60">{s.textTilt ?? 0}°</span>
-                  </div>
-                  <div className="mt-1.5 flex gap-1">
-                    <button onClick={() => updateCard(activeIndex, { textTilt: 0 })} className="flex-1 rounded-md bg-white/5 py-1.5 text-[10px] font-semibold text-white/70 hover:text-white">reto</button>
-                    <button onClick={() => { const v = s.textTilt ?? 0; cards.forEach((_, i) => updateCard(i, { textTilt: v })); setFeedback("Inclinação aplicada em todos!"); setTimeout(() => setFeedback(""), 2000); }} className="flex-1 rounded-md bg-white/10 py-1.5 text-[10px] font-semibold text-white/70 hover:text-white">todos os cards</button>
-                  </div>
-                </Field>
 
                 {/* Copy validada */}
                 <details className="group rounded-lg border border-white/10 bg-white/[0.02]">
