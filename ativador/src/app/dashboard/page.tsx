@@ -1000,7 +1000,14 @@ function DashboardInner() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowIdeiaForm(false)}
+                  onClick={() => {
+                    if (!stepIdeia.trim()) {
+                      toast("Descreva sua ideia primeiro")
+                      return
+                    }
+                    setShowIdeiaForm(false)
+                    toast("Ideia guardada! Agora gere os passos abaixo.")
+                  }}
                   className="text-xs"
                 >
                   Ok, guardar ideia
