@@ -487,6 +487,8 @@ function DashboardInner() {
   const [showIdeiaForm, setShowIdeiaForm] = useState(() => loadState("showIdeiaForm", true))
   const [stepByStepMode, setStepByStepMode] = useState(false)
   const [idea, setIdea] = useState("")
+  const [autoGenerating, setAutoGenerating] = useState(false)
+  const [autoProgress, setAutoProgress] = useState({ current: 0, total: 0, tab: "" })
   const [showEditablePreview, setShowEditablePreview] = useState(false)
   const [editingField, setEditingField] = useState<{ stepId: string; key: string } | null>(null)
   const [editValue, setEditValue] = useState("")
@@ -561,9 +563,6 @@ function DashboardInner() {
       if (!content) {
         const fallback = FALLBACKS[stepId]
         content = fallback ? fallback(ideaText, lucroVal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado automaticamente" }
-        toast("API indisponível — conteúdo padrão aplicado")
-      } else {
-        toast("Conteúdo gerado com sucesso!")
       }
       updateStepContent(stepId, content)
       return content
@@ -571,7 +570,6 @@ function DashboardInner() {
       const fallback = FALLBACKS[stepId]
       const content = fallback ? fallback(ideaText, lucroVal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado (offline)" }
       updateStepContent(stepId, content)
-      toast("API indisponível — modo offline ativo")
       return content
     }
   }, [updateStepContent, nicho, publicoAlvo, transformacao])
@@ -584,17 +582,27 @@ function DashboardInner() {
     setActiveTab("produto")
     setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
     setExpandedSteps([])
-    toast("Produto selecionado! Gerando conteúdo...")
 
     const tomText = tom || "Persuasivo e direto"
     const allTabs = ["produto", "vendas", "operacao", "artefatos"]
+    const allSteps = steps.filter(s => allTabs.includes(s.tab))
+    const totalSteps = allSteps.length
+
+    setAutoGenerating(true)
+    setAutoProgress({ current: 0, total: totalSteps, tab: "" })
+
+    let current = 0
     for (const tab of allTabs) {
       const tabSteps = steps.filter(s => s.tab === tab)
+      setAutoProgress({ current, total: totalSteps, tab })
       for (const step of tabSteps) {
+        current++
+        setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
         await doGenerate(step.id, ideia, tomText, lucroVal, produtoInfo)
       }
     }
+    setAutoGenerating(false)
     toast("Produto completo gerado com sucesso!")
   }, [steps, tom, doGenerate])
 
@@ -613,17 +621,45 @@ function DashboardInner() {
   }, [stepIdeia, idea, tom, lucro, doGenerate])
 
   useEffect(() => {
-    const q = searchParams.get("ideia")
     const auto = searchParams.get("auto")
-    const nomeParam = searchParams.get("nome")
-    const tagParam = searchParams.get("tag")
-    const descParam = searchParams.get("descricao")
-    const pubParam = searchParams.get("publico")
+    const q = searchParams.get("ideia")
+
+    // Handle vitrine product (selectedProductId in sessionStorage)
+    if (auto === "1") {
+      const productId = sessionStorage.getItem("selectedProductId")
+      if (productId) {
+        sessionStorage.removeItem("selectedProductId")
+        const produto = PRODUTOS_VALIDADOS.find(p => p.id === productId)
+        if (produto) {
+          setStepIdeia(produto.ideia)
+          setShowIdeiaForm(false)
+          const lucroDefault = 60000
+          setLucro(lucroDefault)
+          setTom("Persuasivo e direto")
+
+          setTimeout(() => {
+            handleSelectProduto(produto.ideia, lucroDefault, {
+              nome: produto.nome,
+              tag: produto.tag,
+              descricao: produto.descricao,
+              publico: produto.publico
+            })
+          }, 300)
+          return
+        }
+      }
+    }
+
+    // Handle direct URL with ideia param
     if (q) {
       setStepIdeia(q)
       setShowIdeiaForm(false)
 
       if (auto === "1") {
+        const nomeParam = searchParams.get("nome")
+        const tagParam = searchParams.get("tag")
+        const descParam = searchParams.get("descricao")
+        const pubParam = searchParams.get("publico")
         const lucroDefault = 60000
         setLucro(lucroDefault)
         setTom("Persuasivo e direto")
@@ -764,6 +800,32 @@ function DashboardInner() {
           </div>
         </div>
       </header>
+
+      {/* Auto-generation overlay */}
+      {autoGenerating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 text-center shadow-2xl">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#8B5E3C] to-[#6B4226] flex items-center justify-center animate-pulse">
+              <Rocket className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-[#1A1A1A] mb-2">Gerando seu produto...</h3>
+            <p className="text-sm text-[#5C5146] mb-4">
+              {autoProgress.tab && (
+                <span className="font-semibold text-[#8B5E3C]">
+                  {autoProgress.tab === "operacao" ? "Operação" : autoProgress.tab.charAt(0).toUpperCase() + autoProgress.tab.slice(1)}
+                </span>
+              )}
+            </p>
+            <div className="w-full bg-[#EDE6DC] rounded-full h-3 mb-2">
+              <div
+                className="bg-gradient-to-r from-[#8B5E3C] to-[#D4A574] h-3 rounded-full transition-all duration-500"
+                style={{ width: `${autoProgress.total > 0 ? (autoProgress.current / autoProgress.total) * 100 : 0}%` }}
+              />
+            </div>
+            <p className="text-xs text-[#5C5146]">{autoProgress.current} de {autoProgress.total} passos</p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs horizontal */}
       <div className="bg-[#EDE6DC] border-b border-[#D9CEC2] sticky top-0 z-30">

@@ -180,15 +180,8 @@ export default function HomePage() {
                 style={{background: "linear-gradient(180deg, #A67C52 0%, #8B5E3C 50%, #6B4226 100%)", boxShadow: "0 4px 0 #3D2512, 0 8px 16px rgba(0,0,0,0.2)"}}
                 onClick={(e) => {
                   e.stopPropagation()
-                  const params = new URLSearchParams({
-                    ideia: selectedProduct.ideia,
-                    nome: selectedProduct.nome,
-                    tag: selectedProduct.tag,
-                    descricao: selectedProduct.descricao,
-                    publico: selectedProduct.publico,
-                    auto: "1"
-                  })
-                  router.push("/dashboard?" + params.toString())
+                  sessionStorage.setItem("selectedProductId", selectedProduct.id)
+                  router.push("/dashboard?auto=1")
                 }}
               >
                 <Zap className="w-4 h-4 mr-2" />
