@@ -587,12 +587,15 @@ function DashboardInner() {
     toast("Produto selecionado! Gerando conteúdo...")
 
     const tomText = tom || "Persuasivo e direto"
-    const produtoSteps = steps.filter(s => s.tab === "produto")
-    for (const step of produtoSteps) {
-      setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
-      await doGenerate(step.id, ideia, tomText, lucroVal, produtoInfo)
+    const allTabs = ["produto", "vendas", "operacao", "artefatos"]
+    for (const tab of allTabs) {
+      const tabSteps = steps.filter(s => s.tab === tab)
+      for (const step of tabSteps) {
+        setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
+        await doGenerate(step.id, ideia, tomText, lucroVal, produtoInfo)
+      }
     }
-    toast("Produto modelado com sucesso!")
+    toast("Produto completo gerado com sucesso!")
   }, [steps, tom, doGenerate])
 
   const generateStep = useCallback(async (step: StepData) => {
@@ -620,8 +623,7 @@ function DashboardInner() {
       setStepIdeia(q)
       setShowIdeiaForm(false)
 
-      if (auto === "1" && !localStorage.getItem(LS_KEY + "_auto_done")) {
-        localStorage.setItem(LS_KEY + "_auto_done", "1")
+      if (auto === "1") {
         const lucroDefault = 60000
         setLucro(lucroDefault)
         setTom("Persuasivo e direto")
@@ -642,7 +644,6 @@ function DashboardInner() {
 
   const handleNovoProduto = useCallback(() => {
     localStorage.removeItem(LS_KEY)
-    localStorage.removeItem(LS_KEY + "_auto_done")
     setStepIdeia("")
     setTom("")
     setLucro(0)
