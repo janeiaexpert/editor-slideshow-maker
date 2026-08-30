@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -22,6 +22,7 @@ import { Biblioteca } from "@/components/biblioteca"
 import { ProdutoCustom } from "@/components/produto-custom"
 import { Conversor } from "@/components/conversor"
 import { EditablePreview } from "@/components/editable-preview"
+import { TrilhaProgresso } from "@/components/trilha-progresso"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
 
@@ -65,6 +66,30 @@ const INITIAL_STEPS: StepData[] = [
   { id:"story", title:"Roteiro para Story/Reel", description:"Storyboard visual para stories", icon:<PenTool className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
 ]
 
+function getStepGuide(stepId: string): string {
+  const guides: Record<string, string> = {
+    headline: "A headline é a primeira impressão. Use uma promessa clara e específica. Ex: 'Método X para conseguir Y em Z dias'",
+    modulos: "Estruture o conteúdo em módulos lógicos. Cada módulo deve ensinar uma habilidade específica e levar ao próximo.",
+    entregaveis: "Defina exatamente o que o aluno recebe: vídeos, PDFs, templates, comunidade. Seja específico.",
+    bonus: "Bônus aumentam o valor percebido. Ofereça extras relevantes que complementem o produto principal.",
+    vsl: "O VSL (Vídeo de Vendas) deve seguir: Problema → Solução → Prova → Oferta → Garantia. Seja autêntico.",
+    anuncios: "Crie anúncios para cada plataforma. Instagram = visual, Facebook = carrossel, Google = busca, TikTok = dinâmico.",
+    conteudo: "Monte um calendário de 30 dias. Alterne entre educar, engajar e vender. Não venda todos os dias.",
+    oferta: "Preço deve ser justo para o valor entregue. Use ancoragem (preço de), parcelamento e garantia de 7 dias.",
+    funil: "Funil completo: Tráfego → Captura → E-mail → Checkout → Upsell. Cada etapa deve nutrir a próxima.",
+    automacao: "Automatize: boas-vindas, nutrição, recuperação de carrinho. Use e-mail + WhatsApp.",
+    monetizacao: "Pense além do produto: mentoria, consultoria, assinatura, infoprodutos complementares.",
+    dashboard: "Acompanhe: taxa de conversão, custo por aquisição, LTV, churn. Dados guiam decisões.",
+    escala: "Após validar, escale: novos produtos, cross-sell, parcerias, afiliados, mercados adjacentes.",
+    logo: "Logo simples e memorável. Use cores da paleta do produto. Formato SVG para qualquer tamanho.",
+    capa: "Capa Feed (4:5) e Reels (9:16). Use mockup profissional com benefit text e CTA.",
+    card_oferta: "Card com: benefício principal, prova social, preço com desconto, CTA claro e urgência.",
+    certificado: "Certificado com: nome do aluno, data, carga horária, assinatura digital. Design alinhado à marca.",
+    landing: "Landing page com: headline, benefícios, prova social, CTA, garantia. Mobile-first e rápido.",
+    story: "Storyboard: 5-7 frames. Frame 1 = gancho, frames 2-4 = conteúdo, frame 5 = CTA. Texto curto.",
+  }
+  return guides[stepId] || "Clique em gerar para criar o conteúdo deste passo."
+}
 
 const KNOWN_PRODUCTS_KEY = "ativador_known_products"
 const NEW_PRODUCTS_KEY = "ativador_new_products"
@@ -129,8 +154,8 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number): stri
     "[BENEFÍCIO 3]": `Ter suporte e comunidade exclusiva`,
     "[DEPOIMENTO]": `Este curso mudou minha vida! Consegui ${words.slice(0, 3).join(" ")} em poucas semanas. Recomendo demais!`,
     "[TEMPO]": `${n} dias`,
-    "[DESCRI!ÒO BREVE DOS MDULOS]": ideia.slice(0, 80) + (ideia.length > 80 ? "..." : ""),
-    "[MDULOS HTML]": words.slice(0, 3).map((w, i) => `<div class="benefit-card"><div class="num">${i+1}</div><h3>Módulo ${i+1}</h3><p>Aprenda ${w} na prática, passo a passo.</p></div>`).join(""),
+    "[DESCRIÃO BREVE DOS MÓDULOS]": ideia.slice(0, 80) + (ideia.length > 80 ? "..." : ""),
+    "[MÓDULOS HTML]": words.slice(0, 3).map((w, i) => `<div class="benefit-card"><div class="num">${i+1}</div><h3>Módulo ${i+1}</h3><p>Aprenda ${w} na prática, passo a passo.</p></div>`).join(""),
     "[VALOR COM DESCONTO]": lucro > 0 ? `R$ ${fmt(Math.round(lucro * 0.8))}` : "[VALOR COM DESCONTO]",
   }
 
@@ -393,7 +418,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
     "Personalização": "Adicione seu logo no canão superior esquerdo. Troque a paleta de cores para combinar com sua marca.",
   }),
   landing: () => ({
-    "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>[NOME DO PRODUTO]</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--brown:#8B5E3C;--brown-dark:#6B4226;--gold:#D4B896;--cream:#F5EFE8;--dark:#1A1A1A;--dark2:#2D2D2D;--muted:#5C5146}html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;color:var(--dark);background:var(--cream);line-height:1.7;overflow-x:hidden}.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--dark) 0%,var(--dark2) 40%,#3D2A1A 100%);color:#fff;padding:80px 24px;text-align:center;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;top:-30%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,60,0.15) 0%,transparent 70%);pointer-events:none}.hero::after{content:'';position:absolute;bottom:-20%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(212,184,150,0.08) 0%,transparent 70%);pointer-events:none}.hero-content{position:relative;z-index:1;max-width:760px;margin:0 auto}.badge{display:inline-block;background:rgba(139,94,60,0.2);border:1px solid rgba(139,94,60,0.4);color:var(--gold);padding:8px 20px;border-radius:50px;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px}.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,7vw,64px);font-weight:900;line-height:1.05;margin-bottom:24px;letter-spacing:-1.5px}.hero h1 span{color:var(--gold);display:block}.hero p{font-size:clamp(16px,2.2vw,20px);color:rgba(255,255,255,0.65);margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto;font-weight:300}.btn-primary{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--brown),var(--brown-dark));color:#fff;padding:20px 48px;border-radius:60px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(139,94,60,0.3)}.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(139,94,60,0.5)}.btn-primary::after{content:'\\2192';font-size:18px;transition:transform 0.3s}.btn-primary:hover::after{transform:translateX(4px)}.section{padding:100px 24px;max-width:900px;margin:0 auto}.section-label{font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--brown);margin-bottom:12px}.section h2{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--dark);margin-bottom:16px;line-height:1.15}.section>p{color:var(--muted);margin-bottom:40px;font-size:17px;max-width:600px}.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.benefit-card{background:#fff;padding:32px;border-radius:16px;border:1px solid #E8DFD3;transition:all 0.3s ease;position:relative;overflow:hidden}.benefit-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--brown),var(--gold));transform:scaleX(0);transition:transform 0.3s;transform-origin:left}.benefit-card:hover{border-color:var(--brown);transform:translateY(-6px);box-shadow:0 12px 40px rgba(139,94,60,0.1)}.benefit-card:hover::before{transform:scaleX(1)}.benefit-card .num{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brown),var(--brown-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-bottom:16px}.benefit-card h3{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--dark)}.benefit-card p{font-size:14px;color:var(--muted);line-height:1.6}.offer-section{background:linear-gradient(160deg,var(--dark) 0%,var(--dark2) 50%,#3D2A1A 100%);color:#fff;padding:100px 24px;text-align:center;position:relative;overflow:hidden}.offer-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,60,0.1) 0%,transparent 60%);pointer-events:none}.offer-box{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.04);border:1px solid rgba(139,94,60,0.25);border-radius:24px;padding:56px 40px;backdrop-filter:blur(10px);position:relative}.offer-box::before{content:'';position:absolute;inset:-1px;border-radius:24px;background:linear-gradient(135deg,rgba(139,94,60,0.3),transparent,rgba(212,184,150,0.2));z-index:-1}.offer-label{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:24px}.offer-box .old-price{color:rgba(255,255,255,0.35);text-decoration:line-through;font-size:18px;font-weight:400}.offer-box .price{font-family:'Playfair Display',serif;font-size:clamp(48px,10vw,68px);font-weight:900;color:var(--gold);margin:12px 0 4px;line-height:1}.offer-box .installments{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:32px}.offer-box ul{list-style:none;margin:0 0 36px;text-align:left;display:flex;flex-direction:column;gap:14px}.offer-box ul li{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,0.8)}.offer-box ul li::before{content:'';width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(76,175,80,0.15);display:flex;align-items:center;justify-content:center;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:14px}.guarantee{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:28px;font-size:13px;color:rgba(255,255,255,0.4)}.footer{background:#0A0A0A;color:rgba(255,255,255,0.3);text-align:center;padding:40px 24px;font-size:12px;letter-spacing:0.5px}@media(max-width:640px){.hero{min-height:auto;padding:80px 20px}.section{padding:64px 20px}.offer-box{padding:40px 24px}.benefits-grid{grid-template-columns:1fr}.btn-primary{padding:18px 36px;font-size:13px}}</style></head><body><section class="hero"><div class="hero-content"><div class="badge">Lançamenão Exclusivo</div><h1>[HEADLINE]<span>[PALAVRA DE DESTAQUE]</span></h1><p>[SUBTÍTULO]</p><a href="#oferta" class="btn-primary">Quero Meu Acesso</a></div></section><section class="section"><div class="section-label">Módulos</div><h2>O que você vai aprender</h2><p>[DESCRI!ÒO BREVE DOS MDULOS]</p><div class="benefits-grid">[MDULOS HTML]</div></section><section class="offer-section" id="oferta"><div class="offer-box"><div class="offer-label">Oferta Especial</div><p class="old-price">De R$ [VALOR CHEIO]</p><p class="price">R$ [VALOR]</p><p class="installments">ou [N]x de R$ [PARCELA]</p><ul><li>Acesso vitalício ao conteúdo</li><li>Todas as atualizações futuras</li><li>Certificado de conclusão</li><li>Suporte via grupo VIP</li><li>7 dias de garantia incondicional</li></ul><a href="#" class="btn-primary">Garantir Minha Vaga</a><div class="guarantee">Pagamenão 100% seguro e criptografado</div></div></section><section class="footer"><p>&copy; 2026 [NOME DO PRODUTO]. Todos os direitos reservados.</p></section></body></html>`,
+    "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>[NOME DO PRODUTO]</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--brown:#8B5E3C;--brown-dark:#6B4226;--gold:#D4B896;--cream:#F5EFE8;--dark:#1A1A1A;--dark2:#2D2D2D;--muted:#5C5146}html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;color:var(--dark);background:var(--cream);line-height:1.7;overflow-x:hidden}.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--dark) 0%,var(--dark2) 40%,#3D2A1A 100%);color:#fff;padding:80px 24px;text-align:center;position:relative;overflow:hidden}.hero::before{content:'';position:absolute;top:-30%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,60,0.15) 0%,transparent 70%);pointer-events:none}.hero::after{content:'';position:absolute;bottom:-20%;left:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(212,184,150,0.08) 0%,transparent 70%);pointer-events:none}.hero-content{position:relative;z-index:1;max-width:760px;margin:0 auto}.badge{display:inline-block;background:rgba(139,94,60,0.2);border:1px solid rgba(139,94,60,0.4);color:var(--gold);padding:8px 20px;border-radius:50px;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px}.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,7vw,64px);font-weight:900;line-height:1.05;margin-bottom:24px;letter-spacing:-1.5px}.hero h1 span{color:var(--gold);display:block}.hero p{font-size:clamp(16px,2.2vw,20px);color:rgba(255,255,255,0.65);margin-bottom:40px;max-width:520px;margin-left:auto;margin-right:auto;font-weight:300}.btn-primary{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--brown),var(--brown-dark));color:#fff;padding:20px 48px;border-radius:60px;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.3s ease;box-shadow:0 4px 20px rgba(139,94,60,0.3)}.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(139,94,60,0.5)}.btn-primary::after{content:'\\2192';font-size:18px;transition:transform 0.3s}.btn-primary:hover::after{transform:translateX(4px)}.section{padding:100px 24px;max-width:900px;margin:0 auto}.section-label{font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--brown);margin-bottom:12px}.section h2{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--dark);margin-bottom:16px;line-height:1.15}.section>p{color:var(--muted);margin-bottom:40px;font-size:17px;max-width:600px}.benefits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.benefit-card{background:#fff;padding:32px;border-radius:16px;border:1px solid #E8DFD3;transition:all 0.3s ease;position:relative;overflow:hidden}.benefit-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--brown),var(--gold));transform:scaleX(0);transition:transform 0.3s;transform-origin:left}.benefit-card:hover{border-color:var(--brown);transform:translateY(-6px);box-shadow:0 12px 40px rgba(139,94,60,0.1)}.benefit-card:hover::before{transform:scaleX(1)}.benefit-card .num{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brown),var(--brown-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-bottom:16px}.benefit-card h3{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--dark)}.benefit-card p{font-size:14px;color:var(--muted);line-height:1.6}.offer-section{background:linear-gradient(160deg,var(--dark) 0%,var(--dark2) 50%,#3D2A1A 100%);color:#fff;padding:100px 24px;text-align:center;position:relative;overflow:hidden}.offer-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(139,94,60,0.1) 0%,transparent 60%);pointer-events:none}.offer-box{max-width:480px;margin:0 auto;background:rgba(255,255,255,0.04);border:1px solid rgba(139,94,60,0.25);border-radius:24px;padding:56px 40px;backdrop-filter:blur(10px);position:relative}.offer-box::before{content:'';position:absolute;inset:-1px;border-radius:24px;background:linear-gradient(135deg,rgba(139,94,60,0.3),transparent,rgba(212,184,150,0.2));z-index:-1}.offer-label{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:24px}.offer-box .old-price{color:rgba(255,255,255,0.35);text-decoration:line-through;font-size:18px;font-weight:400}.offer-box .price{font-family:'Playfair Display',serif;font-size:clamp(48px,10vw,68px);font-weight:900;color:var(--gold);margin:12px 0 4px;line-height:1}.offer-box .installments{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:32px}.offer-box ul{list-style:none;margin:0 0 36px;text-align:left;display:flex;flex-direction:column;gap:14px}.offer-box ul li{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(255,255,255,0.8)}.offer-box ul li::before{content:'';width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(76,175,80,0.15);display:flex;align-items:center;justify-content:center;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:14px}.guarantee{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:28px;font-size:13px;color:rgba(255,255,255,0.4)}.footer{background:#0A0A0A;color:rgba(255,255,255,0.3);text-align:center;padding:40px 24px;font-size:12px;letter-spacing:0.5px}@media(max-width:640px){.hero{min-height:auto;padding:80px 20px}.section{padding:64px 20px}.offer-box{padding:40px 24px}.benefits-grid{grid-template-columns:1fr}.btn-primary{padding:18px 36px;font-size:13px}}</style></head><body><section class="hero"><div class="hero-content"><div class="badge">Lançamenão Exclusivo</div><h1>[HEADLINE]<span>[PALAVRA DE DESTAQUE]</span></h1><p>[SUBTÍTULO]</p><a href="#oferta" class="btn-primary">Quero Meu Acesso</a></div></section><section class="section"><div class="section-label">Módulos</div><h2>O que você vai aprender</h2><p>[DESCRIÃO BREVE DOS MÓDULOS]</p><div class="benefits-grid">[MÓDULOS HTML]</div></section><section class="offer-section" id="oferta"><div class="offer-box"><div class="offer-label">Oferta Especial</div><p class="old-price">De R$ [VALOR CHEIO]</p><p class="price">R$ [VALOR]</p><p class="installments">ou [N]x de R$ [PARCELA]</p><ul><li>Acesso vitalício ao conteúdo</li><li>Todas as atualizações futuras</li><li>Certificado de conclusão</li><li>Suporte via grupo VIP</li><li>7 dias de garantia incondicional</li></ul><a href="#" class="btn-primary">Garantir Minha Vaga</a><div class="guarantee">Pagamenão 100% seguro e criptografado</div></div></section><section class="footer"><p>&copy; 2026 [NOME DO PRODUTO]. Todos os direitos reservados.</p></section></body></html>`,
     "Como Usar": "Copie o HTML completo, substitua os placeholders entre colchetes []. Salve como .html e abra no navegador.",
     "Personalização": "Troque as cores (#8B5E3C, #D4B896, #F5EFE8) pela paleta da sua marca. Adicione imagens reais entre as seções.",
   }),
@@ -456,10 +481,11 @@ function DashboardInner() {
   const [stepIdeia, setStepIdeia] = useState(() => loadState("stepIdeia", ""))
   const [nicho, setNicho] = useState(() => loadState("nicho", ""))
   const [publicoAlvo, setPublicoAlvo] = useState(() => loadState("publicoAlvo", ""))
-  const [transformacao, setTransformação] = useState(() => loadState("transformacao", ""))
+  const [transformacao, setTransformacao] = useState(() => loadState("transformacao", ""))
   const [capaPhotoFeed, setCapaPhotoFeed] = useState<string | null>(null)
   const [capaPhotoReels, setCapaPhotoReels] = useState<string | null>(null)
   const [showIdeiaForm, setShowIdeiaForm] = useState(() => loadState("showIdeiaForm", true))
+  const [stepByStepMode, setStepByStepMode] = useState(false)
   const [idea, setIdea] = useState("")
   const [showEditablePreview, setShowEditablePreview] = useState(false)
   const [editingField, setEditingField] = useState<{ stepId: string; key: string } | null>(null)
@@ -684,6 +710,21 @@ function DashboardInner() {
       await generateStep(step)
     }
     toast(`Todos os passos de ${tab} foram gerados!`)
+
+    // Auto-navegar para a próxima aba
+    const tabOrder = ["produto", "vendas", "operacao", "artefatos"]
+    const currentIdx = tabOrder.indexOf(tab)
+    if (currentIdx < tabOrder.length - 1) {
+      const nextTab = tabOrder[currentIdx + 1]
+      const nextTabSteps = steps.filter(s => s.tab === nextTab)
+      const nextTabIncomplete = nextTabSteps.some(s => !s.generated)
+      if (nextTabIncomplete) {
+        setTimeout(() => {
+          setActiveTab(nextTab as typeof activeTab)
+          toast(`Avançando para ${nextTab === "operacao" ? "Operação" : nextTab.charAt(0).toUpperCase() + nextTab.slice(1)}`)
+        }, 1000)
+      }
+    }
   }
 
   const activeSteps = steps.filter(s => s.tab === activeTab)
@@ -700,6 +741,14 @@ function DashboardInner() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-white text-sm sm:text-base font-bold truncate">Ativador <span className="text-[#D4B896]">Automático</span></h1>
+            {!showIdeiaForm && (
+              <div className="flex items-center gap-1 text-white/50 text-[10px]">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="hidden sm:inline">Salvo</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0 relative z-30">
             <button
@@ -736,6 +785,15 @@ function DashboardInner() {
           </Tabs>
         </div>
       </div>
+
+      {/* Trilha de Progresso */}
+      {!showIdeiaForm && (
+        <TrilhaProgresso
+          steps={steps}
+          activeTab={activeTab}
+          onTabClick={(tab) => setActiveTab(tab as typeof activeTab)}
+        />
+      )}
 
       {/* New products banner */}
       {newProducts.length > 0 && showNewBanner && activeTab !== "biblioteca" && (
@@ -820,7 +878,7 @@ function DashboardInner() {
                 <Textarea
                   placeholder="Qual a transformacao real que este produto entrega? (Ex: De frustrada com dietas para confiante e saudavel)"
                   value={transformacao}
-                  onChange={e => setTransformação(e.target.value)}
+                  onChange={e => setTransformacao(e.target.value)}
                   onKeyDown={e => e.stopPropagation()}
                   className="mt-1 min-h-[70px] text-sm resize-y"
                 />
@@ -864,7 +922,7 @@ function DashboardInner() {
                     setStepIdeia("")
                     setNicho("")
                     setPublicoAlvo("")
-                    setTransformação("")
+                    setTransformacao("")
                     setTom("")
                     setLucro(0)
                     setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
@@ -919,28 +977,74 @@ function DashboardInner() {
         <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
           {["produto", "vendas", "operacao", "artefatos"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
-              <Button
-                className="w-full bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-semibold text-sm btn-glow-primary"
-                onClick={() => handleGenerateAll(tab)}
-                disabled={loading !== null}
-              >
-                <Rocket className="w-4 h-4" />
-                {loading ? "Gerando..." : "Gerar Todos os Passos"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-semibold text-sm btn-glow-primary"
+                  onClick={() => handleGenerateAll(tab)}
+                  disabled={loading !== null}
+                >
+                  <Rocket className="w-4 h-4" />
+                  {loading ? "Gerando..." : "Gerar Todos os Passos"}
+                </Button>
+                <Button
+                  variant={stepByStepMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setStepByStepMode(!stepByStepMode)}
+                  className={`text-xs ${stepByStepMode ? "bg-[#6B4226] text-white" : "border-[#8B5E3C] text-[#8B5E3C]"}`}
+                >
+                  {stepByStepMode ? "Modo Lista" : "Passo a Passo"}
+                </Button>
+              </div>
 
-              {steps.filter(s => s.tab === tab).map((step) => (
-                <Card key={step.id} className="step-card-glass overflow-hidden">
+              {(() => {
+                const tabSteps = steps.filter(s => s.tab === tab)
+                const firstIncompleteIdx = tabSteps.findIndex(s => !s.generated)
+                const visibleSteps = stepByStepMode
+                  ? tabSteps.filter((_, idx) => idx <= firstIncompleteIdx || tabSteps[idx].generated)
+                  : tabSteps
+
+                return visibleSteps.map((step, tabIdx) => {
+                  const actualIdx = tabSteps.indexOf(step)
+                  const isCurrentInStepMode = stepByStepMode && actualIdx === firstIncompleteIdx
+
+                return (
+                <Card key={step.id} className={`step-card-glass overflow-hidden transition-all ${step.generated ? "border-green-300 bg-green-50/30" : ""} ${isCurrentInStepMode ? "ring-2 ring-[#8B5E3C] ring-offset-2" : ""}`}>
                   <div
                     className="flex items-center gap-3 p-3 sm:p-4 cursor-pointer hover:bg-white/50 transition-colors select-none"
                     onClick={() => toggleStep(step.id)}
                   >
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#8B5E3C] to-[#6B4226] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-md">
-                      {steps.indexOf(step) + 1}
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 shadow-md transition-all ${
+                      step.generated
+                        ? "bg-green-500 text-white"
+                        : isCurrentInStepMode
+                          ? "bg-[#8B5E3C] text-white animate-pulse"
+                          : "bg-gradient-to-br from-[#8B5E3C] to-[#6B4226] text-white"
+                    }`}>
+                      {step.generated ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        actualIdx + 1
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
                         {step.icon}
                         <span className="text-sm font-semibold text-[#1A1A1A]">{step.title}</span>
+                        {!step.generated && (
+                          <div className="group relative">
+                            <button className="text-[#A67C52] hover:text-[#8B5E3C] transition-colors" onClick={e => e.stopPropagation()}>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </button>
+                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-[#1A1A1A] text-white text-[10px] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                              <p className="font-bold mb-1">Dica:</p>
+                              <p>{getStepGuide(step.id)}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-[#5C5146] mt-0.5">{step.description}</p>
                     </div>
@@ -1070,7 +1174,9 @@ function DashboardInner() {
                     </div>
                   )}
                 </Card>
-              ))}
+                )
+                })
+                })()}
 
               {steps.filter(s => s.tab === tab).length === 0 && (
                 <p className="text-center text-sm text-[#5C5146] py-8">Nenhum passo nesta aba</p>
