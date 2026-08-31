@@ -32,7 +32,7 @@ const FONTS = [
 ]
 
 interface ProdutoCustomProps {
-  onGerar: (ideia: string, lucro: number) => void
+  onGerar: (ideia: string, lucro: number, produtoInfo?: { nome: string; tag: string; descricao: string; publico: string; paleta?: { id: string; nome: string; cores: string[] }; fonte?: { id: string; nome: string } }) => void
 }
 
 export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
@@ -55,7 +55,14 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
     const cores = p ? p.cores.join(", ") : ""
     const ig = instagram.startsWith("@") ? instagram : instagram ? `@${instagram}` : ""
     const ideia = `${nome}. ${descricao}. Público-alvo: ${publico || "Não definido"}. Paleta de cores: ${cores}. Nome da paleta: ${p?.nome || "Marrom Clássico"}. Tipografia: ${f?.nome || "Inter"}. Instagram: ${ig || "Não informado"}`
-    onGerar(ideia, lucro)
+    onGerar(ideia, lucro, {
+      nome,
+      tag: p?.nome || "Marrom Clássico",
+      descricao,
+      publico: publico || "Não definido",
+      paleta: p ? { id: p.id, nome: p.nome, cores: p.cores } : undefined,
+      fonte: f ? { id: f.id, nome: f.nome } : undefined
+    })
   }
 
   return (
