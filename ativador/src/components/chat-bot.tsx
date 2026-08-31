@@ -3,28 +3,9 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MessageCircle, X, Send, Bot, User, Lightbulb } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Lightbulb, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { sanitizeText } from "@/lib/security"
-
-function generateLocalReply(msg: string): string {
-  const lower = msg.toLowerCase()
-  if (lower.includes("preço") || lower.includes("preco") || lower.includes("valor"))
-    return "**Sugestão de preço:** Comece com R$27-R$47 para o produto principal, e crie pacotes com upsell de R$97-R$197. Use ancoragem de preço mostrando valor percebido 3x maior."
-  if (lower.includes("título") || lower.includes("titulo") || lower.includes("headline"))
-    return "**Dica de headline:** Use a fórmula [Resultado Desejado] + [Prazo] + [Sem dor]. Ex: 'Crie seu primeiro produto digital em 7 dias sem precisar de audiência'."
-  if (lower.includes("módulo") || lower.includes("modulo") || lower.includes("aula"))
-    return "**Estrutura de módulos:** Organize em 3-5 módulos progressivos: Fundamentos → Estratégia → Execução → Avançado → Bônus. Cada módulo deve ter 3-5 aulas de 10-20min."
-  if (lower.includes("vsl") || lower.includes("vídeo") || lower.includes("video"))
-    return "**Estrutura de VSL:** 1) Hook (10s) 2) Problema (30s) 3) Solução (30s) 4) Prova social (20s) 5) Oferta (20s) 6) Urgência (10s). Total: ~2min."
-  if (lower.includes("anúncio") || lower.includes("anuncio") || lower.includes("tráfego") || lower.includes("trafego"))
-    return "**Dica de anúncio:** Use copy AIDA (Atenção, Interesse, Desejo, Ação). Teste 3-5 variações de criativo. Comece com orçamento de R$20-50/dia para validação."
-  if (lower.includes("público") || lower.includes("publico") || lower.includes("alvo"))
-    return "**Definição de público:** Crie uma persona com: Nome, idade, profissão, dores, desejos, medos e objeções. Quanto mais específico, melhor o resultado."
-  if (lower.includes("transformação") || lower.includes("transformacao") || lower.includes("resultado"))
-    return "**Mapa de transformação:** Antes (dor) → Durante (processo) → Depois (resultado). Documente cada etapa para criar expectativa e desejo."
-  return "**API indisponível no modo offline.** Posso ajudar com: preços, títulos, módulos, VSL, anúncios, público-alho ou transformação. Pergunte sobre um desses temas!"
-}
 
 type ChatMessage = {
   role: "user" | "assistant"
@@ -38,15 +19,17 @@ type ChatBotProps = {
   tom?: string
   lucro?: number
   steps?: Record<string, StepContent>
+  paleta?: string
+  fonte?: string
 }
 
 const SUGGESTIONS = [
   "Como melhorar minha headline?",
-  "Sugira um bônus irrecusável",
-  "Qual preço ideal para meu produto?",
+  "Sugira um bonus irrecusavel",
+  "Qual preco ideal para meu produto?",
   "Me ajude com o roteiro da VSL",
-  "Como estruturar os módulos?",
-  "O que é upsell e downsell?",
+  "Como estruturar os modulos?",
+  "O que e upsell e downsell?",
 ]
 
 const STORAGE_KEY = "ativador_chat_history"
@@ -57,23 +40,22 @@ function loadHistory(): ChatMessage[] {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch {}
-  return [
-    { role: "assistant", content: "Ola! Sou o assistente virtual do **Ativador de Produtos**. Estou aqui no canto inferior direito da pagina. Posso ajudar com suas headlines, modulos, precos, VSL, anuncios e muito mais. Precisa de ajuda para definir seu nicho, publico ou transformacao? E so perguntar!" },
-  ]
+  return []
 }
 
 function saveHistory(messages: ChatMessage[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-20)))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30)))
   } catch {}
 }
 
-export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
+export function ChatBot({ ideia, tom, lucro, steps, paleta, fonte }: ChatBotProps) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>(loadHistory)
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(true)
+  const [showSuggestions, setShowSuggestions] = useState(messages.length === 0)
+  const [provider, setProvider] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -84,14 +66,39 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
     saveHistory(messages)
   }, [messages])
 
+  const getWelcomeMessage = (): string => {
+    if (ideia) {
+      const nomeProduto = ideia.split(".")[0] || "seu produto"
+      return `Ola! Sou o assistente do **Ativador de Produtos**. Vi que voce esta trabalhando em **${nomeProduto}**. Posso ajudar com headlines, modulos, precos, VSL, anuncios e muito mais. O que precisa?`
+    }
+    return "Ola! Sou o assistente do **Ativador de Produtos**. Posso ajudar com suas headlines, modulos, precos, VSL, anuncios e muito mais. Me pergunte o que quiser!"
+  }
+
   const send = async (text?: string) => {
     const msg = (text || input).trim()
     if (!msg || loading) return
     setInput("")
     setShowSuggestions(false)
+
+    // Se nao tem mensagens, adiciona a de boas-vindas primeiro
+    let allMessages = messages
+    if (messages.length === 0) {
+      const welcome: ChatMessage = { role: "assistant", content: getWelcomeMessage() }
+      allMessages = [welcome]
+      setMessages([welcome])
+    }
+
     const userMsg: ChatMessage = { role: "user", content: msg }
     setMessages(p => [...p, userMsg])
     setLoading(true)
+
+    // Calcular progresso
+    const progresso: Record<string, boolean> = {}
+    if (steps) {
+      for (const [k, v] of Object.entries(steps)) {
+        progresso[k] = v && typeof v === "object" && Object.keys(v).length > 0
+      }
+    }
 
     try {
       const res = await fetch("/api/chat", {
@@ -99,23 +106,29 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: msg,
-          history: messages.slice(-8).map(m => ({ role: m.role, content: m.content })),
+          history: allMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
           ideia,
           tom,
           lucro,
-          steps,
+          steps: steps ? Object.fromEntries(
+            Object.entries(steps)
+              .filter(([, v]) => v && typeof v === "object" && Object.keys(v).length > 0)
+              .map(([k, v]) => [k, Object.keys(v)])
+          ) : undefined,
+          paleta,
+          fonte,
+          progresso,
         }),
       })
       const data = await res.json()
-      if (!res.ok) {
-        const reply = generateLocalReply(msg)
-        setMessages(p => [...p, { role: "assistant", content: reply }])
+      if (data.provider) setProvider(data.provider)
+      if (!res.ok && !data.reply) {
+        setMessages(p => [...p, { role: "assistant", content: "**Modo offline** — A IA estara disponivel em breve. Enquanto isso, posso ajudar com sugestoes basicas." }])
       } else {
-        setMessages(p => [...p, { role: "assistant", content: sanitizeText(data.reply || "Desculpe, não consegui processar.") }])
+        setMessages(p => [...p, { role: "assistant", content: sanitizeText(data.reply || "Desculpe, nao consegui processar.") }])
       }
     } catch {
-      const reply = generateLocalReply(msg)
-      setMessages(p => [...p, { role: "assistant", content: reply }])
+      setMessages(p => [...p, { role: "assistant", content: "**Modo offline** — Sem conexao no momento. Tente novamente em instantes." }])
     } finally {
       setLoading(false)
     }
@@ -123,11 +136,10 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
 
   const clearHistory = () => {
     localStorage.removeItem(STORAGE_KEY)
-    setMessages([
-      { role: "assistant", content: "Olá! Sou o assistente virtual do **Ativador de Produtos**. Posso ajudar com suas headlines, módulos, preços, VSL, anúncios e muito mais. Me pergunte o que quiser!" },
-    ])
+    setMessages([])
     setShowSuggestions(true)
-    toast("Histórico limpo!")
+    setProvider(null)
+    toast("Historico limpo!")
   }
 
   return (
@@ -145,14 +157,31 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
           <div className="bg-[#8B5E3C] text-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="w-5 h-5" />
-              <span className="text-sm font-bold">Assistente Virtual</span>
+              <div>
+                <span className="text-sm font-bold block">Assistente Virtual</span>
+                {provider && (
+                  <span className="text-[10px] text-white/60">
+                    {provider === "local" ? "Modo offline" : `Via ${provider}`}
+                  </span>
+                )}
+              </div>
             </div>
-            <button onClick={clearHistory} className="text-white/60 hover:text-white text-xs transition-colors" title="Limpar conversa">
-              Limpar
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={clearHistory} className="text-white/60 hover:text-white transition-colors" title="Limpar conversa">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 p-3 space-y-3 overflow-y-auto max-h-[420px] min-h-[220px]">
+            {messages.length === 0 && (
+              <div className="text-center py-8 text-[#A67C52]">
+                <Bot className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm font-medium">Como posso ajudar?</p>
+                <p className="text-xs text-[#5C5146] mt-1">Pergunte sobre seu produto digital</p>
+              </div>
+            )}
+
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${m.role === "user" ? "bg-[#8B5E3C]" : "bg-[#EDE6DC]"}`}>
@@ -170,7 +199,7 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
                   <Bot className="w-4 h-4 text-[#8B5E3C]" />
                 </div>
                 <div className="bg-[#EDE6DC] rounded-lg px-3 py-2 text-sm text-[#5C5146]">
-                  <span className="animate-pulse">Digitando</span>
+                  <span className="animate-pulse">Pensando</span>
                   <span className="animate-pulse" style={{ animationDelay: "0.2s" }}>.</span>
                   <span className="animate-pulse" style={{ animationDelay: "0.4s" }}>.</span>
                   <span className="animate-pulse" style={{ animationDelay: "0.6s" }}>.</span>
@@ -181,7 +210,7 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
             {showSuggestions && messages.length <= 1 && (
               <div className="mt-3">
                 <p className="text-[10px] text-[#A67C52] uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
-                  <Lightbulb className="w-3 h-3" /> Perguntas rápidas
+                  <Lightbulb className="w-3 h-3" /> Perguntas rapidas
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {SUGGESTIONS.map((s, i) => (
@@ -205,7 +234,7 @@ export function ChatBot({ ideia, tom, lucro, steps }: ChatBotProps) {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && send()}
-              placeholder="Digite sua dúvida..."
+              placeholder="Digite sua duvida..."
               className="flex-1 text-sm"
             />
             <Button size="icon" onClick={() => send()} disabled={loading || !input.trim()} className="bg-[#8B5E3C] hover:bg-[#6B4226] shrink-0">

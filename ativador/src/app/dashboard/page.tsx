@@ -1292,7 +1292,7 @@ function DashboardInner() {
         </Tabs>
       </div>
 
-      {activeTab !== "artefatos" && <ChatBot ideia={stepIdeia || idea} tom={tom} lucro={lucro} steps={Object.fromEntries(steps.filter(s => s.generated).map(s => [s.id, s.content]))} />}
+      {activeTab !== "artefatos" && <ChatBot ideia={stepIdeia || idea} tom={tom} lucro={lucro} steps={Object.fromEntries(steps.filter(s => s.generated).map(s => [s.id, s.content]))} paleta={selectedPalette?.nome} fonte={selectedFont?.nome} />}
 
       {showEditablePreview && (() => {
         const generatedSteps = steps.filter(s => s.generated)
