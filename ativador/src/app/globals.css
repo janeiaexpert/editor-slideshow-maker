@@ -36,9 +36,10 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Subtle ambient light on page */
 body::before {
   content: "";
   position: fixed;
@@ -51,6 +52,7 @@ body::before {
   z-index: 0;
 }
 
+/* ============ STEP CARDS ============ */
 .step-card-enter { animation: fadeSlideIn 0.3s ease; }
 
 @keyframes fadeSlideIn {
@@ -60,59 +62,78 @@ body::before {
 
 /* ============ RESPONSIVO GERAL ============ */
 
-/* Celular pequeno */
-@media (max-width: 419px) {
+/* Mobile pequeno (ate 374px) */
+@media (max-width: 374px) {
+  .step-card .flex.items-center.gap-3 { flex-wrap: wrap; gap: 4px; }
+  .step-card .step-title { font-size: 11px; }
+  .step-card .step-description { font-size: 9px; }
+  .step-card .flex-wrap.gap-2 { gap: 3px; }
+  .step-card .flex-wrap.gap-2 button { font-size: 8px !important; padding: 3px 5px !important; }
+}
+
+/* Celular (375px - 639px) */
+@media (min-width: 375px) and (max-width: 639px) {
   .step-card .flex.items-center.gap-3 { flex-wrap: wrap; }
   .step-card .step-title { font-size: 12px; }
   .step-card .step-description { font-size: 10px; }
 }
 
-/* Tablet */
+/* Tablet portrait (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  body { padding: 12px; }
+}
+
+/* Tablet landscape (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   body { padding: 16px; }
 }
 
-/* Desktop */
+/* Desktop (1024px+) */
 @media (min-width: 1024px) {
   body { padding: 24px; }
 }
 
-/* Abas responsivas no celular */
+/* Large desktop (1280px+) */
+@media (min-width: 1280px) {
+  body { padding: 32px; }
+}
+
+/* ============ ABAS RESPONSIVAS ============ */
+
+/* Mobile: abas em grid 2x2 */
 @media (max-width: 640px) {
   [role="tablist"] {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     width: 100% !important;
+    gap: 4px !important;
   }
   [role="tablist"] > button {
     width: 100% !important;
     text-align: center !important;
     white-space: normal !important;
-    font-size: 9px !important;
-    padding: 6px 2px !important;
-    line-height: 1.2 !important;
+    font-size: 10px !important;
+    padding: 8px 4px !important;
+    line-height: 1.3 !important;
+    min-height: 44px !important;
   }
   .step-card .flex-wrap.gap-2 { gap: 4px; }
   .step-card .flex-wrap.gap-2 button { font-size: 9px !important; padding: 4px 6px !important; }
 }
 
-/* Chat responsivo */
+/* ============ CHAT RESPONSIVO ============ */
 @media (max-width: 480px) {
   .fixed.bottom-20.right-5 {
-    right: 10px !important;
-    left: 10px !important;
+    right: 8px !important;
+    left: 8px !important;
     width: auto !important;
     max-width: none !important;
+    bottom: 76px !important;
   }
-}
-
-/* Scrollbar hide para vitrine */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+  .fixed.bottom-5.right-5 {
+    right: 12px !important;
+    bottom: 12px !important;
+  }
 }
 
 /* ============ SIDEBAR GLASS ============ */
@@ -128,7 +149,6 @@ body::before {
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
 }
 
-/* Sidebar subtle inner glow */
 .sidebar-glass::before {
   content: "";
   position: absolute;
@@ -144,7 +164,7 @@ body::before {
   pointer-events: none;
 }
 
-/* Slide in from left animation */
+/* ============ ANIMATIONS ============ */
 @keyframes slideInLeft {
   from { transform: translateX(-100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -301,14 +321,41 @@ body::before {
   animation: glowIn 0.8s ease-out forwards;
 }
 
-/* Bell glow animation */
-@keyframes bellGlow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(239,68,68,0.3)); transform: rotate(0deg); }
-  10% { filter: drop-shadow(0 0 10px rgba(239,68,68,0.7)); transform: rotate(12deg); }
-  20% { filter: drop-shadow(0 0 4px rgba(239,68,68,0.3)); transform: rotate(-10deg); }
-  30% { filter: drop-shadow(0 0 8px rgba(239,68,68,0.6)); transform: rotate(8deg); }
-  40% { filter: drop-shadow(0 0 4px rgba(239,68,68,0.3)); transform: rotate(0deg); }
+/* ============ SCROLLBAR ============ */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-.animate-bell-glow {
-  animation: bellGlow 2s ease-in-out infinite;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============ TOUCH OPTIMIZATIONS ============ */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices: larger tap targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects on touch */
+  .step-card-glass:hover {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: none;
+  }
+  
+  .vitrine-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* ============ SAFE AREAS (notch phones) ============ */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .fixed.bottom-5 {
+    bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+  }
+  .fixed.bottom-20 {
+    bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+  }
 }

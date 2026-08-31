@@ -859,17 +859,18 @@ function DashboardInner() {
       <div className="bg-[#EDE6DC] border-b border-[#D9CEC2] sticky top-0 z-30">
         <div className="max-w-[900px] mx-auto px-2 sm:px-4">
           <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
-            <TabsList className="flex w-full gap-0 bg-transparent p-0 h-auto">
+            <TabsList className="flex w-full gap-0 bg-transparent p-0 h-auto overflow-x-auto scrollbar-hide">
               {[
-                { id: "produto", label: "Produto" },
-                { id: "vendas", label: "Vendas" },
-                { id: "operacao", label: "Opera\u00E7\u00E3o" },
-                { id: "artefatos", label: "Artefatos" },
-                { id: "biblioteca", label: "Biblioteca" },
-                { id: "custom", label: "Meu Produto" },
+                { id: "produto", label: "Produto", emoji: "📦" },
+                { id: "vendas", label: "Vendas", emoji: "💰" },
+                { id: "operacao", label: "Opera\u00E7\u00E3o", emoji: "⚙️" },
+                { id: "artefatos", label: "Artefatos", emoji: "🎨" },
+                { id: "biblioteca", label: "Biblioteca", emoji: "📚" },
+                { id: "custom", label: "Meu Produto", emoji: "✨" },
               ].map(tab => (
-                <TabsTrigger key={tab.id} value={tab.id} className="flex-1 min-w-0 text-[10px] sm:text-xs py-2.5 sm:py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-[#8B5E3C] data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold text-[#5C5146] hover:text-[#8B5E3C] transition-all">
-                  {tab.label}
+                <TabsTrigger key={tab.id} value={tab.id} className="flex-1 min-w-[72px] shrink-0 text-[10px] sm:text-xs py-2 sm:py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-[#8B5E3C] data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold text-[#5C5146] hover:text-[#8B5E3C] transition-all">
+                  <span className="sm:hidden">{tab.emoji}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -931,7 +932,7 @@ function DashboardInner() {
         {showIdeiaForm && (
           <div ref={formRef}>
           <Card className="border-[#D9CEC2]">
-            <CardContent className="p-4 sm:p-6 space-y-3">
+            <CardContent className="p-3 sm:p-4 md:p-6 space-y-3">
               <div>
                 <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">Sua Ideia</label>
                 <Textarea
@@ -939,7 +940,7 @@ function DashboardInner() {
                   value={stepIdeia}
                   onChange={e => setStepIdeia(e.target.value)}
                   onKeyDown={e => e.stopPropagation()}
-                  className="mt-1 min-h-[140px] text-sm leading-relaxed resize-y"
+                  className="mt-1 min-h-[100px] sm:min-h-[140px] text-sm leading-relaxed resize-y"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1005,7 +1006,7 @@ function DashboardInner() {
                 </div>
                 <Conversor moeda="BRL" valor={lucro} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -1021,7 +1022,7 @@ function DashboardInner() {
                     localStorage.removeItem(LS_KEY)
                     toast("Ideia apagada.")
                   }}
-                  className="text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                  className="text-[10px] sm:text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                 >
                   Apagar Ideia
                 </Button>
@@ -1036,7 +1037,7 @@ function DashboardInner() {
                     setShowIdeiaForm(false)
                     toast("Ideia guardada! Agora gere os passos abaixo.")
                   }}
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs"
                 >
                   Ok, guardar ideia
                 </Button>
@@ -1048,10 +1049,10 @@ function DashboardInner() {
 
         {!showIdeiaForm && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <p className="text-xs text-[#5C5146]">
-              <strong>Ideia:</strong> {stepIdeia.slice(0, 80)}...
+            <p className="text-[10px] sm:text-xs text-[#5C5146] truncate max-w-full">
+              <strong>Ideia:</strong> {stepIdeia.slice(0, 60)}{stepIdeia.length > 60 ? "..." : ""}
             </p>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
@@ -1060,11 +1061,12 @@ function DashboardInner() {
                   if (generatedSteps.length === 0) { toast("Gere pelo menos um passo primeiro"); return }
                   setShowEditablePreview(true)
                 }}
-                className="text-xs border-[#8B5E3C] text-[#8B5E3C] hover:bg-[#8B5E3C] hover:text-white"
+                className="text-[10px] sm:text-xs border-[#8B5E3C] text-[#8B5E3C] hover:bg-[#8B5E3C] hover:text-white"
               >
-                Publicar Pagina de Vendas
+                <span className="sm:hidden">Publicar</span>
+                <span className="hidden sm:inline">Publicar Pagina de Vendas</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => setShowIdeiaForm(true)} className="text-xs text-[#8B5E3C]">
+              <Button variant="ghost" size="sm" onClick={() => setShowIdeiaForm(true)} className="text-[10px] sm:text-xs text-[#8B5E3C]">
                 Editar
               </Button>
             </div>
@@ -1077,20 +1079,22 @@ function DashboardInner() {
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               <div className="flex gap-2">
                 <Button
-                  className="flex-1 bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-semibold text-sm btn-glow-primary"
+                  className="flex-1 bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-semibold text-xs sm:text-sm btn-glow-primary"
                   onClick={() => handleGenerateAll(tab)}
                   disabled={loading !== null}
                 >
                   <Rocket className="w-4 h-4" />
-                  {loading ? "Gerando..." : "Gerar Todos os Passos"}
+                  <span className="sm:hidden">{loading ? "Gerando..." : "Gerar Todos"}</span>
+                  <span className="hidden sm:inline">{loading ? "Gerando..." : "Gerar Todos os Passos"}</span>
                 </Button>
                 <Button
                   variant={stepByStepMode ? "default" : "outline"}
                   size="sm"
                   onClick={() => setStepByStepMode(!stepByStepMode)}
-                  className={`text-xs ${stepByStepMode ? "bg-[#6B4226] text-white" : "border-[#8B5E3C] text-[#8B5E3C]"}`}
+                  className={`text-[10px] sm:text-xs ${stepByStepMode ? "bg-[#6B4226] text-white" : "border-[#8B5E3C] text-[#8B5E3C]"}`}
                 >
-                  {stepByStepMode ? "Modo Lista" : "Passo a Passo"}
+                  <span className="sm:hidden">{stepByStepMode ? "Lista" : "Passo"}</span>
+                  <span className="hidden sm:inline">{stepByStepMode ? "Modo Lista" : "Passo a Passo"}</span>
                 </Button>
               </div>
 
@@ -1245,23 +1249,23 @@ function DashboardInner() {
                             </div>
                           )}
 
-                          <div className="flex flex-wrap gap-2 pt-2">
-                            <Button variant="outline" size="sm" onClick={() => handleCopyAll(step)} className="text-xs"><Copy className="w-3 h-3" /> Copiar</Button>
-                            <Button variant="outline" size="sm" onClick={() => generateStep(step)} className="text-xs" disabled={loading === step.id}><RefreshCw className="w-3 h-3" /> Regenerar</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "pdf")} className="text-xs"><FileText className="w-3 h-3" /> PDF</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "docx")} className="text-xs"><FileDown className="w-3 h-3" /> DOCX</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "md")} className="text-xs"><Download className="w-3 h-3" /> MD</Button>
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2">
+                            <Button variant="outline" size="sm" onClick={() => handleCopyAll(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><Copy className="w-3 h-3" /> <span className="hidden xs:inline">Copiar</span></Button>
+                            <Button variant="outline" size="sm" onClick={() => generateStep(step)} className="text-[10px] sm:text-xs px-2 sm:px-3" disabled={loading === step.id}><RefreshCw className="w-3 h-3" /> <span className="hidden xs:inline">Regenerar</span></Button>
+                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "pdf")} className="text-[10px] sm:text-xs px-2 sm:px-3"><FileText className="w-3 h-3" /> PDF</Button>
+                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "docx")} className="text-[10px] sm:text-xs px-2 sm:px-3"><FileDown className="w-3 h-3" /> DOCX</Button>
+                            <Button variant="outline" size="sm" onClick={() => handleExport(step, "md")} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> MD</Button>
                             {Object.values(step.content).some(v => typeof v === "string" && v.startsWith("<svg")) && (
                               <>
-                                <Button variant="outline" size="sm" onClick={() => handleExportCapaPNG(step)} className="text-xs"><Download className="w-3 h-3" /> PNG</Button>
-                                <div className="w-full flex flex-wrap gap-2 mt-2">
+                                <Button variant="outline" size="sm" onClick={() => handleExportCapaPNG(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> PNG</Button>
+                                <div className="w-full flex flex-wrap gap-1.5 sm:gap-2 mt-1 sm:mt-2">
                                   <div className="flex items-center gap-1">
-                                    <label className="text-xs inline-flex items-center gap-1 px-2 py-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"><Camera className="w-3 h-3" /> Feed<input type="file" accept="image/*" className="hidden" onChange={(e) => handleCapaPhotoUpload(e, "feed")} /></label>
-                                    {capaPhotoFeed && <Button variant="outline" size="sm" onClick={() => setCapaPhotoFeed(null)} className="text-xs text-red-500 px-2 py-1 h-auto"><X className="w-3 h-3" /></Button>}
+                                    <label className="text-[10px] sm:text-xs inline-flex items-center gap-1 px-2 py-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"><Camera className="w-3 h-3" /> Feed<input type="file" accept="image/*" className="hidden" onChange={(e) => handleCapaPhotoUpload(e, "feed")} /></label>
+                                    {capaPhotoFeed && <Button variant="outline" size="sm" onClick={() => setCapaPhotoFeed(null)} className="text-[10px] sm:text-xs text-red-500 px-2 py-1 h-auto"><X className="w-3 h-3" /></Button>}
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <label className="text-xs inline-flex items-center gap-1 px-2 py-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"><Camera className="w-3 h-3" /> Reels<input type="file" accept="image/*" className="hidden" onChange={(e) => handleCapaPhotoUpload(e, "reels")} /></label>
-                                    {capaPhotoReels && <Button variant="outline" size="sm" onClick={() => setCapaPhotoReels(null)} className="text-xs text-red-500 px-2 py-1 h-auto"><X className="w-3 h-3" /></Button>}
+                                    <label className="text-[10px] sm:text-xs inline-flex items-center gap-1 px-2 py-1 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md cursor-pointer"><Camera className="w-3 h-3" /> Reels<input type="file" accept="image/*" className="hidden" onChange={(e) => handleCapaPhotoUpload(e, "reels")} /></label>
+                                    {capaPhotoReels && <Button variant="outline" size="sm" onClick={() => setCapaPhotoReels(null)} className="text-[10px] sm:text-xs text-red-500 px-2 py-1 h-auto"><X className="w-3 h-3" /></Button>}
                                   </div>
                                 </div>
                               </>

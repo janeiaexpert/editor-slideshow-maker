@@ -53,7 +53,7 @@ export function TrilhaProgresso({
         </div>
 
         {/* Per-tab mini progress */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {tabs.map(tab => {
             const tabSteps = steps.filter(s => s.tab === tab)
             const tabCompleted = tabSteps.filter(s => s.generated).length
@@ -72,8 +72,8 @@ export function TrilhaProgresso({
                     : "bg-white/50 border border-transparent hover:bg-white/80"
                 }`}
               >
-                <span className="text-xs">{config.emoji}</span>
-                <span className={`text-[9px] font-bold ${isActive ? "text-[#8B5E3C]" : "text-[#5C5146]"}`}>
+                <span className="text-xs sm:text-sm">{config.emoji}</span>
+                <span className={`text-[9px] sm:text-[10px] font-bold ${isActive ? "text-[#8B5E3C]" : "text-[#5C5146]"}`}>
                   {config.label}
                 </span>
                 <div className="w-full h-1 bg-[#EDE6DC] rounded-full overflow-hidden">
@@ -85,7 +85,7 @@ export function TrilhaProgresso({
                     }}
                   />
                 </div>
-                <span className="text-[8px] text-[#5C5146]">
+                <span className="text-[8px] sm:text-[9px] text-[#5C5146]">
                   {tabCompleted}/{tabTotal}
                 </span>
               </button>
