@@ -272,6 +272,14 @@ export default {
       return handleGenerate(request);
     }
 
+    if (path === "/api/generate-card") {
+      return handleGenerateCard(request);
+    }
+
+    if (path === "/api/calendario") {
+      return handleCalendar(request);
+    }
+
     if (path.startsWith("/qr/")) {
       return handleQrImport(request);
     }
