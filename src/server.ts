@@ -3,7 +3,7 @@ import "./lib/error-capture";
 import { createClient } from "@supabase/supabase-js";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { generateFromInsight } from "./lib/ai";
+import { generateFromInsight, generateSingleCard, generateCalendar } from "./lib/ai";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -205,6 +205,59 @@ async function handleGenerate(request: Request): Promise<Response> {
   }
 }
 
+function jsonResponse(status: number, data: unknown): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
+}
+
+async function handleGenerateCard(request: Request): Promise<Response> {
+  if (request.method !== "POST") return jsonResponse(405, { error: "Method not allowed" });
+  try {
+    const body = await request.json().catch(() => ({}));
+    const type = typeof body.type === "string" ? body.type : "";
+    const topic = typeof body.topic === "string" ? body.topic.trim() : "";
+    if (!type || !topic) return jsonResponse(400, { error: "Informe o tópico antes de gerar o card." });
+    const card = await generateSingleCard({
+      type: type as never,
+      topic,
+      goal: body.goal,
+      tone: body.tone,
+      context: typeof body.context === "string" ? body.context : undefined,
+    });
+    return jsonResponse(200, { card });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[AI Card]", e);
+    return jsonResponse(500, { error: message });
+  }
+}
+
+async function handleCalendar(request: Request): Promise<Response> {
+  if (request.method !== "POST") return jsonResponse(405, { error: "Method not allowed" });
+  try {
+    const body = await request.json().catch(() => ({}));
+    const documento = (body.documento || {}) as Record<string, string>;
+    if (!documento.propostaDeValor || !documento.publicoAlvo) {
+      return jsonResponse(400, { error: "Preencha Proposta de Valor e Público-Alvo no Documento Mestre." });
+    }
+    const itens = await generateCalendar({
+      documento,
+      dias: Number(body.dias) || 7,
+      objetivo: typeof body.objetivo === "string" ? body.objetivo : "autoridade",
+      postsPorDia: Number(body.postsPorDia) || 1,
+      incluirStories: Boolean(body.incluirStories),
+      dataInicial: typeof body.dataInicial === "string" ? body.dataInicial : new Date().toISOString().split("T")[0],
+    });
+    return jsonResponse(200, { itens });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[AI Calendar]", e);
+    return jsonResponse(500, { error: message });
+  }
+}
+
 // --- Main fetch handler ---
 
 export default {
@@ -217,6 +270,14 @@ export default {
 
     if (path === "/api/generate") {
       return handleGenerate(request);
+    }
+
+    if (path === "/api/generate-card") {
+      return handleGenerateCard(request);
+    }
+
+    if (path === "/api/calendario") {
+      return handleCalendar(request);
     }
 
     if (path.startsWith("/qr/")) {
