@@ -291,77 +291,6 @@ export function getAutoSubtitleSize(subtitle: string, _type: CardType): number {
   return SUBTITLE_SCALE.XS;
 }
 
-export function generateCaption(cards: Card[], topic: string, framework: Framework, goal?: Goal): string {
-  const titles = cards.map((c) => c.title).filter(Boolean);
-  const mainIdea = titles[0] || topic;
-  const subtitle = cards.map((c) => c.subtitle).filter(Boolean)[0] || "";
-
-  const goalLabel = goal === "sales" ? "conversão" : goal === "viral" ? "alcance" : "autoridade";
-
-  const structures: Record<Framework, string[]> = {
-    aida: [
-      `🚨 PAROU AQUI?\n${mainIdea}`,
-      `👀 POR ISSO VOCÊ PRECISA SABER\n${subtitle || `Se você já tentou ${topic.toLowerCase()} e não funcionou, não é culpa sua. O problema é outro.`}`,
-      `🔥 O QUE MUDA QUANDO VOCÊ ENTENDE ISSO\nA diferença entre quem consegue e quem continua tentando é uma única coisa: saber onde focar.`,
-      `⚡ SEU PRÓXIMO PASSO\nSalva este post. Daqui a 30 dias você volta aqui e me agradece.`,
-    ],
-    pas: [
-      `😤 ISSO É SOBRE VOCÊ?\n${mainIdea}`,
-      `⚠️ O PREÇO DE IGNORAR\n${subtitle || `Enquanto você não resolve ${topic.toLowerCase()}, você perde tempo, grana e oportunidades que não voltam.`}`,
-      `✅ O CAMINHO PARA RESOLVER\nA solução existe. E é mais simples do que te fazem acreditar.`,
-    ],
-    bab: [
-      `😩 ANTES: O CENÁRIO QUE DÓI\n${mainIdea}`,
-      `✨ DEPOIS: COMO FICA QUANDO MUDA\n${subtitle || `Quando você domina ${topic.toLowerCase()}, tudo se encaixa. Resultado vem. O estresse some.`}`,
-      `🌉 A PONTE ENTRE OS DOIS\nNão é segredo. É método. E está nos cards acima.`,
-    ],
-    storytelling: [
-      `🎬 A CENA QUE TODO MUNDO CONHECE\n${mainIdea}`,
-      `😬 O MOMENTO QUE QUASE DEU TUDO ERRADO\n${subtitle || `Parecia que não ia dar certo. Mas foi exatamente ali que tudo virou.`}`,
-      `💎 O APRENDIZADO QUE MUDA O JOGO\nHoje eu olho pra trás e vejo: se não fosse aquele dia, eu não estaria onde estou.`,
-    ],
-    autoridade: [
-      `🎯 MINHA VISÃO SOBRE ISSO\n${mainIdea}`,
-      `📊 O QUE OS DADOS MOSTRAM\n${subtitle || `Depois de anos trabalhando com ${topic.toLowerCase()}, uma coisa ficou clara: a maioria erra no básico.`}`,
-      `🏆 O RESULTADO QUE PROVA\nTeoria é barato. O que realmente funciona — e entrega — está resumido aqui.`,
-    ],
-    conversao: [
-      `🔍 DIAGNÓSTICO RÁPIDO\n${mainIdea}`,
-      `💰 QUANTO TEMPO VOCÊ VAI PERDER?\n${subtitle || `Quem age agora sai na frente. Quem espera "o momento certo" fica para trás.`}`,
-      `🚀 SUA VEZ DE AGIR\nClique no link da bio. Envia "EU QUERO". O próximo passo é seu.`,
-    ],
-  };
-
-  const blocks = structures[framework] || structures.aida;
-  const goalSuffix = goal === "viral"
-    ? "\n\n---\nCompartilha com alguém que precisa ler isso. Pode ser o empurrão que faltava."
-    : goal === "sales"
-    ? "\n\n---\nPronto para aplicar? Me chama no direct. São poucas vagas e isso não vai ficar disponível para sempre."
-    : "\n\n---\nSalva para consultar depois. Deixa nos comentários: qual card fez mais sentido para você?";
-
-  return `📝 ${topic.toUpperCase()}\n\n${blocks.map((b, i) => `${i > 0 ? "\n" : ""}${b}`).join("\n")}\n\n---${goalSuffix}`;
-}
-
-export function generateCta(goal: Goal): string {
-  const map: Record<Goal, string> = {
-    viral: "Compartilhe com alguém que está cometendo esse erro",
-    authority: "Salve para ter este roteiro sempre à mão",
-    sales: "Envie 'EU QUERO' no direct — vagas limitadas",
-  };
-  return map[goal] || map.authority;
-}
-
-export function generateHashtags(topic: string, goal: Goal): string[] {
-  const tag = topic.replace(/\s+/g, "").toLowerCase();
-  const goalTag = goal === "viral" ? "crescimento" : goal === "sales" ? "conversão" : "autoridade";
-  const extra: Record<string, string[]> = {
-    viral: ["#viralizar", "#entretenimento", "#engajamento"],
-    authority: ["#aprendizado", "#desenvolvimento", "#conhecimento"],
-    sales: ["#oportunidade", "#resultados", "#transformação"],
-  };
-  return [`#${tag}`, `#${goalTag}`, ...(extra[goal] || extra.authority), "#carrossel", "#instagram"];
-}
-
 export function autoSelectDesign(topic: string): { preset: DesignPreset; theme: ColorTheme } {
   const lower = topic.toLowerCase();
   if (lower.includes("tech") || lower.includes("ia") || lower.includes("dado") || lower.includes("digital")) return { preset: "tech", theme: "preto" };
@@ -372,76 +301,28 @@ export function autoSelectDesign(topic: string): { preset: DesignPreset; theme: 
   return { preset: "minimalista", theme: "preto" };
 }
 
-const CARD_LABELS: Record<CardType, string> = {
-  hook: "Hook", problem: "Problema", insight: "Insight", explanation: "Explicação",
-  framework: "Framework", mistake: "Erro", cta: "CTA", example: "",
-};
+const CARD_SEQUENCE: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
 
-const CARD_DESCRIPTIONS: Record<CardType, string> = {
-  hook: "Prende a atenção nos primeiros segundos",
-  problem: "Aponta uma dor ou desafio",
-  insight: "Revela uma verdade pouco conhecida",
-  explanation: "Explica o conceito de forma simples",
-  framework: "Apresenta um passo a passo",
-  mistake: "Expõe um erro comum",
-  cta: "Chama para a ação final",
-  example: "",
-};
-
-const KICKER_BY_GOAL: Record<Goal, Record<CardType, string>> = {
-  viral: { hook: "ISSO MUDA TUDO", problem: "NINGUÉM TE CONTOU", insight: "O SEGREDO", framework: "O MÉTODO OCULTO", explanation: "A VERDADE", mistake: "VOCÊ TAMBÉM CAI", cta: "COMPARTILHE AGORA", example: "" },
-  authority: { hook: "DADOS QUE IMPORTAM", problem: "O GAP DE CONHECIMENTO", insight: "ANÁLISE CRÍTICA", framework: "METODOLOGIA COMPROVADA", explanation: "ENTENDENDO O CONCEITO", mistake: "EQUÍVOCO COMUM", cta: "PRÓXIMOS PASSOS", example: "" },
-  sales: { hook: "VOCÊ PERDE DINHEIRO", problem: "O CUSTO DA OMISSÃO", insight: "OPORTUNIDADE PERDIDA", framework: "O SISTEMA QUE VENDE", explanation: "NA PRÁTICA", mistake: "O ERRO QUE CUSTA CARO", cta: "FALE CONOSCO", example: "" },
-};
-
-const SUBTITLE_BY_TONE: Record<string, Record<CardType, (t: string) => string>> = {
-  direto: {
-    hook: (t) => `90% aplica ${t} do jeito errado. O resto entendeu o que ninguém explica.`,
-    problem: (t) => `Não é falta de talento. É um padrão específico que você repete sem perceber.`,
-    insight: (t) => `Não é teoria nova. É um princípio que existe há décadas — mas ninguém aplica porque parece simples demais.`,
-    framework: (_) => "3 etapas. Nenhuma teoria. Diagnostique, corrija, meça. Repita.",
-    explanation: (t) => `${t} parece difícil porque ensinam do jeito errado. O básico bem feito supera qualquer hack.`,
-    mistake: (t) => `O erro não é técnico. É acreditar que ${t} se resolve com mais informação em vez de execução.`,
-    cta: (_) => "Informação sem ação é entretenimento. Qual é o primeiro passo que você vai dar?",
-    example: () => "",
-  },
-  educacional: {
-    hook: (t) => `Antes de aplicar ${t}, entenda por que a maioria falha. A resposta muda como você enxerga tudo.`,
-    problem: (t) => `Sem os fundamentos de ${t}, você repete os mesmos erros esperando resultados diferentes.`,
-    insight: (t) => `Estudos mostram que ${t} bem executado supera estratégias complexas. Consistência vence intensidade.`,
-    framework: (_) => "Ciclo de 3 etapas validado por profissionais. Diagnostique, intervenha, mensure. Sem achismo.",
-    explanation: (t) => `${t} descomplicado: do conceito central à aplicação em 3 pilares. Só o que funciona.`,
-    mistake: (t) => `Confundir informação com formação é o erro mais comum sobre ${t}. Saber não é fazer.`,
-    cta: (_) => "Salve, estude com calma e compartilhe com quem leva aprendizado a sério.",
-    example: () => "",
-  },
-  provocativo: {
-    hook: (t) => `Todo mundo fala de ${t}. Quase ninguém entende. E se a maioria estiver errada?`,
-    problem: (t) => `Continua ignorando ${t} enquanto seus concorrentes avançam? Ótimo. Mais espaço para quem age.`,
-    insight: (t) => `O que te ensinaram sobre ${t} está incompleto. E o pior: te mantém exatamente onde está.`,
-    framework: (_) => "3 passos. 99% pula o segundo. Depois reclama que não funciona. Você vai pular também?",
-    explanation: (t) => `${t} é simples. O problema é que existe uma indústria inteira lucrando pra fazer parecer complexo.`,
-    mistake: (t) => `O maior erro sobre ${t} não é técnico. É achar que existe atalho. Não existe.`,
-    cta: (_) => "Se chegou até aqui, não tem desculpa. Vai aplicar ou só salvar?",
-    example: () => "",
-  },
-};
-
-export function defaultCards(topic: string, goal?: Goal, tone?: string): Card[] {
-  const t = topic.toLowerCase();
-  const gk = goal && KICKER_BY_GOAL[goal] || null;
-  const st = tone && SUBTITLE_BY_TONE[tone] || null;
-  const kf = (ct: CardType, fallback: string) => gk ? gk[ct] : fallback;
-  const sf = (ct: CardType, fallback: string) => st ? st[ct](t) : fallback;
-  return ([
-    { type: "hook" as CardType, kicker: kf("hook", "POR QUE 90% ERRA"), title: `O que ninguém te\nconta sobre ${t}`, subtitle: sf("hook", `Se você segue o óbvio sobre ${t}, está competindo com todo mundo. O atalho real é outro.`), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "problem" as CardType, kicker: kf("problem", "ISSO É SOBRE VOCÊ"), title: `O sintoma que você\nignora todo dia`, subtitle: sf("problem", `Se algo em ${t} não funciona, não é culpa do mercado. É um padrão específico que você repete sem perceber.`), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "insight" as CardType, kicker: kf("insight", "NINGUÉM FALA SOBRE"), title: `O princípio escondido\nque muda o jogo`, subtitle: sf("insight", `Quem descobre isso sobre ${t} sai na frente. Quem ignora continua preso no resultado mediano sem entender o motivo.`), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "framework" as CardType, kicker: kf("framework", "3 PASSOS"), title: `${topic} sem achismo:\ndiagnóstico, ação, ajuste`, subtitle: sf("framework", "Passo 1: Onde você está. Passo 2: O que furar. Passo 3: Como medir. Nada além. Nada menos."), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "explanation" as CardType, kicker: kf("explanation", "A VERDADE"), title: `${t} é sobre 3 coisas.\nO resto é ruído.`, subtitle: sf("explanation", `${topic} parece complexo porque complicam de propósito. Simplificado: causa, método, consistência.`), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "mistake" as CardType, kicker: kf("mistake", "ERRO FATAL"), title: `O erro que 90% cometem\nem ${t}`, subtitle: sf("mistake", `Não é técnica. É achar que ${t} se resolve com mais informação. O problema é outro — e é mais simples.`), buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-    { type: "cta" as CardType, kicker: kf("cta", "DECISÃO"), title: "O que muda se você\naplicar isso hoje?", subtitle: sf("cta", "Ler e esquecer é entretenimento. Salvar e executar é investimento. Qual você escolhe?"), buttonText: "Quero aplicar agora", buttonCaption: "Salve e compartilhe com quem precisa", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] },
-  ] as Card[]);
+/** Estrutura em branco do carrossel — sem copy simulada. A copy vem da IA ou do usuário. */
+export function blankCards(): Card[] {
+  return CARD_SEQUENCE.map((type) => ({
+    type,
+    kicker: "",
+    title: "",
+    subtitle: "",
+    buttonText: "",
+    buttonCaption: "",
+    handle: "@seu.handle",
+    author: "Seu Nome",
+    image: null,
+    imagePosition: "top",
+    imageZoom: 100,
+    gradientOpacity: 70,
+    gradientDirection: "bottom",
+    textAlign: "left",
+    textVerticalAlign: "bottom",
+    highlights: [],
+  })) as Card[];
 }
 
 export type AIGenerationStatus = "idle" | "analyzing" | "generating" | "error";
