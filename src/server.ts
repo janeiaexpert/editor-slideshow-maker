@@ -3,7 +3,7 @@ import "./lib/error-capture";
 import { createClient } from "@supabase/supabase-js";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { generateFromInsight } from "./lib/ai";
+import { generateFromInsight, generateSingleCard, generateCalendar } from "./lib/ai";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
