@@ -5,7 +5,7 @@ import { CheckCircle2, Circle, Flame } from "lucide-react"
 interface StepData {
   id: string
   title: string
-  tab: "produto" | "vendas" | "operacao" | "artefatos"
+  tab: "produto" | "vendas" | "operacao"
   generated: boolean
 }
 
@@ -13,7 +13,6 @@ const TAB_CONFIG = {
   produto: { label: "Produto", emoji: "📦", color: "#8B5E3C" },
   vendas: { label: "Vendas", emoji: "💰", color: "#D4A574" },
   operacao: { label: "Operação", emoji: "⚙️", color: "#6B4226" },
-  artefatos: { label: "Artefatos", emoji: "🎨", color: "#A67C52" },
 } as const
 
 export function TrilhaProgresso({
@@ -25,7 +24,7 @@ export function TrilhaProgresso({
   activeTab: string
   onTabClick: (tab: string) => void
 }) {
-  const tabs = ["produto", "vendas", "operacao", "artefatos"] as const
+  const tabs = ["produto", "vendas", "operacao"] as const
   const totalSteps = steps.length
   const completedSteps = steps.filter(s => s.generated).length
   const overallPercent = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0
@@ -53,7 +52,7 @@ export function TrilhaProgresso({
         </div>
 
         {/* Per-tab mini progress */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {tabs.map(tab => {
             const tabSteps = steps.filter(s => s.tab === tab)
             const tabCompleted = tabSteps.filter(s => s.generated).length

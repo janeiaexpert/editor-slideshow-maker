@@ -11,7 +11,7 @@ import {
   Rocket, Copy, Download, FileText, FileDown, ChevronDown, ChevronRight,
   ArrowLeft, ShoppingCart, DollarSign, TrendingUp, BarChart3,
   Mail, MessageSquare, Gift, ShieldCheck, Target, Zap, Eye,
-  Image, Palette, Layout, Code, PenTool, Play, RotateCcw, Camera, X,
+  Palette, Play, RotateCcw, Camera, X,
   RefreshCw, Star, Package, Book
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
@@ -32,7 +32,7 @@ type StepData = {
   title: string
   description: string
   icon: React.ReactNode
-  tab: "produto" | "vendas" | "operacao" | "artefatos"
+  tab: "produto" | "vendas" | "operacao"
   content: Record<string, string>
   generated: boolean
 }
@@ -57,13 +57,6 @@ const INITIAL_STEPS: StepData[] = [
   { id:"dashboard", title:"Dashboard", description:"KPIs, m\u00E9tricas e gr\u00E1ficos", icon:<BarChart3 className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
   { id:"escala", title:"Estrat\u00E9gias de Escala", description:"Pr\u00F3ximo produto, cross sell, ascens\u00E3o de valor", icon:<Zap className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
 
-  // === ARTEFATOS TAB ===
-  { id:"logo", title:"Logo SVG", description:"Logotipo profissional em SVG", icon:<Image className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"capa", title:"Capa para Redes Sociais", description:"Capa Feed (4:5) e Reels/Stories (9:16)", icon:<Palette className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"card_oferta", title:"Card de Oferta", description:"Card promocional para divulga\u00E7\u00E3o", icon:<Layout className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"certificado", title:"Certificado", description:"Template de certificado de conclus\u00E3o", icon:<FileText className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"landing", title:"Landing Page HTML", description:"P\u00E1gina de captura completa em HTML/CSS", icon:<Code className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
-  { id:"story", title:"Roteiro para Story/Reel", description:"Storyboard visual para stories", icon:<PenTool className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
 ]
 
 function getStepGuide(stepId: string): string {
@@ -404,7 +397,6 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
       "Recorrência": `Clube mensal de ${tema}   módulo novo por mês + lives + comunidade. Receita recorrente previsível.`
     }
   },
-  // === ARTEFATOS ===
   logo: (_, __, p) => {
     const c = getPaletteColors(p?.paleta)
     return {
@@ -612,7 +604,7 @@ function DashboardInner() {
     if (produtoInfo?.fonte) setSelectedFont(produtoInfo.fonte)
 
     const tomText = tom || "Persuasivo e direto"
-    const allTabs = ["produto", "vendas", "operacao", "artefatos"]
+    const allTabs = ["produto", "vendas", "operacao"]
     const allSteps = steps.filter(s => allTabs.includes(s.tab))
     const totalSteps = allSteps.length
 
@@ -777,7 +769,7 @@ function DashboardInner() {
     toast(`Todos os passos de ${tab} foram gerados!`)
 
     // Auto-navegar para a próxima aba
-    const tabOrder = ["produto", "vendas", "operacao", "artefatos"]
+    const tabOrder = ["produto", "vendas", "operacao"]
     const currentIdx = tabOrder.indexOf(tab)
     if (currentIdx < tabOrder.length - 1) {
       const nextTab = tabOrder[currentIdx + 1]
@@ -864,7 +856,6 @@ function DashboardInner() {
                 { id: "produto", label: "Produto", emoji: "📦" },
                 { id: "vendas", label: "Vendas", emoji: "💰" },
                 { id: "operacao", label: "Opera\u00E7\u00E3o", emoji: "⚙️" },
-                { id: "artefatos", label: "Artefatos", emoji: "🎨" },
                 { id: "biblioteca", label: "Biblioteca", emoji: "📚" },
                 { id: "custom", label: "Meu Produto", emoji: "✨" },
               ].map(tab => (
@@ -1075,7 +1066,7 @@ function DashboardInner() {
 
         {/* Tabs content */}
         <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
-          {["produto", "vendas", "operacao", "artefatos"].map(tab => (
+          {["produto", "vendas", "operacao"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               <div className="flex gap-2">
                 <Button
@@ -1296,7 +1287,7 @@ function DashboardInner() {
         </Tabs>
       </div>
 
-      {activeTab !== "artefatos" && <ChatBot ideia={stepIdeia || idea} tom={tom} lucro={lucro} steps={Object.fromEntries(steps.filter(s => s.generated).map(s => [s.id, s.content]))} paleta={selectedPalette?.nome} fonte={selectedFont?.nome} />}
+      <ChatBot ideia={stepIdeia || idea} tom={tom} lucro={lucro} steps={Object.fromEntries(steps.filter(s => s.generated).map(s => [s.id, s.content]))} paleta={selectedPalette?.nome} fonte={selectedFont?.nome} />
 
       {showEditablePreview && (() => {
         const generatedSteps = steps.filter(s => s.generated)

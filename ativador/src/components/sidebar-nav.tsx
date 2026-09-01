@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import {
-  Package, Eye, ShoppingCart, Settings2, Box,
+  Package, Eye, ShoppingCart, Settings2,
   ChevronLeft, ChevronRight, Menu, X, Library, User
 } from "lucide-react"
 
-export type TabId = "produto" | "vendas" | "operacao" | "artefatos" | "biblioteca" | "custom"
+export type TabId = "produto" | "vendas" | "operacao" | "biblioteca" | "custom"
 
 interface NavItem {
   id: TabId
@@ -21,7 +21,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "produto", label: "Produto", shortLabel: "Prod.", icon: <Package className="w-4 h-4" />, group: "gerar" },
   { id: "vendas", label: "Vendas", shortLabel: "Vendas", icon: <ShoppingCart className="w-4 h-4" />, group: "gerar" },
   { id: "operacao", label: "Operação", shortLabel: "Oper.", icon: <Settings2 className="w-4 h-4" />, group: "gerar" },
-  { id: "artefatos", label: "Artefatos", shortLabel: "Arte.", icon: <Box className="w-4 h-4" />, group: "gerar" },
   { id: "biblioteca", label: "Biblioteca", shortLabel: "Biblio.", icon: <Library className="w-4 h-4" />, group: "organizar" },
   { id: "custom", label: "Meu Produto", shortLabel: "Custom.", icon: <User className="w-4 h-4" />, group: "organizar" },
 ]

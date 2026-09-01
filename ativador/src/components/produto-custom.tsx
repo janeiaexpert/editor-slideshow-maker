@@ -68,7 +68,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
   return (
     <div className="space-y-4">
       <p className="text-xs text-[#5C5146]">
-        Já tem um produto pronto? Coloque as informações aqui e a ferramenta gera toda a estrutura de vendas, artefatos e automação para você.
+        Já tem um produto pronto? Coloque as informações aqui e a ferramenta gera toda a estrutura de vendas, automação para você.
       </p>
 
       <Card className="border-[#D9CEC2]">
