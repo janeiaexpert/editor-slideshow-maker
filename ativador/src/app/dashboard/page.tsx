@@ -444,7 +444,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
     "Slide 3 - Solucao": "Cena: Produto sendo apresentado (mockup do curso/ebook)\nTexto: 'Apresentamos o [NOME DO PRODUTO]' em fade-in\nEfeito: spotlight no produto\nDuracao: 6-10s",
     "Slide 4 - Prova": "Cena: Depoimento real em destaque com foto do aluno\nTexto: '[DEPOIMENTO]'\nFundo: claro para destacar o depoimento\nDuracao: 10-14s",
     "Slide 5 - Beneficios": "Cena: Icones aparecendo um por um\nTopicos na tela:\n  [BENEFICIO 1]\n  [BENEFICIO 2]\n  [BENEFICIO 3]\nEfeito: cada item aparece com um swipe\nDuracao: 14-20s",
-    "Slide 6 - Oferta": "Cena: Card de oferta em destaque com gradiente\nPreco gigante: 'R$ [VALOR]' com line-through no preco cheio\nElemento: 'Oferta por tempo limitado'\nDuracao: 20-25s",
+    "Slide 6 - Oferta": "Cena: Card de oferta em destaque com gradiente\nPreco gigante: '[VALOR]' com line-through no preco cheio\nElemento: 'Oferta por tempo limitado'\nDuracao: 20-25s",
     "Slide 7 - CTA Final": "Cena: Botao pulsando no centro da tela\nTexto: 'VAGAS LIMITADAS - GARANTA A SUA' + 'Clique no link da bio'\nEfeito: CTA com glow pulsante\nDuracao: 25-30s",
     "Dicas de Producao": "Grave cada slide como takes separados de 3-5s. Use cortes secos. Legenda automatica no Instagram. Musica: instrumental crescente (energy up). Call to action no ultimo slide com link na bio.",
   }),
@@ -1326,15 +1326,42 @@ function DashboardInner() {
                 else if (s.id === "bonus") savedSteps[s.id] = edited.bonus
                 else savedSteps[s.id] = s.content
               })
-              const res = await fetch("/api/publish", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ideia: stepIdeia || idea, tom, lucro, name: edited.headline["Headline"] || stepIdeia, ctaLink: edited.ctaLink, ctaText: edited.ctaText, steps: savedSteps }),
-              })
-              if (!res.ok) { const err = await res.json().catch(() => ({})); toast("Erro ao publicar: " + (err.error || res.status)); return }
-              const { id } = await res.json()
+
+              let publishId: string | null = null
+
+              try {
+                const res = await fetch("/api/publish", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ideia: stepIdeia || idea, tom, lucro, name: edited.headline["Headline"] || stepIdeia, ctaLink: edited.ctaLink, ctaText: edited.ctaText, steps: savedSteps }),
+                })
+                if (res.ok) {
+                  const json = await res.json()
+                  publishId = json.id
+                  if (json.data) {
+                    try { localStorage.setItem("preview_data", JSON.stringify({ id: publishId, ...json.data })) } catch {}
+                  }
+                }
+              } catch {}
+
+              if (!publishId) {
+                publishId = "local_" + Date.now().toString(36)
+                try {
+                  localStorage.setItem("preview_data", JSON.stringify({
+                    id: publishId,
+                    ideia: stepIdeia || idea,
+                    tom,
+                    lucro,
+                    name: edited.headline["Headline"] || stepIdeia,
+                    ctaLink: edited.ctaLink,
+                    ctaText: edited.ctaText,
+                    steps: savedSteps,
+                  }))
+                } catch {}
+              }
+
               setShowEditablePreview(false)
-              router.push(`/produto/preview?key=${id}`)
+              router.push(`/produto/preview?key=${publishId}`)
             }}
             onCancel={() => setShowEditablePreview(false)}
           />

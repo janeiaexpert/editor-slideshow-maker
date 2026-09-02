@@ -29,8 +29,25 @@ function PreviewInner() {
     if (!key) { setLoading(false); return }
     fetch(`/api/publish?id=${encodeURIComponent(key)}`)
       .then(res => res.ok ? res.json() : null)
-      .then(d => setData(d))
-      .catch(() => setData(null))
+      .then(d => {
+        if (d && d.steps) { setData(d); return }
+        try {
+          const raw = localStorage.getItem("preview_data")
+          if (raw) {
+            const local = JSON.parse(raw)
+            if (local.id === key && local.steps) setData(local)
+          }
+        } catch {}
+      })
+      .catch(() => {
+        try {
+          const raw = localStorage.getItem("preview_data")
+          if (raw) {
+            const local = JSON.parse(raw)
+            if (local.id === key && local.steps) setData(local)
+          }
+        } catch {}
+      })
       .finally(() => setLoading(false))
   }, [key])
 
