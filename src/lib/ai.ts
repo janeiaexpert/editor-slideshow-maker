@@ -308,3 +308,52 @@ export async function generateCalendar(params: {
     } as CalendarioItem;
   });
 }
+
+// --- Legenda, CTA e hashtags ---
+
+const CAPTION_SYSTEM = `Você é copywriter de Instagram especializado em legendas que geram salvamento, comentário e venda.
+
+Regras:
+- Português brasileiro. Sem emojis. Sem clichê motivacional. Sem hashtag no corpo da legenda.
+- Abertura com gancho de uma linha, que funciona mesmo cortada no "ver mais".
+- 2 a 3 blocos curtos separados por linha em branco.
+- Fecha com uma pergunta ou instrução única que gere comentário.
+
+Responda APENAS com JSON puro:
+{"caption":"...","cta":"...","hashtags":["#..."]}`;
+
+export async function generateCaptionCopy(params: {
+  topic: string;
+  goal?: string;
+  tone?: string;
+  framework?: string;
+  cards: { type: string; title: string; subtitle: string }[];
+}): Promise<{ caption: string; cta: string; hashtags: string[] }> {
+  const resumo = params.cards
+    .map((c) => `${c.type}: ${c.title} — ${c.subtitle}`)
+    .filter((l) => l.length > 8)
+    .join("\n");
+
+  const user = [
+    `TEMA: ${params.topic}`,
+    params.goal ? `OBJETIVO: ${params.goal}` : "",
+    params.tone ? `TOM: ${params.tone}` : "",
+    params.framework ? `FRAMEWORK DE COPY: ${params.framework}` : "",
+    resumo ? `CARDS DO CARROSSEL:\n${resumo}` : "",
+    "",
+    "Escreva a legenda, o CTA e 6 a 8 hashtags. Retorne apenas o JSON.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const raw = await callGateway(CAPTION_SYSTEM, user, 1200);
+  const parsed = parseJson<{ caption?: string; cta?: string; hashtags?: unknown }>(raw);
+  if (!parsed?.caption) throw new Error("Não foi possível gerar a legenda. Tente novamente.");
+  return {
+    caption: str(parsed.caption, 2200),
+    cta: str(parsed.cta, 200),
+    hashtags: Array.isArray(parsed.hashtags)
+      ? parsed.hashtags.filter((h): h is string => typeof h === "string").slice(0, 8)
+      : [],
+  };
+}
