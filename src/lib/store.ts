@@ -419,7 +419,7 @@ export const useStore = create<Store>()(
       setGoal: (goal) => set({ goal }),
       tone: "direto" as const,
       setTone: (tone) => set({ tone }),
-      cards: defaultCards("seu tópico", "authority", "direto"),
+      cards: blankCards(),
       setCards: (cards) => set({ cards }),
       activeIndex: 0,
       setActiveIndex: (activeIndex) => set({ activeIndex }),
