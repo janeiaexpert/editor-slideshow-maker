@@ -10,8 +10,13 @@ export type CardType =
   | "explanation"
   | "example"
   | "framework"
+  | "step"
+  | "proof"
+  | "benefit"
+  | "objection"
   | "mistake"
   | "cta";
+
 
 export type DocumentoMestre = {
   propostaDeValor: string;
