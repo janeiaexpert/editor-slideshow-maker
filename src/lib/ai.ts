@@ -1,7 +1,7 @@
 import type { Card, CardType, CalendarioItem, Goal } from "./store";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash-preview";
+const MODEL = "google/gemini-3.7-flash";
 
 const SYSTEM_PROMPT = `Você é um dos maiores estrategistas de conteúdo e copywriters do Brasil. Seus carrosséis geram salvamentos, compartilhamentos e vendas. Você domina psicologia do consumidor, gatilhos mentais e copy de resposta direta.
 
@@ -96,7 +96,8 @@ async function callGateway(system: string, user: string, maxTokens = 4000): Prom
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "fetch",
     },
     body: JSON.stringify({
       model: MODEL,
