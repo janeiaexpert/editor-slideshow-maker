@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
-import { useStore, defaultCards, generateCaption, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, WORD_PRESETS, type WordPreset, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
+import { useStore, blankCards, DOCUMENTO_CAMPOS, COPY_HOOKS, COPY_CTAS, WORD_PRESETS, type WordPreset, type Goal, type Framework, type CardType, type Card, type DesignPreset, type ColorTheme, type TextAlign, type TextVerticalAlign, type HighlightMode, type HighlightStyle, COLOR_THEMES, TYPOGRAPHY_PRESETS, TYPOGRAPHY_LABELS, FRAMEWORK_LABELS, HIGHLIGHT_KEYWORDS, getAutoTitleSize, getAutoSubtitleSize } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -362,8 +362,42 @@ function Index() {
     setTimeout(() => setFeedback(""), 2500);
   };
 
-  const generateAll = () => {
-    storeGenerateAll();
+  const generateAll = () => storeGenerateAll();
+
+  const [captionLoading, setCaptionLoading] = useState(false);
+
+  const generateCaptionAI = async () => {
+    const base = topic.trim() || insight.trim();
+    if (!base) {
+      setFeedback("Informe o tópico ou cole um insight antes de gerar a legenda.");
+      setTimeout(() => setFeedback(""), 3000);
+      return;
+    }
+    setCaptionLoading(true);
+    try {
+      const res = await fetch("/api/caption", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: base,
+          goal,
+          tone,
+          framework,
+          cards: cards.map((c) => ({ type: c.type, title: c.title, subtitle: c.subtitle })),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Erro ao gerar legenda");
+      setGeneratedCaption(data.caption || "");
+      if (data.cta) setGeneratedCta(data.cta);
+      if (Array.isArray(data.hashtags) && data.hashtags.length) setGeneratedHashtags(data.hashtags);
+      setFeedback("Legenda gerada com IA!");
+    } catch (e) {
+      setFeedback(e instanceof Error ? e.message : "Erro ao gerar legenda");
+    } finally {
+      setCaptionLoading(false);
+      setTimeout(() => setFeedback(""), 3000);
+    }
   };
 
   const dbKey = "carrosseis_db";
@@ -565,7 +599,7 @@ function Index() {
             {showSaveLoad && (
               <button onClick={() => setShowSaveLoad(false)} className="text-white/50 hover:text-white px-2 py-1">Fechar</button>
             )}
-            <button onClick={() => { if (!confirm("Criar um novo carrossel perde as alteracoes nao salvas. Salve antes se necessario.")) return; const emptyCards: Card[] = Array.from({ length: 7 }, (_, i) => ({ type: CARD_TYPES[i] as CardType, kicker: "", title: "Título", subtitle: "Subtítulo", buttonText: "", buttonCaption: "", handle: "@seu.handle", author: "Seu Nome", image: null, imagePosition: "top", imageZoom: 100, gradientOpacity: 70, gradientDirection: "bottom", textAlign: "left", textVerticalAlign: "bottom", highlights: [] })); setCards(emptyCards); setTopic(""); setGoal("authority"); setTone("direto"); setDesignPreset(null); setColorTheme(null); setFramework("aida"); setGeneratedCaption(""); setGeneratedCta(""); setGeneratedHashtags([]); setBrand({ logo: null, primaryColor: "#c2a25b", secondaryColor: "#ffffff", fontTitle: "Inter, sans-serif", fontBody: "Inter, sans-serif", applyByDefault: false }); setHighlight({ mode: "off", style: "bold" as HighlightStyle }); setActiveIndex(0); try { localStorage.removeItem("carrossel-store-v2"); } catch {}; setFeedback("Novo carrossel criado!"); setTimeout(() => setFeedback(""), 2500); }} className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold text-white/80 hover:text-white"><IconNew /> Novo</button>
+            <button onClick={() => { if (!confirm("Criar um novo carrossel perde as alteracoes nao salvas. Salve antes se necessario.")) return; const emptyCards: Card[] = blankCards(); setCards(emptyCards); setTopic(""); setGoal("authority"); setTone("direto"); setDesignPreset(null); setColorTheme(null); setFramework("aida"); setGeneratedCaption(""); setGeneratedCta(""); setGeneratedHashtags([]); setBrand({ logo: null, primaryColor: "#c2a25b", secondaryColor: "#ffffff", fontTitle: "Inter, sans-serif", fontBody: "Inter, sans-serif", applyByDefault: false }); setHighlight({ mode: "off", style: "bold" as HighlightStyle }); setActiveIndex(0); try { localStorage.removeItem("carrossel-store-v2"); } catch {}; setFeedback("Novo carrossel criado!"); setTimeout(() => setFeedback(""), 2500); }} className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold text-white/80 hover:text-white"><IconNew /> Novo</button>
             <button onClick={() => { handleLoadList(); setShowSaveLoad(true); }} className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs font-semibold text-white/80 hover:text-white"><IconSave /> Salvar</button>
           </div>
         </div>
@@ -805,13 +839,18 @@ function Index() {
                       setTimeout(() => setFeedback(""), 3000);
                       return;
                     }
-                    store.gerarCalendario();
+                    void store.gerarCalendario();
                   }}
-                  className="w-full rounded-md py-3 text-xs font-bold transition"
+                  disabled={store.calendarioLoading}
+                  className="w-full rounded-md py-3 text-xs font-bold transition disabled:opacity-40"
                   style={{ background: GOLD, color: "#111" }}
                 >
-                  Gerar Calendario Estrategico
+                  {store.calendarioLoading ? "Gerando calendário com IA..." : "Gerar Calendário Estratégico com IA"}
                 </button>
+
+                {store.calendarioError && (
+                  <div className="rounded-md bg-red-500/10 px-3 py-2 text-[10px] text-red-400">{store.calendarioError}</div>
+                )}
 
                 {/* Calendário */}
                 {store.calendario.length > 0 && (
@@ -858,7 +897,7 @@ function Index() {
                     {cards.length > 1 && (
                       <button onClick={() => { removeCard(activeIndex); setFeedback("Card removido!"); setTimeout(() => setFeedback(""), 2000); }} className="text-[10px] text-red-400/60 hover:text-red-400">remover</button>
                     )}
-                    <button onClick={() => { const def = defaultCards(topic || "seu tópico")[activeIndex]; if (def) updateCard(activeIndex, def); }} className="text-[10px] text-white/50 hover:text-white shrink-0">restaurar</button>
+                    <button onClick={() => { const def = blankCards()[activeIndex]; if (def) updateCard(activeIndex, { kicker: "", title: "", subtitle: "", buttonText: "", buttonCaption: "", highlights: [] }); }} className="text-[10px] text-white/50 hover:text-white shrink-0">limpar</button>
                   </div>
                 </div>
                 <Field label="Kicker"><input value={s.kicker} onChange={(e) => updateCard(activeIndex, { kicker: e.target.value })} className={inputCls} /></Field>
@@ -1118,9 +1157,6 @@ function Index() {
                   {aiStatus === "error" && aiError && (
                     <div className="mt-2 rounded-md bg-red-500/10 px-3 py-2 text-[10px] text-red-400">
                       {aiError}
-                      {aiError.includes("GROQ_API_KEY") && (
-                        <span className="block mt-1">Adicione GROQ_API_KEY no arquivo .env (key grátis em console.groq.com).</span>
-                      )}
                     </div>
                   )}
                 </div>
@@ -1163,8 +1199,8 @@ function Index() {
                         </Field>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={generateCards} className="flex-1 rounded-md py-2 text-xs font-bold" style={{ background: GOLD, color: "#111" }}>Gerar Cards</button>
-                        <button onClick={generateAll} className="flex-1 rounded-md py-2 text-xs font-bold" style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}>Gerar Tudo</button>
+                        <button onClick={() => void generateCards()} disabled={aiStatus !== "idle"} className="flex-1 rounded-md py-2 text-xs font-bold disabled:opacity-40" style={{ background: GOLD, color: "#111" }}>Regerar este card</button>
+                        <button onClick={() => void generateAll()} disabled={aiStatus !== "idle"} className="flex-1 rounded-md py-2 text-xs font-bold disabled:opacity-40" style={{ background: "rgba(255,255,255,0.1)", color: "#fff" }}>Gerar carrossel inteiro</button>
                       </div>
                     </div>
                   </details>
@@ -1187,7 +1223,7 @@ function Index() {
                   <div className="flex gap-2">
                     <textarea value={generatedCaption} onChange={(e) => setGeneratedCaption(e.target.value)} rows={6} className={inputCls + " flex-1"} />
                     <div className="flex flex-col gap-1.5 shrink-0">
-                      <button onClick={() => { const c = generateCaption(cards, topic, framework, goal); setGeneratedCaption(c); setFeedback("Caption gerada!"); setTimeout(() => setFeedback(""), 2000); }} className="rounded-md bg-[#c2a25b] px-3 py-2 text-[10px] font-bold text-black hover:brightness-110">Gerar</button>
+                      <button onClick={generateCaptionAI} disabled={captionLoading} className="rounded-md bg-[#c2a25b] px-3 py-2 text-[10px] font-bold text-black hover:brightness-110 disabled:opacity-40">{captionLoading ? "Gerando..." : "Gerar com IA"}</button>
                       <button onClick={() => { navigator.clipboard.writeText(generatedCaption); setFeedback("Caption copiada!"); setTimeout(() => setFeedback(""), 2000); }} className="rounded-md bg-white/10 px-3 py-2 text-[10px] font-semibold text-white/70 hover:text-white">Copiar</button>
                     </div>
                   </div>

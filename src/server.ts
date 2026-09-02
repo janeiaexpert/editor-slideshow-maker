@@ -3,7 +3,7 @@ import "./lib/error-capture";
 import { createClient } from "@supabase/supabase-js";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { generateFromInsight, generateSingleCard, generateCalendar } from "./lib/ai";
+import { generateFromInsight, generateSingleCard, generateCalendar, generateCaptionCopy } from "./lib/ai";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -258,6 +258,27 @@ async function handleCalendar(request: Request): Promise<Response> {
   }
 }
 
+async function handleCaption(request: Request): Promise<Response> {
+  if (request.method !== "POST") return jsonResponse(405, { error: "Method not allowed" });
+  try {
+    const body = await request.json().catch(() => ({}));
+    const topic = typeof body.topic === "string" ? body.topic.trim() : "";
+    if (!topic) return jsonResponse(400, { error: "Informe o tópico antes de gerar a legenda." });
+    const result = await generateCaptionCopy({
+      topic,
+      goal: body.goal,
+      tone: body.tone,
+      framework: body.framework,
+      cards: Array.isArray(body.cards) ? body.cards : [],
+    });
+    return jsonResponse(200, result);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[AI Caption]", e);
+    return jsonResponse(500, { error: message });
+  }
+}
+
 // --- Main fetch handler ---
 
 export default {
@@ -278,6 +299,10 @@ export default {
 
     if (path === "/api/calendario") {
       return handleCalendar(request);
+    }
+
+    if (path === "/api/caption") {
+      return handleCaption(request);
     }
 
     if (path.startsWith("/qr/")) {
