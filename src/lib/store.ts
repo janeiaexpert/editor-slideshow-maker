@@ -615,6 +615,7 @@ export const useStore = create<Store>()(
           documento: { propostaDeValor: "", publicoAlvo: "", dores: "", desejos: "", servicos: "", posicionamento: "" },
           pesquisa: { dias: 30, objetivo: "crescer seguidores", postsPorDia: 1, incluirStories: true, dataInicial: new Date().toISOString().split("T")[0] },
           calendario: [],
+          calendarioError: "",
         });
       },
     }),
