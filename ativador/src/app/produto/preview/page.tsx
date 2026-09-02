@@ -27,27 +27,23 @@ function PreviewInner() {
 
   useEffect(() => {
     if (!key) { setLoading(false); return }
+
+    try {
+      const raw = sessionStorage.getItem("preview_data")
+      if (raw) {
+        const local = JSON.parse(raw)
+        if (local && local.steps && Object.keys(local.steps).length > 0) {
+          setData(local)
+          setLoading(false)
+          return
+        }
+      }
+    } catch {}
+
     fetch(`/api/publish?id=${encodeURIComponent(key)}`)
       .then(res => res.ok ? res.json() : null)
-      .then(d => {
-        if (d && d.steps) { setData(d); return }
-        try {
-          const raw = localStorage.getItem("preview_data")
-          if (raw) {
-            const local = JSON.parse(raw)
-            if (local.id === key && local.steps) setData(local)
-          }
-        } catch {}
-      })
-      .catch(() => {
-        try {
-          const raw = localStorage.getItem("preview_data")
-          if (raw) {
-            const local = JSON.parse(raw)
-            if (local.id === key && local.steps) setData(local)
-          }
-        } catch {}
-      })
+      .then(d => { if (d && d.steps) setData(d) })
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [key])
 

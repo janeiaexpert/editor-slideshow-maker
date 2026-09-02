@@ -1327,38 +1327,33 @@ function DashboardInner() {
                 else savedSteps[s.id] = s.content
               })
 
+              const previewData = {
+                ideia: stepIdeia || idea,
+                tom,
+                lucro,
+                name: edited.headline["Headline"] || stepIdeia,
+                ctaLink: edited.ctaLink,
+                ctaText: edited.ctaText,
+                steps: savedSteps,
+              }
+
               let publishId: string | null = null
 
               try {
                 const res = await fetch("/api/publish", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ ideia: stepIdeia || idea, tom, lucro, name: edited.headline["Headline"] || stepIdeia, ctaLink: edited.ctaLink, ctaText: edited.ctaText, steps: savedSteps }),
+                  body: JSON.stringify(previewData),
                 })
                 if (res.ok) {
                   const json = await res.json()
                   publishId = json.id
-                  if (json.data) {
-                    try { localStorage.setItem("preview_data", JSON.stringify({ id: publishId, ...json.data })) } catch {}
-                  }
                 }
               } catch {}
 
-              if (!publishId) {
-                publishId = "local_" + Date.now().toString(36)
-                try {
-                  localStorage.setItem("preview_data", JSON.stringify({
-                    id: publishId,
-                    ideia: stepIdeia || idea,
-                    tom,
-                    lucro,
-                    name: edited.headline["Headline"] || stepIdeia,
-                    ctaLink: edited.ctaLink,
-                    ctaText: edited.ctaText,
-                    steps: savedSteps,
-                  }))
-                } catch {}
-              }
+              if (!publishId) publishId = "local_" + Date.now().toString(36)
+
+              try { sessionStorage.setItem("preview_data", JSON.stringify(previewData)) } catch {}
 
               setShowEditablePreview(false)
               router.push(`/produto/preview?key=${publishId}`)
