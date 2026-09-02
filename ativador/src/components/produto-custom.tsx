@@ -144,7 +144,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                   key={p.id}
                   onClick={() => setPaleta(p.id)}
                   className={`relative rounded-lg border-2 p-2 transition-all text-left ${
-                    paleta === p.id ? "border-[#8B5E3C] bg-[#FAF5F0]" : "border-[#D9CEC2] hover:border-[#A67C52]"
+                    paleta === p.id ? "border-[#8B5E3C] bg-[#FAF5F0] shadow-md" : "border-[#D9CEC2] hover:border-[#A67C52]"
                   }`}
                 >
                   {paleta === p.id && (
@@ -161,6 +161,23 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                 </button>
               ))}
             </div>
+            {(() => {
+              const sel = PALETTES.find(p => p.id === paleta)
+              if (!sel) return null
+              return (
+                <div className="mt-3 rounded-xl overflow-hidden border border-[#D9CEC2]">
+                  <div className="p-4 text-center" style={{ background: `linear-gradient(135deg, ${sel.cores[0]}, ${sel.cores[1]})` }}>
+                    <p className="text-white font-bold text-sm" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{nome || "Nome do Produto"}</p>
+                    <p className="text-white/70 text-[10px] mt-1">{sel.nome}</p>
+                  </div>
+                  <div className="flex">
+                    {sel.cores.map((c, i) => (
+                      <div key={i} className="flex-1 h-4" style={{ backgroundColor: c }} />
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
 
           <div className="h-px bg-[#D9CEC2]" />
@@ -175,7 +192,7 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                   key={f.id}
                   onClick={() => setFonte(f.id)}
                   className={`relative rounded-lg border-2 p-2 transition-all text-left ${
-                    fonte === f.id ? "border-[#8B5E3C] bg-[#FAF5F0]" : "border-[#D9CEC2] hover:border-[#A67C52]"
+                    fonte === f.id ? "border-[#8B5E3C] bg-[#FAF5F0] shadow-md" : "border-[#D9CEC2] hover:border-[#A67C52]"
                   }`}
                 >
                   {fonte === f.id && (
@@ -188,6 +205,16 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
                 </button>
               ))}
             </div>
+            {(() => {
+              const sel = FONTS.find(f => f.id === fonte)
+              if (!sel) return null
+              return (
+                <div className="mt-3 rounded-xl border border-[#D9CEC2] bg-white p-4 text-center">
+                  <p className={`text-lg font-bold text-[#1A1A1A] ${sel.preview}`}>{nome || "Nome do Produto"}</p>
+                  <p className={`text-sm text-[#5C5146] mt-1 ${sel.preview}`}>Subtítulo com a fonte {sel.nome}</p>
+                </div>
+              )
+            })()}
           </div>
 
           <div className="h-px bg-[#D9CEC2]" />
