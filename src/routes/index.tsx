@@ -132,9 +132,9 @@ function WordHighlighter({ text, highlights }: { text: string; highlights: WordH
     return <span key={i} style={{ ...base, background: c + "DD", borderRadius: 3, padding: "0 3px" }}>{label}</span>;
   })}</>;
 }
-const CARD_TYPES: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
-const CARD_LABELS: Record<CardType, string> = { hook: "Hook", problem: "Problema", insight: "Insight", framework: "Framework", explanation: "Explicação", mistake: "Erro", cta: "CTA", example: "" };
-const CARD_DESCRIPTIONS: Record<CardType, string> = { hook: "Prende a atenção", problem: "Aponta uma dor", insight: "Revela um insight", framework: "Passo a passo", explanation: "Explica o conceito", mistake: "Expõe um erro", cta: "Chama para ação", example: "" };
+const CARD_TYPES: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "example", "step", "proof", "benefit", "objection", "mistake", "cta"];
+const CARD_LABELS: Record<CardType, string> = { hook: "Hook", problem: "Problema", insight: "Insight", framework: "Framework", explanation: "Explicação", example: "Exemplo", step: "Passo", proof: "Prova", benefit: "Benefício", objection: "Objeção", mistake: "Erro", cta: "CTA" };
+const CARD_DESCRIPTIONS: Record<CardType, string> = { hook: "Prende a atenção", problem: "Aponta uma dor", insight: "Revela um insight", framework: "Passo a passo", explanation: "Explica o conceito", example: "Mostra um caso real", step: "Detalha uma etapa", proof: "Traz prova ou dado", benefit: "Mostra o ganho", objection: "Quebra a objeção", mistake: "Expõe um erro", cta: "Chama para ação" };
 
 function Index() {
   const store = useStore();
@@ -720,7 +720,7 @@ function Index() {
                       </div>
                       <div className="flex-none flex items-center justify-between text-[11px] pt-4 pb-1" style={{ opacity: .65 }}>
                         <span>{s.handle} · {s.author}</span>
-                        <span>{activeIndex + 1}/10</span>
+                        <span>{activeIndex + 1}/{cards.length}</span>
                       </div>
                       {showProgressBar && (
                         <div className="flex-none h-[5px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
