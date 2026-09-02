@@ -601,7 +601,7 @@ export const useStore = create<Store>()(
           topic: "",
           goal: "authority",
           tone: "direto",
-          cards: defaultCards("seu tópico", "authority", "direto"),
+          cards: blankCards(),
           activeIndex: 0,
           designPreset: null,
           colorTheme: null,
