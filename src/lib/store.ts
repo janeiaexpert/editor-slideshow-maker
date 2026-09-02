@@ -10,8 +10,13 @@ export type CardType =
   | "explanation"
   | "example"
   | "framework"
+  | "step"
+  | "proof"
+  | "benefit"
+  | "objection"
   | "mistake"
   | "cta";
+
 
 export type DocumentoMestre = {
   propostaDeValor: string;
@@ -301,7 +306,7 @@ export function autoSelectDesign(topic: string): { preset: DesignPreset; theme: 
   return { preset: "minimalista", theme: "preto" };
 }
 
-const CARD_SEQUENCE: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
+const CARD_SEQUENCE: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "example", "step", "proof", "benefit", "objection", "mistake", "cta"];
 
 /** Estrutura em branco do carrossel — sem copy simulada. A copy vem da IA ou do usuário. */
 export function blankCards(): Card[] {

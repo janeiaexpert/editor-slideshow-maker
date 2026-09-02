@@ -31,15 +31,15 @@ VOZ
 - Nada de reticências dramáticas nem CAPS no corpo do texto.
 - Seja específico: todo card entrega algo aplicável ou uma perspectiva nova.
 
-ESTRUTURA OBRIGATÓRIA — 7 cards, nesta ordem:
-hook, problem, insight, framework, explanation, mistake, cta
+ESTRUTURA OBRIGATÓRIA — 12 cards, nesta ordem:
+hook, problem, insight, framework, explanation, example, step, proof, benefit, objection, mistake, cta
 
 LIMITES POR CARD
-- type: um dos 7 acima
+- type: um dos 12 acima
 - kicker: até 20 caracteres, MAIÚSCULAS, sem emoji
 - title: até 60 caracteres, use \\n para uma quebra intencional (a capa fica em linha única)
 - subtitle: 12 a 35 palavras, complementa o título
-- buttonText / buttonCaption: vazios nos cards 1-6; no CTA, buttonText de 2-4 palavras e buttonCaption quebrando a objeção
+- buttonText / buttonCaption: vazios nos cards 1-11; no CTA, buttonText de 2-4 palavras e buttonCaption quebrando a objeção
 - handle: "@seu.handle", author: "Seu Nome"
 
 TAMBÉM GERE
@@ -50,7 +50,7 @@ TAMBÉM GERE
 
 Responda APENAS com JSON puro. Sem markdown, sem crases, sem comentários.`;
 
-const CARD_ORDER: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "mistake", "cta"];
+const CARD_ORDER: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "example", "step", "proof", "benefit", "objection", "mistake", "cta"];
 
 export interface GenerateResult {
   cards: Card[];
@@ -134,9 +134,9 @@ function str(v: unknown, max: number, fallback = ""): string {
 }
 
 function normalizeCards(cards: unknown[]): Card[] {
-  const validTypes: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "example", "mistake", "cta"];
+  const validTypes: CardType[] = ["hook", "problem", "insight", "framework", "explanation", "example", "step", "proof", "benefit", "objection", "mistake", "cta"];
   const validDir = ["top", "bottom", "left", "right"];
-  return cards.slice(0, 7).map((c, i) => {
+  return cards.slice(0, 12).map((c, i) => {
     const card = (c || {}) as Record<string, unknown>;
     const type = validTypes.includes(card.type as CardType) ? (card.type as CardType) : CARD_ORDER[i] || "hook";
     let title = str(card.title, 90);
@@ -179,7 +179,7 @@ export async function generateFromInsight(
     options?.goal ? `OBJETIVO DO CARROSSEL: ${options.goal}` : "",
     options?.tone ? `TOM DE VOZ: ${options.tone}` : "",
     "",
-    "Extraia o ângulo mais forte deste insight e escreva o carrossel completo de 7 cards. Retorne apenas o JSON.",
+    "Extraia o ângulo mais forte deste insight e escreva o carrossel completo de 12 cards. Retorne apenas o JSON.",
   ]
     .filter(Boolean)
     .join("\n");
