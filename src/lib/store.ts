@@ -447,45 +447,27 @@ export const useStore = create<Store>()(
       setPesquisaField: (key, value) => set((s) => ({ pesquisa: { ...s.pesquisa, [key]: value } })),
       calendario: [],
       calendarioLoading: false,
-      gerarCalendario: () => {
+      calendarioError: "",
+      gerarCalendario: async () => {
         const st = get();
         const d = st.documento;
-        const p = st.pesquisa;
-        if (!d.propostaDeValor || !d.publicoAlvo) { set({ calendarioLoading: false }); return; }
-        set({ calendarioLoading: true });
-        const items: CalendarioItem[] = [];
-        const inicio = new Date(p.dataInicial);
-        const goals: Goal[] = ["authority", "viral", "sales"];
-        const tones = ["direto", "provocativo", "educacional"];
-        const temasBase = [
-          { tipo: "Carrossel" as const, tema: (i: number) => `Por que ${d.publicoAlvo.slice(0, 30)} ignoram isso?`, obj: "Gerar curiosidade e identificação" },
-          { tipo: "Carrossel" as const, tema: (_: number) => `O maior erro sobre ${d.servicos.slice(0, 30)}`, obj: "Quebrar crença limitante" },
-          { tipo: "Reels" as const, tema: (i: number) => `${d.dores.slice(0, 40)} — Como resolver em 3 passos`, obj: "Entregar valor rápido" },
-          { tipo: "Carrossel" as const, tema: (i: number) => `O metodo que usei para ${d.desejos.slice(0, 40)}`, obj: "Demonstrar autoridade" },
-          { tipo: "Stories" as const, tema: (_: number) => `Pergunta: ${d.publicoAlvo.slice(0, 30)} — qual sua maior dificuldade?`, obj: "Gerar interação" },
-          { tipo: "Carrossel" as const, tema: (i: number) => `${d.propostaDeValor.slice(0, 50)}`, obj: "Reforçar posicionamento" },
-          { tipo: "Reels" as const, tema: (_: number) => `3 sinais de que ${d.dores.slice(0, 30)}`, obj: "Auto-diagnóstico" },
-          { tipo: "Carrossel" as const, tema: (i: number) => `O que ninguem te conta sobre ${d.servicos.slice(0, 30)}`, obj: "Insight exclusivo" },
-        ];
-        for (let i = 0; i < p.dias; i++) {
-          const dt = new Date(inicio);
-          dt.setDate(dt.getDate() + i);
-          const ds = dt.toLocaleDateString("pt-BR");
-          const base = temasBase[i % temasBase.length];
-          const g = goals[i % goals.length];
-          const t = tones[i % tones.length];
-          items.push({
-            data: ds,
-            tipo: base.tipo,
-            tema: base.tema(i),
-            objetivoEstrategico: base.obj,
-            dorOuDesejo: i % 2 === 0 ? d.dores.slice(0, 60) : d.desejos.slice(0, 60),
-            goal: g,
-            tone: t,
-            insight: `${base.tema(i)} — para ${d.publicoAlvo.slice(0, 30)} que busca ${d.desejos.slice(0, 30)}`,
+        if (!d.propostaDeValor.trim() || !d.publicoAlvo.trim()) {
+          set({ calendarioError: "Preencha Proposta de Valor e Público-Alvo no Documento Mestre." });
+          return;
+        }
+        set({ calendarioLoading: true, calendarioError: "" });
+        try {
+          const data = await postJson<{ itens: CalendarioItem[] }>("/api/calendario", {
+            documento: d,
+            ...st.pesquisa,
+          });
+          set({ calendario: data.itens || [], calendarioLoading: false, calendarioError: "" });
+        } catch (e) {
+          set({
+            calendarioLoading: false,
+            calendarioError: e instanceof Error ? e.message : "Não foi possível gerar o calendário.",
           });
         }
-        set({ calendario: items, calendarioLoading: false });
       },
       setCalendarioFromIa: (calendario) => set({ calendario, calendarioLoading: false }),
       updateCard: (i, patch) => set((s) => ({
@@ -496,105 +478,107 @@ export const useStore = create<Store>()(
         if (updated.length === 0) return s;
         return { cards: updated, activeIndex: Math.min(s.activeIndex, updated.length - 1) };
       }),
-      generateCards: () => {
+      generateCards: async () => {
         const st = get();
-        const topic = st.topic || "seu tópico";
-        const newCards = defaultCards(topic, st.goal, st.tone);
+        const topic = st.topic.trim() || st.insight.trim();
+        if (!topic) {
+          set({ aiStatus: "error", aiError: "Informe o tópico ou o insight antes de gerar." });
+          return;
+        }
         const i = st.activeIndex;
-        set({
-          cards: st.cards.map((c, idx) => (idx === i ? newCards[i] : c)),
-        });
+        const current = st.cards[i];
+        if (!current) return;
+        set({ aiStatus: "generating", aiError: "" });
+        try {
+          const context = st.cards
+            .filter((_, idx) => idx !== i)
+            .map((c) => `${c.type}: ${c.title} — ${c.subtitle}`)
+            .filter((l) => l.length > 8)
+            .join("\n");
+          const data = await postJson<{ card: Card }>("/api/generate-card", {
+            type: current.type,
+            topic,
+            goal: st.goal,
+            tone: st.tone,
+            context,
+          });
+          set((s) => ({
+            aiStatus: "idle",
+            aiError: "",
+            cards: s.cards.map((c, idx) =>
+              idx === i
+                ? {
+                    ...c,
+                    kicker: data.card.kicker,
+                    title: data.card.title,
+                    subtitle: data.card.subtitle,
+                    buttonText: data.card.buttonText,
+                    buttonCaption: data.card.buttonCaption,
+                  }
+                : c,
+            ),
+          }));
+        } catch (e) {
+          set({ aiStatus: "error", aiError: e instanceof Error ? e.message : "Erro ao gerar o card." });
+        }
       },
       generateAll: async () => {
         const st = get();
-        const topic = st.topic?.trim() || "";
+        const topic = st.topic.trim() || st.insight.trim();
         if (!topic) {
-          const cards = defaultCards("seu tópico", st.goal, st.tone);
-          const design = autoSelectDesign("");
-          set({
-            cards,
-            activeIndex: 0,
-            designPreset: design.preset,
-            colorTheme: design.theme,
-            generatedCaption: generateCaption(cards, "seu tópico", st.framework, st.goal),
-            generatedCta: generateCta(st.goal),
-            generatedHashtags: generateHashtags("seu tópico", st.goal),
-            highlight: { mode: st.brand.applyByDefault ? "medium" as HighlightMode : "off" as HighlightMode, style: "bold" as HighlightStyle },
-          });
+          set({ aiStatus: "error", aiError: "Informe o tópico ou cole um insight antes de gerar." });
           return;
         }
         set({ aiStatus: "generating", aiError: "" });
         try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ insight: topic, goal: st.goal, tone: st.tone, brand: st.brand }),
+          const data = await postJson<{
+            cards: Card[];
+            caption: string;
+            cta: string;
+            hashtags: string[];
+            analysis: AnalysisResult;
+          }>("/api/generate", { insight: topic, goal: st.goal, tone: st.tone, brand: st.brand });
+          const design = autoSelectDesign(data.analysis?.theme || topic);
+          set({
+            aiStatus: "idle",
+            aiError: "",
+            cards: data.cards,
+            insightAnalysis: data.analysis || null,
+            activeIndex: 0,
+            generatedCaption: data.caption || "",
+            generatedCta: data.cta || "",
+            generatedHashtags: data.hashtags || [],
+            designPreset: design.preset,
+            colorTheme: design.theme,
+            highlight: { mode: st.brand.applyByDefault ? ("medium" as HighlightMode) : ("off" as HighlightMode), style: "bold" as HighlightStyle },
           });
-          const data = await res.json();
-          if (res.ok && data.cards) {
-            const design = autoSelectDesign(data.analysis?.theme || topic);
-            set({
-              aiStatus: "idle",
-              cards: data.cards,
-              activeIndex: 0,
-              generatedCaption: data.caption || "",
-              generatedCta: data.cta || "",
-              generatedHashtags: data.hashtags || [],
-              designPreset: design.preset,
-              colorTheme: design.theme,
-              framework: "aida" as Framework,
-              highlight: { mode: st.brand.applyByDefault ? "medium" as HighlightMode : "off" as HighlightMode, style: "bold" as HighlightStyle },
-            });
-            return;
-          }
-        } catch {}
-        const cards = defaultCards(topic, st.goal, st.tone);
-        const design = autoSelectDesign(topic);
-        set({
-          aiStatus: "idle",
-          cards,
-          activeIndex: 0,
-          designPreset: design.preset,
-          colorTheme: design.theme,
-          generatedCaption: generateCaption(cards, topic, st.framework, st.goal),
-          generatedCta: generateCta(st.goal),
-          generatedHashtags: generateHashtags(topic, st.goal),
-          highlight: { mode: st.brand.applyByDefault ? "medium" as HighlightMode : "off" as HighlightMode, style: "bold" as HighlightStyle },
-        });
+        } catch (e) {
+          set({ aiStatus: "error", aiError: e instanceof Error ? e.message : "Erro ao gerar o carrossel." });
+        }
       },
       generateFromInsight: async () => {
         const st = get();
         const insight = st.insight.trim();
-        if (!insight) return;
-
+        if (!insight) {
+          set({ aiStatus: "error", aiError: "Cole um insight antes de gerar." });
+          return;
+        }
         set({ aiStatus: "analyzing", aiError: "" });
-
         try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              insight,
-              goal: st.goal,
-              tone: st.tone,
-              brand: st.brand,
-            }),
-          });
-
-          const data = await res.json();
-
-          if (!res.ok) {
-            throw new Error(data.error || "Erro ao gerar carrossel");
-          }
-
+          const data = await postJson<{
+            cards: Card[];
+            caption: string;
+            cta: string;
+            hashtags: string[];
+            analysis: AnalysisResult;
+          }>("/api/generate", { insight, goal: st.goal, tone: st.tone, brand: st.brand });
           const design = autoSelectDesign(data.analysis?.theme || insight);
-
           set({
             aiStatus: "idle",
             aiError: "",
             topic: data.analysis?.theme || insight.slice(0, 40),
             insightAnalysis: data.analysis || null,
-            cards: data.cards || defaultCards(insight, st.goal, st.tone),
+            cards: data.cards,
             generatedCaption: data.caption || "",
             generatedCta: data.cta || "",
             generatedHashtags: data.hashtags || [],
@@ -602,31 +586,10 @@ export const useStore = create<Store>()(
             designPreset: design.preset,
             colorTheme: design.theme,
             framework: "aida" as Framework,
-            highlight: { mode: st.brand.applyByDefault ? "medium" as HighlightMode : "off" as HighlightMode, style: "bold" as HighlightStyle },
+            highlight: { mode: st.brand.applyByDefault ? ("medium" as HighlightMode) : ("off" as HighlightMode), style: "bold" as HighlightStyle },
           });
-        } catch {
-          // Fallback local quando API nao esta disponivel
-          const topic = insight.slice(0, 60);
-          const newCards = defaultCards(topic, st.goal, st.tone);
-          const design = autoSelectDesign(topic);
-          const caption = generateCaption(newCards, topic, st.framework, st.goal);
-          const cta = generateCta(st.goal);
-          const hashtags = generateHashtags(topic, st.goal);
-          set({
-            aiStatus: "idle",
-            aiError: "",
-            topic,
-            insightAnalysis: null,
-            cards: newCards,
-            generatedCaption: caption,
-            generatedCta: cta,
-            generatedHashtags: hashtags,
-            activeIndex: 0,
-            designPreset: design.preset,
-            colorTheme: design.theme,
-            framework: "aida" as Framework,
-            highlight: { mode: st.brand.applyByDefault ? "medium" as HighlightMode : "off" as HighlightMode, style: "bold" as HighlightStyle },
-          });
+        } catch (e) {
+          set({ aiStatus: "error", aiError: e instanceof Error ? e.message : "Erro ao gerar o carrossel." });
         }
       },
       resetAll: () => {
