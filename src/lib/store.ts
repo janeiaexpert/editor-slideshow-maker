@@ -380,20 +380,26 @@ export type Store = {
   setPesquisaField: (key: keyof PesquisaCalendario, value: string | number | boolean) => void;
   calendario: CalendarioItem[];
   calendarioLoading: boolean;
-  gerarCalendario: () => void;
+  calendarioError: string;
+  gerarCalendario: () => Promise<void>;
   setCalendarioFromIa: (items: CalendarioItem[]) => void;
   updateCard: (i: number, patch: Partial<Card>) => void;
   removeCard: (i: number) => void;
-  generateCards: () => void;
-  generateAll: () => void;
+  generateCards: () => Promise<void>;
+  generateAll: () => Promise<void>;
   generateFromInsight: () => Promise<void>;
   resetAll: () => void;
 };
 
-function toneAdjust(tone: string, base: string): string {
-  if (tone === "direto") return base;
-  if (tone === "provocativo") return base + " 🔥";
-  return base + " 📚";
+async function postJson<T>(url: string, payload: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error || "Falha na comunicação com a IA.");
+  return data as T;
 }
 
 export const useStore = create<Store>()(
