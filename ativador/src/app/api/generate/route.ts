@@ -452,7 +452,7 @@ REGRAS OBRIGATÓRIAS:
 - Placeholders APENAS onde o usuário deve inserir dados REAIS: [INSIRA SEU PRINT/RESULTADO REAL], [INSIRA CASE REAL], [INSIRA SEUS DADOS REAIS]
 - Gere textos COMPLETOS, prontos para copiar e usar. Não use emojis. Não use colchetes genéricos.`
 
-      // Try AI providers
+// Try AI providers
       const result = await aiChat({
         messages: [
           { role: "system", content: systemPrompt },
@@ -462,19 +462,40 @@ REGRAS OBRIGATÓRIAS:
         maxTokens: 4000,
       })
 
+      // Se IA disponível, tenta parsear JSON
       if (result) {
-        const content = result.content
         try {
-          const parsed = JSON.parse(content)
+          const parsed = JSON.parse(result.content)
           return NextResponse.json(parsed)
         } catch {
-          const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+          const jsonMatch = result.content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
           if (jsonMatch) {
             try {
               const parsed = JSON.parse(jsonMatch[1])
               return NextResponse.json(parsed)
             } catch {}
           }
+        }
+      }
+
+      // IA indisponível (sem chave API) -> usar templates locais do dashboard
+      // Construir resposta básica modo texto
+      const nome = ideia.split(".")[0] || "Produto"
+      const lucroVal = lucro || 60000
+      const fv = lucroVal.toLocaleString("pt-BR")
+      const parcela = Math.round(lucroVal / 12)
+      const fParcela = parcela.toLocaleString("pt-BR")
+      const valorCheio = Math.round(lucroVal * 2)
+      const fCheio = valorCheio.toLocaleString("pt-BR")
+
+      const modoTexto = {
+        "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${nome}</title></head><body style="font-family:Arial; padding:40px; text-align:center;"><h1 style="color:#8B5E3C;">${nome}</h1><p style="color:#5C5146;">${ideia}</p><p style="color:#D4A574; font-size:24px; margin:20px 0;">R$ ${fv}</p><p style="color:#5C5146;">12x de R$ ${fParcela}</p><a style="background:#8B5E3C; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Quero Meu Acesso Agora</a><p style="color:#5C5146; font-size:12px;">Substitua os valores e adicione suas imagens.</p></body></html>`,
+        "Como Usar": "Modo texto ativo. APIs de IA não configuradas. Copie o HTML acima, adicione suas imagens e altere os valores. Salve como .html e abra no navegador.",
+        "Personalização": "Substitua R$ ${fv} pelo preço real. Adicione imagens do produto. Troque o texto pela sua ideia completa.",
+        "Layout Usado": "Modo Texto (sem IA)"
+      }
+
+      return NextResponse.json(modoTexto)
           if (step === "landing") {
             const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
             if (htmlMatch) {
