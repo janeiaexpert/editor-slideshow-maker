@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useSearchParams } from "next/navigation"
-import { Suspense, useState, useEffect } from "react"
+import { Suspense, useState, useEffect, type CSSProperties } from "react"
 import { CheckCircle, ShieldCheck, Star, ArrowRight, Play, BookOpen, Gift, Tag, Zap, ChevronDown, Copy, Clock, Users, TrendingUp, Award, Lock, Sparkles } from "lucide-react"
 import { sanitizeUrl } from "@/lib/security"
 
@@ -13,6 +13,23 @@ type SalesData = {
   steps: Record<string, Record<string, string>>
   ctaLink?: string
   ctaText?: string
+  paleta?: { id?: string; nome?: string; cores?: string[] } | null
+}
+
+const PALETTE_DEFAULT = {
+  primary: "#8B5E3C",
+  secondary: "#6B4226",
+  light: "#D4B896",
+  bg: "#F5EFE8",
+  dark: "#1A1A1A",
+}
+
+function resolvePalette(paleta?: SalesData["paleta"]) {
+  const cores = paleta?.cores
+  if (!cores || cores.length < 5 || !cores.every(c => typeof c === "string" && /^#[0-9a-fA-F]{6}$/.test(c))) {
+    return PALETTE_DEFAULT
+  }
+  return { primary: cores[0], secondary: cores[1], light: cores[2], bg: cores[3], dark: cores[4] }
 }
 
 function PreviewInner() {
@@ -65,7 +82,7 @@ function PreviewInner() {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-[#8B5E3C]/30 border-t-[#8B5E3C] rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-2 border-(--brand)/30 border-t-(--brand) rounded-full animate-spin mx-auto mb-4" />
           <p className="text-white/50 text-sm">Carregando página...</p>
         </div>
       </div>
@@ -76,12 +93,12 @@ function PreviewInner() {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
         <div className="text-center max-w-md px-4">
-          <div className="w-16 h-16 rounded-full bg-[#8B5E3C]/20 flex items-center justify-center mx-auto mb-6">
-            <Zap className="w-8 h-8 text-[#8B5E3C]" />
+          <div className="w-16 h-16 rounded-full bg-(--brand)/20 flex items-center justify-center mx-auto mb-6">
+            <Zap className="w-8 h-8 text-(--brand)" />
           </div>
           <h1 className="text-2xl font-bold mb-3">Página não encontrada</h1>
           <p className="text-white/50 text-sm leading-relaxed">Esta página de vendas não está mais disponível ou foi removida.</p>
-          <a href="/dashboard" className="mt-8 inline-flex items-center gap-2 bg-[#8B5E3C] hover:bg-[#6B4226] text-white px-8 py-3.5 text-sm tracking-wider uppercase font-semibold transition-all">
+          <a href="/dashboard" className="mt-8 inline-flex items-center gap-2 bg-(--brand) hover:bg-(--brand-dark) text-white px-8 py-3.5 text-sm tracking-wider uppercase font-semibold transition-all">
             Voltar ao Dashboard
           </a>
         </div>
@@ -113,21 +130,28 @@ function PreviewInner() {
   const subtitleText = headline.Subtítulo || `Aprenda tudo o que precisa para criar e vender seu ${data.name} com inteligência artificial.`
   const benefitText = headline["Benefício Central"] || "Resultados reais em poucos dias, sem precisar de experiência anterior."
   const socialProof = headline["Prova Social"] || ""
+  const P = resolvePalette(data.paleta)
+  const brandVars = {
+    "--brand": P.primary,
+    "--brand-dark": P.secondary,
+    "--brand-light": P.light,
+    "--brand-bg": P.bg,
+  } as CSSProperties
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={brandVars}>
 
       {/* HERO */}
       <section className="relative bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 text-white overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#8B5E3C]/8 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-[#D4B896]/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-(--brand)/8 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-(--brand-light)/5 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-[#8B5E3C]/20 border border-[#8B5E3C]/30 rounded-full px-4 py-1.5 mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-[#D4B896]" />
-              <span className="text-xs tracking-widest uppercase text-[#D4B896]">Método Validado</span>
+            <div className="inline-flex items-center gap-2 bg-(--brand)/20 border border-(--brand)/30 rounded-full px-4 py-1.5 mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-(--brand-light)" />
+              <span className="text-xs tracking-widest uppercase text-(--brand-light)">Método Validado</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
               {headlineText}
@@ -135,7 +159,7 @@ function PreviewInner() {
             <p className="mt-5 text-lg sm:text-xl text-white/60 max-w-2xl leading-relaxed">{subtitleText}</p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <a href="#oferta" className="inline-flex items-center gap-2.5 bg-[#8B5E3C] hover:bg-[#6B4226] text-white px-8 py-4 text-sm tracking-widest uppercase font-semibold transition-all rounded-lg group shadow-lg shadow-[#8B5E3C]/25">
+              <a href="#oferta" className="inline-flex items-center gap-2.5 bg-(--brand) hover:bg-(--brand-dark) text-white px-8 py-4 text-sm tracking-widest uppercase font-semibold transition-all rounded-lg group shadow-lg shadow-(--brand)/25">
                 QUERO MEU ACESSO AGORA
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
@@ -169,7 +193,7 @@ function PreviewInner() {
               <div><p className="text-lg font-bold text-neutral-900">97%</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Taxa de aprovação</p></div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#8B5E3C]/10 flex items-center justify-center"><ShieldCheck className="w-5 h-5 text-[#8B5E3C]" /></div>
+              <div className="w-10 h-10 rounded-full bg-(--brand)/10 flex items-center justify-center"><ShieldCheck className="w-5 h-5 text-(--brand)" /></div>
               <div><p className="text-lg font-bold text-neutral-900">7 dias</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Garantia total</p></div>
             </div>
           </div>
@@ -181,13 +205,13 @@ function PreviewInner() {
         <section className="bg-white py-14 sm:py-20">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
-              <span className="inline-block text-xs tracking-widest uppercase text-[#8B5E3C] font-semibold mb-3">Identifique-se</span>
+              <span className="inline-block text-xs tracking-widest uppercase text-(--brand) font-semibold mb-3">Identifique-se</span>
               <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">Você se identifica com alguma dessas?</h2>
             </div>
             <div className="space-y-3">
               {[anuncios["Hook Topo"], anuncios["Hook Meio"], anuncios["Hook Fundo"]].filter(Boolean).map((hook, i) => (
-                <div key={i} className="flex items-start gap-4 bg-neutral-50 rounded-2xl p-5 border border-neutral-100 hover:border-[#8B5E3C]/20 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-[#8B5E3C]/10 text-[#8B5E3C] flex items-center justify-center shrink-0 font-bold text-sm">{i + 1}</div>
+                <div key={i} className="flex items-start gap-4 bg-neutral-50 rounded-2xl p-5 border border-neutral-100 hover:border-(--brand)/20 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-(--brand)/10 text-(--brand) flex items-center justify-center shrink-0 font-bold text-sm">{i + 1}</div>
                   <p className="text-neutral-700 leading-relaxed text-[15px]">{hook}</p>
                 </div>
               ))}
@@ -204,7 +228,7 @@ function PreviewInner() {
         <section className="bg-neutral-950 text-white py-14 sm:py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <span className="inline-block text-xs tracking-widest uppercase text-[#D4B896] font-semibold mb-3">Assista Agora</span>
+              <span className="inline-block text-xs tracking-widest uppercase text-(--brand-light) font-semibold mb-3">Assista Agora</span>
               <h2 className="text-2xl sm:text-3xl font-bold">Veja como funciona por dentro</h2>
               <p className="mt-3 text-white/50 text-sm max-w-lg mx-auto">5 minutos que podem transformar seu resultado. Sem compromisso.</p>
             </div>
@@ -216,9 +240,9 @@ function PreviewInner() {
                 style={{ aspectRatio: "16/9" }}
               />
             ) : (
-              <div className="bg-neutral-900 rounded-2xl aspect-video flex items-center justify-center border border-neutral-800 cursor-pointer hover:border-[#8B5E3C]/50 transition-colors group shadow-2xl">
+              <div className="bg-neutral-900 rounded-2xl aspect-video flex items-center justify-center border border-neutral-800 cursor-pointer hover:border-(--brand)/50 transition-colors group shadow-2xl">
                 <div className="text-center">
-                  <div className="w-20 h-20 rounded-full bg-[#8B5E3C] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-[#8B5E3C]/30">
+                  <div className="w-20 h-20 rounded-full bg-(--brand) flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-(--brand)/30">
                     <Play className="w-8 h-8 text-white ml-1" />
                   </div>
                   <p className="text-sm text-white/50 font-medium">Clique para assistir à apresentação completa</p>
@@ -244,14 +268,14 @@ function PreviewInner() {
         <section className="bg-white py-14 sm:py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <span className="inline-block text-xs tracking-widest uppercase text-[#8B5E3C] font-semibold mb-3">Conteúdo Completo</span>
+              <span className="inline-block text-xs tracking-widest uppercase text-(--brand) font-semibold mb-3">Conteúdo Completo</span>
               <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">Tudo que você vai aprender</h2>
               <p className="mt-3 text-neutral-500 max-w-lg mx-auto">{modulesList.length} módulos práticos, do básico ao avançado. Cada etapa foi testada por centenas de alunos.</p>
             </div>
             <div className="space-y-3">
               {modulesList.map((mod, i) => (
-                <div key={i} className="group flex items-start gap-4 bg-neutral-50 rounded-2xl p-5 border border-neutral-100 hover:border-[#8B5E3C]/30 hover:bg-[#F5EFE8]/30 transition-all">
-                  <div className="w-11 h-11 rounded-xl bg-[#8B5E3C] text-white flex items-center justify-center shrink-0 font-bold text-sm shadow-md shadow-[#8B5E3C]/20">
+                <div key={i} className="group flex items-start gap-4 bg-neutral-50 rounded-2xl p-5 border border-neutral-100 hover:border-(--brand)/30 hover:bg-(--brand-bg)/30 transition-all">
+                  <div className="w-11 h-11 rounded-xl bg-(--brand) text-white flex items-center justify-center shrink-0 font-bold text-sm shadow-md shadow-(--brand)/20">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <div className="flex-1">
@@ -271,15 +295,15 @@ function PreviewInner() {
         <section className="bg-neutral-50 py-14 sm:py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <span className="inline-block text-xs tracking-widest uppercase text-[#8B5E3C] font-semibold mb-3">Materiais Inclusos</span>
+              <span className="inline-block text-xs tracking-widest uppercase text-(--brand) font-semibold mb-3">Materiais Inclusos</span>
               <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">Tudo pronto para você usar</h2>
               <p className="mt-3 text-neutral-500 max-w-lg mx-auto">Cada material foi pensado para você aplicar imediatamente, sem precisar criar nada do zero.</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {deliverablesList.map((d, i) => (
-                <div key={i} className="bg-white rounded-2xl p-5 border border-neutral-100 hover:border-[#8B5E3C]/30 hover:shadow-lg hover:shadow-[#8B5E3C]/5 transition-all group">
-                  <div className="w-10 h-10 rounded-xl bg-[#8B5E3C]/10 flex items-center justify-center mb-3 group-hover:bg-[#8B5E3C]/20 transition-colors">
-                    <CheckCircle className="w-5 h-5 text-[#8B5E3C]" />
+                <div key={i} className="bg-white rounded-2xl p-5 border border-neutral-100 hover:border-(--brand)/30 hover:shadow-lg hover:shadow-(--brand)/5 transition-all group">
+                  <div className="w-10 h-10 rounded-xl bg-(--brand)/10 flex items-center justify-center mb-3 group-hover:bg-(--brand)/20 transition-colors">
+                    <CheckCircle className="w-5 h-5 text-(--brand)" />
                   </div>
                   <p className="text-sm text-neutral-700 leading-relaxed font-medium">{d}</p>
                 </div>
@@ -322,7 +346,7 @@ function PreviewInner() {
       <section className="bg-white py-14 sm:py-20" id="oferta">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-1.5 text-xs tracking-widest uppercase text-[#8B5E3C] font-semibold mb-3">
+            <span className="inline-flex items-center gap-1.5 text-xs tracking-widest uppercase text-(--brand) font-semibold mb-3">
               <Tag className="w-4 h-4" />
               Oferta por Tempo Limitado
             </span>
@@ -342,8 +366,8 @@ function PreviewInner() {
             </div>
           </div>
 
-          <div className="bg-neutral-50 border-2 border-[#8B5E3C]/15 rounded-3xl p-8 sm:p-10 text-center max-w-lg mx-auto relative shadow-xl shadow-neutral-200/50">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#8B5E3C] text-white text-[10px] tracking-widest uppercase px-5 py-1.5 rounded-full font-bold shadow-md shadow-[#8B5E3C]/20">Melhor Oferta</div>
+          <div className="bg-neutral-50 border-2 border-(--brand)/15 rounded-3xl p-8 sm:p-10 text-center max-w-lg mx-auto relative shadow-xl shadow-neutral-200/50">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-(--brand) text-white text-[10px] tracking-widest uppercase px-5 py-1.5 rounded-full font-bold shadow-md shadow-(--brand)/20">Melhor Oferta</div>
             <div className="mt-2">
               <p className="text-neutral-400 line-through text-lg">De R$ 597,00</p>
               <div className="flex items-baseline justify-center gap-1 mt-1">
@@ -367,7 +391,7 @@ function PreviewInner() {
                 </li>
               ))}
             </ul>
-            <a href={sanitizeUrl(data.ctaLink || "#")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center justify-center gap-2.5 bg-[#8B5E3C] hover:bg-[#6B4226] text-white w-full px-8 py-4 text-sm tracking-widest uppercase font-bold transition-all rounded-xl group shadow-lg shadow-[#8B5E3C]/25 hover:shadow-xl hover:shadow-[#8B5E3C]/30">
+            <a href={sanitizeUrl(data.ctaLink || "#")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center justify-center gap-2.5 bg-(--brand) hover:bg-(--brand-dark) text-white w-full px-8 py-4 text-sm tracking-widest uppercase font-bold transition-all rounded-xl group shadow-lg shadow-(--brand)/25 hover:shadow-xl hover:shadow-(--brand)/30">
               {data.ctaText || "QUERO MEU ACESSO AGORA"}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </a>
@@ -398,7 +422,7 @@ function PreviewInner() {
           </div>
           <div className="space-y-2">
             {faqs.map((faq, i) => (
-              <div key={i} className="bg-white rounded-xl border border-neutral-200 overflow-hidden hover:border-[#8B5E3C]/20 transition-colors">
+              <div key={i} className="bg-white rounded-xl border border-neutral-200 overflow-hidden hover:border-(--brand)/20 transition-colors">
                 <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} className="flex items-center justify-between w-full p-5 text-left">
                   <span className="text-sm font-semibold text-neutral-900 pr-4">{faq.q}</span>
                   <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform shrink-0 ${faqOpen === i ? "rotate-180" : ""}`} />
@@ -417,12 +441,12 @@ function PreviewInner() {
       {/* FINAL CTA */}
       <section className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 text-white py-14 sm:py-20 relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#8B5E3C]/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-(--brand)/10 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">Não deixe para depois. Seus resultados começam hoje.</h2>
           <p className="mt-4 text-white/50 max-w-lg mx-auto leading-relaxed">Cada dia que passa sem agir é um dia atrasado. Junte-se a quem já está transformando seus resultados.</p>
-          <a href={sanitizeUrl(data.ctaLink || "#")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2.5 bg-[#8B5E3C] hover:bg-[#6B4226] text-white px-10 py-4 text-sm tracking-widest uppercase font-bold transition-all rounded-xl group shadow-lg shadow-[#8B5E3C]/25">
+          <a href={sanitizeUrl(data.ctaLink || "#")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2.5 bg-(--brand) hover:bg-(--brand-dark) text-white px-10 py-4 text-sm tracking-widest uppercase font-bold transition-all rounded-xl group shadow-lg shadow-(--brand)/25">
             {data.ctaText || "QUERO COMEÇAR AGORA"}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </a>
@@ -439,7 +463,7 @@ function PreviewInner() {
               setCopied(true)
               setTimeout(() => setCopied(false), 2000)
             }}
-            className="inline-flex items-center gap-1.5 text-[#D4B896]/60 hover:text-[#D4B896] transition-colors text-xs"
+            className="inline-flex items-center gap-1.5 text-(--brand-light)/60 hover:text-(--brand-light) transition-colors text-xs"
           >
             <Copy className="w-3 h-3" />
             {copied ? "Link copiado!" : "Copiar link desta página"}
@@ -452,7 +476,7 @@ function PreviewInner() {
 
 export default function PreviewPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-neutral-950 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-[#8B5E3C] rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-neutral-950 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-(--brand) rounded-full animate-spin" /></div>}>
       <PreviewInner />
     </Suspense>
   )

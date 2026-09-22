@@ -426,15 +426,25 @@ SEM EMOCOS. APENAS TEXTO PURO.`,
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { ideia, tom, lucro, step } = body
+    const { ideia, tom, lucro, step, paleta } = body
 
     if (!ideia) {
       return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
     }
 
+    // Paleta escolhida pelo usuário (cores: [primaria, secundaria, destaque, fundo, texto])
+    const paletaCores: string[] | null =
+      paleta && Array.isArray(paleta.cores) && paleta.cores.length >= 5 &&
+      paleta.cores.every((c: unknown) => typeof c === "string" && /^#[0-9a-fA-F]{6}$/.test(c))
+        ? paleta.cores.slice(0, 5)
+        : null
+    const paletaBlock = paletaCores
+      ? `\n\nPALETA OBRIGATÓRIA DO USUÁRIO (substitui QUALQUER cor mencionada acima — use EXCLUSIVAMENTE estas cores):\n- Cor primária (CTAs, destaques, elementos principais): ${paletaCores[0]}\n- Cor secundária (hover, gradientes, detalhes): ${paletaCores[1]}\n- Cor de destaque (palavras em evidência, selos): ${paletaCores[2]}\n- Cor de fundo claro: ${paletaCores[3]}\n- Cor de texto escuro: ${paletaCores[4]}\n${paleta?.nome ? `Nome da paleta: ${paleta.nome}\n` : ""}É PROIBIDO usar marrom #8B5E3C, dourado #D4B896 ou qualquer outra cor fora desta paleta.`
+      : ""
+
     // Se for um step especifico, gerar apenas ele
     if (step && STEP_PROMPTS[step]) {
-      const systemPrompt = STEP_PROMPTS[step]
+      const systemPrompt = STEP_PROMPTS[step] + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
 
 IDEIA DO PRODUTO: ${ideia}

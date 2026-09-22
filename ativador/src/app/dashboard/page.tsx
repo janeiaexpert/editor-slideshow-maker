@@ -572,7 +572,7 @@ function DashboardInner() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: lucroVal, step: stepId }),
+        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: lucroVal, step: stepId, paleta: selectedPalette }),
       })
       let content: Record<string, string> | null = null
       if (res.ok) {
@@ -591,7 +591,7 @@ function DashboardInner() {
       updateStepContent(stepId, content)
       return content
     }
-  }, [updateStepContent, nicho, publicoAlvo, transformacao])
+  }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette])
 
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
     localStorage.removeItem(LS_KEY)
@@ -1336,6 +1336,7 @@ function DashboardInner() {
                 ctaLink: edited.ctaLink,
                 ctaText: edited.ctaText,
                 steps: savedSteps,
+                paleta: selectedPalette,
               }
 
               let publishId: string | null = null
