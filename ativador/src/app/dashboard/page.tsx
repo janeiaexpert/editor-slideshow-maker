@@ -305,7 +305,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
   },
   oferta: (idea, lucro, p) => {
     const nome = p?.nome || "Curso"
-    const valor = p?.preco || (lucro && lucro > 0 ? lucro : 497)
+    const valor = Number(p?.preco) || (lucro && lucro > 0 ? lucro : 497)
     const fv = valor.toLocaleString("pt-BR")
     const parcela = Math.round(valor / 12)
     const fParcela = parcela.toLocaleString("pt-BR")

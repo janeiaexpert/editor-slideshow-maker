@@ -476,6 +476,47 @@ REGRAS OBRIGATÓRIAS:
             } catch {}
           }
         }
+
+        // IA retornou texto fora do JSON: extrai HTML/SVG quando aplicável
+        const content = result.content
+        if (step === "landing") {
+          const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
+          if (htmlMatch) {
+            return NextResponse.json({ "HTML Landing Page": htmlMatch[0], "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
+          }
+        }
+        if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
+          const svgMatches = content.match(/<svg[\s\S]*?<\/svg>/gi)
+          if (svgMatches && svgMatches.length > 0) {
+            const svgResult: Record<string, string> = {}
+            const svgKeys = step === "logo" ? ["Logo Principal SVG", "Logo Alternativo SVG"]
+              : step === "capa" ? ["Feed SVG", "Reels SVG"]
+              : step === "card_oferta" ? ["Card Oferta SVG"]
+              : ["Certificado SVG"]
+            svgMatches.forEach((svg: string, i: number) => {
+              const key = svgKeys[i] || `SVG ${i + 1}`
+              svgResult[key] = svg
+            })
+            if (step === "logo") {
+              svgResult["Cores da Marca"] = "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896"
+              svgResult["Usos do Logo"] = "Versao Principal: fundo claro. Versao Alternativa: fundo escuro."
+            }
+            if (step === "capa") {
+              svgResult["Dicas de Uso"] = "Feed: 1080x1350 (4:5). Reels: 1080x1920 (9:16)."
+            }
+            if (step === "card_oferta") {
+              svgResult["Indicado para"] = "Instagram Stories, Facebook Ads, WhatsApp"
+              svgResult["Copy para Legenda"] = "Oferta especial! Garanta sua vaga agora."
+            }
+            if (step === "certificado") {
+              svgResult["Instrucoes"] = "Substitua os placeholders entre colchetes."
+              svgResult["Personalizacao"] = "Adicione seu logo e troque as cores."
+            }
+            return NextResponse.json(svgResult)
+          }
+        }
+        // Texto válido da IA mas fora do formato esperado: devolve sem perder o conteúdo
+        return NextResponse.json({ "Conteúdo": content })
       }
 
       // IA indisponível (sem chave API) -> usar templates locais do dashboard
@@ -495,48 +536,11 @@ REGRAS OBRIGATÓRIAS:
         "Layout Usado": "Modo Texto (sem IA)"
       }
 
-      return NextResponse.json(modoTexto)
-          if (step === "landing") {
-            const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
-            if (htmlMatch) {
-              return NextResponse.json({ "HTML Landing Page": htmlMatch[0], "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
-            }
-          }
-          if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
-            const svgMatches = content.match(/<svg[\s\S]*?<\/svg>/gi)
-            if (svgMatches && svgMatches.length > 0) {
-              const result: Record<string, string> = {}
-              const svgKeys = step === "logo" ? ["Logo Principal SVG", "Logo Alternativo SVG"]
-                : step === "capa" ? ["Feed SVG", "Reels SVG"]
-                : step === "card_oferta" ? ["Card Oferta SVG"]
-                : ["Certificado SVG"]
-              svgMatches.forEach((svg: string, i: number) => {
-                const key = svgKeys[i] || `SVG ${i + 1}`
-                result[key] = svg
-              })
-              if (step === "logo") {
-                result["Cores da Marca"] = "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896"
-                result["Usos do Logo"] = "Versao Principal: fundo claro. Versao Alternativa: fundo escuro."
-              }
-              if (step === "capa") {
-                result["Dicas de Uso"] = "Feed: 1080x1350 (4:5). Reels: 1080x1920 (9:16)."
-              }
-              if (step === "card_oferta") {
-                result["Indicado para"] = "Instagram Stories, Facebook Ads, WhatsApp"
-                result["Copy para Legenda"] = "Oferta especial! Garanta sua vaga agora."
-              }
-              if (step === "certificado") {
-                result["Instrucoes"] = "Substitua os placeholders entre colchetes."
-                result["Personalizacao"] = "Adicione seu logo e troque as cores."
-              }
-              return NextResponse.json(result)
-            }
-          }
-        }
+      // Template offline só faz sentido para landing; demais passos usam fallback local do dashboard
+      if (step !== "landing") {
+        return NextResponse.json(null)
       }
-
-      // Fallback: return null so the frontend uses local fallback
-      return NextResponse.json(null)
+      return NextResponse.json(modoTexto)
     }
 
     // Full product generation (no step specified) - use the old generate.js logic

@@ -42,7 +42,7 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
-      body: JSON.stringify({ model: "meta-llama/llama-3.3-70b-instruct:free", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
+      body: JSON.stringify({ model: "openai/gpt-oss-20b:free", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
       signal: controller.signal,
     })
     clearTimeout(timeout)
@@ -72,7 +72,7 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_KEY}` },
-      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
       signal: controller.signal,
     })
     clearTimeout(timeout)
