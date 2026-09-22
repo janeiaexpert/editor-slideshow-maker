@@ -153,7 +153,7 @@ export function ChatBot({ ideia, tom, lucro, steps, paleta, fonte }: ChatBotProp
       </button>
 
       {open && (
-        <div className="fixed bottom-20 right-5 z-50 w-[360px] max-w-[calc(100vw-40px)] bg-white border border-[#D9CEC2] rounded-xl shadow-xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-20 inset-x-4 z-50 sm:inset-x-auto sm:right-5 sm:w-[360px] sm:max-w-[calc(100vw-40px)] bg-white border border-[#D9CEC2] rounded-xl shadow-xl flex flex-col overflow-hidden">
           <div className="bg-[#8B5E3C] text-white px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="w-5 h-5" />
@@ -173,7 +173,7 @@ export function ChatBot({ ideia, tom, lucro, steps, paleta, fonte }: ChatBotProp
             </div>
           </div>
 
-          <div className="flex-1 p-3 space-y-3 overflow-y-auto max-h-[420px] min-h-[220px]">
+          <div className="flex-1 p-3 space-y-3 overflow-y-auto overflow-x-hidden max-h-[420px] min-h-[220px]">
             {messages.length === 0 && (
               <div className="text-center py-8 text-[#A67C52]">
                 <Bot className="w-10 h-10 mx-auto mb-2 opacity-50" />
@@ -183,11 +183,11 @@ export function ChatBot({ ideia, tom, lucro, steps, paleta, fonte }: ChatBotProp
             )}
 
             {messages.map((m, i) => (
-              <div key={i} className={`flex gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
+              <div key={i} className={`flex gap-2 min-w-0 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${m.role === "user" ? "bg-[#8B5E3C]" : "bg-[#EDE6DC]"}`}>
                   {m.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#8B5E3C]" />}
                 </div>
-                <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-[#8B5E3C] text-white" : "bg-[#EDE6DC] text-[#1A1A1A]"}`}>
+                <div className={`max-w-[85%] min-w-0 rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words ${m.role === "user" ? "bg-[#8B5E3C] text-white" : "bg-[#EDE6DC] text-[#1A1A1A]"}`}>
                   {renderMessage(m.content)}
                 </div>
               </div>

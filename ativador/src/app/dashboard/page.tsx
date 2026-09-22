@@ -851,7 +851,7 @@ function DashboardInner() {
       {/* Tabs horizontal */}
       <div className="bg-[#EDE6DC] border-b border-[#D9CEC2] sticky top-0 z-30">
         <div className="max-w-[900px] mx-auto px-2 sm:px-4">
-          <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
+          <Tabs value={activeTab} onValueChange={v => { setShowIdeiaForm(false); setActiveTab(v) }} className="w-full">
             <TabsList className="flex w-full gap-0 bg-transparent p-0 h-auto overflow-x-auto scrollbar-hide">
               {[
                 { id: "produto", label: "Produto", emoji: "📦" },
@@ -1066,7 +1066,7 @@ function DashboardInner() {
         )}
 
         {/* Tabs content */}
-        <Tabs value={activeTab} onValueChange={v => { if (!showIdeiaForm) setActiveTab(v) }} className="w-full">
+        <Tabs value={activeTab} onValueChange={v => { setShowIdeiaForm(false); setActiveTab(v) }} className="w-full">
           {["produto", "vendas", "operacao"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               <div className="flex gap-2">

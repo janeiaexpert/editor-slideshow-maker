@@ -182,7 +182,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
               </div>
 
               <p className="text-xs text-[#5C5146] leading-relaxed">{produto.descricao}</p>
-              <p className="text-[10px] text-[#A67C52] font-semibold">Para: {produto.publico}</p>
+              <p className="text-[10px] text-[#A67C52] font-semibold">Para: {produto.publico}{produto.atualizadoEm ? ` • Atualizado em ${produto.atualizadoEm}` : ""}</p>
 
               <div className="h-px bg-[#D9CEC2]" />
 
