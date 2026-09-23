@@ -462,6 +462,39 @@ REGRAS OBRIGATÓRIAS:
 - Placeholders APENAS onde o usuário deve inserir dados REAIS: [INSIRA SEU PRINT/RESULTADO REAL], [INSIRA CASE REAL], [INSIRA SEUS DADOS REAIS]
 - Gere textos COMPLETOS, prontos para copiar e usar. Não use emojis. Não use colchetes genéricos.`
 
+// Limpa artefatos de JSON que alguns modelos (ex: gpt-oss) deixam nos valores:
+// JSON duplamente codificado, cercas de código residuais, quebras "\n" literais.
+function cleanStepValue(v: unknown): string {
+  if (typeof v !== "string") {
+    try { return JSON.stringify(v) } catch { return String(v) }
+  }
+  let t = v.trim()
+  const fence = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/)
+  if (fence) t = fence[1].trim()
+  if (/^\{"/.test(t) && /"\}$/.test(t)) {
+    try {
+      const parsed: unknown = JSON.parse(t)
+      if (typeof parsed === "string") return cleanStepValue(parsed)
+      if (parsed && typeof parsed === "object") {
+        const vals = Object.values(parsed as Record<string, unknown>)
+        if (vals.length === 1 && typeof vals[0] === "string") return cleanStepValue(vals[0])
+      }
+    } catch { /* mantém o texto original */ }
+  }
+  t = t.replace(/^\{\s*"[^"]+"\s*:\s*"/, "").replace(/"\s*\}$/, "").trim()
+  // Converte "\n" literal em quebra real (só em texto corrido, nunca em SVG/HTML)
+  if (!t.startsWith("<") && t.includes("\\n") && !t.includes("\n")) {
+    t = t.replace(/\\n/g, "\n")
+  }
+  return t
+}
+
+function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(obj)) out[k] = cleanStepValue(v)
+  return out
+}
+
 // Try AI providers
       const result = await aiChat({
         messages: [
@@ -476,13 +509,17 @@ REGRAS OBRIGATÓRIAS:
       if (result) {
         try {
           const parsed = JSON.parse(result.content)
-          return NextResponse.json(parsed)
+          if (parsed && typeof parsed === "object") {
+            return NextResponse.json(cleanStepJson(parsed as Record<string, unknown>))
+          }
         } catch {
           const jsonMatch = result.content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
           if (jsonMatch) {
             try {
               const parsed = JSON.parse(jsonMatch[1])
-              return NextResponse.json(parsed)
+              if (parsed && typeof parsed === "object") {
+                return NextResponse.json(cleanStepJson(parsed as Record<string, unknown>))
+              }
             } catch {}
           }
         }
