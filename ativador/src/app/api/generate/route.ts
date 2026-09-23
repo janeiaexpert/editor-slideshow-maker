@@ -462,8 +462,25 @@ REGRAS OBRIGATÓRIAS:
 - Placeholders APENAS onde o usuário deve inserir dados REAIS: [INSIRA SEU PRINT/RESULTADO REAL], [INSIRA CASE REAL], [INSIRA SEUS DADOS REAIS]
 - Gere textos COMPLETOS, prontos para copiar e usar. Não use emojis. Não use colchetes genéricos.`
 
+// Cores padrão do sistema (quando a IA ignora a paleta, elas aparecem no HTML/SVG)
+const DEFAULT_CORES = ["#8B5E3C", "#6B4226", "#D4B896", "#F5EFE8", "#1A1A1A"]
+
+// Garante a paleta mesmo quando o modelo ignora a instrução: troca as cores
+// padrão pelas cores escolhidas (só quando a paleta é diferente do padrão).
+function enforcePaletteColors(content: string, cores: string[] | null): string {
+  if (!cores) return content
+  const same = cores.every((c, i) => c.toLowerCase() === DEFAULT_CORES[i].toLowerCase())
+  if (same) return content
+  let out = content
+  DEFAULT_CORES.forEach((def, i) => {
+    out = out.replace(new RegExp(def, "gi"), cores[i])
+  })
+  return out
+}
+
 // Limpa artefatos de JSON que alguns modelos (ex: gpt-oss) deixam nos valores:
-// JSON duplamente codificado, cercas de código residuais, quebras "\n" literais.
+// JSON duplamente codificado, cercas de código residuais, quebras "\n" literais,
+// marcadores de markdown (**negrito**) exibidos como texto puro.
 function cleanStepValue(v: unknown): string {
   if (typeof v !== "string") {
     try { return JSON.stringify(v) } catch { return String(v) }
@@ -482,6 +499,8 @@ function cleanStepValue(v: unknown): string {
     } catch { /* mantém o texto original */ }
   }
   t = t.replace(/^\{\s*"[^"]+"\s*:\s*"/, "").replace(/"\s*\}$/, "").trim()
+  // Remove marcadores de markdown (**negrito**) — a exibição é texto puro
+  t = t.replace(/\*\*([^*]+)\*\*/g, "$1")
   // Converte "\n" literal em quebra real (só em texto corrido, nunca em SVG/HTML)
   if (!t.startsWith("<") && t.includes("\\n") && !t.includes("\n")) {
     t = t.replace(/\\n/g, "\n")
@@ -529,7 +548,7 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
         if (step === "landing") {
           const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
           if (htmlMatch) {
-            return NextResponse.json({ "HTML Landing Page": htmlMatch[0], "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
+            return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], paletaCores), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
           }
         }
         if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
@@ -542,10 +561,11 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
               : ["Certificado SVG"]
             svgMatches.forEach((svg: string, i: number) => {
               const key = svgKeys[i] || `SVG ${i + 1}`
-              svgResult[key] = svg
+              svgResult[key] = enforcePaletteColors(svg, paletaCores)
             })
             if (step === "logo") {
-              svgResult["Cores da Marca"] = "Primaria: #8B5E3C | Secundaria: #6B4226 | Fundo: #F5EFE8 | Texto: #1A1A1A | Detalhe: #D4B896"
+              const c = paletaCores || DEFAULT_CORES
+              svgResult["Cores da Marca"] = `Primaria: ${c[0]} | Secundaria: ${c[1]} | Fundo: ${c[3]} | Texto: ${c[4]} | Detalhe: ${c[2]}`
               svgResult["Usos do Logo"] = "Versao Principal: fundo claro. Versao Alternativa: fundo escuro."
             }
             if (step === "capa") {
@@ -563,7 +583,7 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
           }
         }
         // Texto válido da IA mas fora do formato esperado: devolve sem perder o conteúdo
-        return NextResponse.json({ "Conteúdo": content })
+        return NextResponse.json({ "Conteúdo": cleanStepValue(content) })
       }
 
       // IA indisponível (sem chave API) -> usar templates locais do dashboard
@@ -587,6 +607,7 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
       if (step !== "landing") {
         return NextResponse.json(null)
       }
+      modoTexto["HTML Landing Page"] = enforcePaletteColors(modoTexto["HTML Landing Page"], paletaCores)
       return NextResponse.json(modoTexto)
     }
 
