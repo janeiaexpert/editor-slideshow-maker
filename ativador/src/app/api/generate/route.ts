@@ -15,16 +15,16 @@ Não invente absolutamente nenhuma frase, depoimento, número ou dado de prova s
 
   modulos: `Gere 5 módulos COMPLETOS e ESPECÍFICOS para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Módulo 1", "Módulo 2", "Módulo 3", "Módulo 4", "Módulo 5".
-Cada chave deve conter o NOME do módulo em negrito e a DESCRIÇÃO COMPLETA do conteúdo.
+Cada chave deve conter o NOME do módulo em negrito e a DESCRIÇÃO do conteúdo.
 Os módulos devem ser ESPECÍFICOS ao nicho e tema do produto — NÃO use módulos genéricos.
 Exemplo: se o produto é "Curso de Fotografia", os módulos falam de câmera, luz, composição, edição, ensaio — NÃO "fundação, estrutura, execução".
 Exemplo: se é "Método de Produtividade para Mães", os módulos falam de rotina matinal, organização com filhos, gestão de tempo, energia, planejamento semanal — NÃO genéricos.
-Cada módulo deve ter entre 3-6 tópicos específicos do tema.
+LIMITE DE TAMANHO (obrigatório): cada módulo com NO MÁXIMO 2 frases curtas, até 250 caracteres no total. Textos longos serão rejeitados. Seja direto e enxuto.
 Não use emojis.`,
 
   entregaveis: `Gere 5 entregáveis ESPECÍFICOS para o produto do usuário.
 Retorne APENAS um JSON com 5 chaves com nomes reais dos entregáveis.
-Cada valor deve ser DESCRIÇÃO COMPLETA do entregável, específico ao nicho.
+Cada valor deve ser DESCRIÇÃO do entregável em NO MÁXIMO 2 frases curtas (até 200 caracteres), específica ao nicho.
 Exemplo: Curso de Fotografia → Videoaulas de técnica, Presets de edição, Templates de contrato, Checklist de ensaio, Grupo de networking.
 Exemplo: Método de Produtividade → Planner semanal, Rotina matinal 15min, Lista de prioridades, Planilha de metas, Comunidade de mães.
 NÃO use entregáveis genéricos como "Videoaulas", "Templates", "Planilha" sem contexto do produto.
@@ -33,6 +33,7 @@ Não use emojis.`,
   bonus: `Gere 4 bônus exclusivos ESPECÍFICOS para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Bônus 1", "Bônus 2", "Bônus 3", "Bônus 4".
 Cada bônus deve ser RELEVANTE e ESPECÍFICO ao nicho do produto — não genéricos.
+LIMITE DE TAMANHO (obrigatório): cada bônus com NO MÁXIMO 2 frases curtas, até 200 caracteres. Textos longos serão rejeitados.
 Exemplo: Curso de Fotografia → Pack de 50 presets Lightroom, Guia de iluminação natural, Templates de proposta comercial, Acesso a comunidade de fotógrafos.
 Exemplo: Método de Produtividade → E-book "Rotina Matinal de 15min", Planner para mães, Lista de apps produtivos, Grupo VIP no Telegram.
 Não use emojis.`,
