@@ -142,25 +142,26 @@ export function EditablePreview({
           </Section>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-2 sticky bottom-0 bg-[#F5EFE8] pb-2">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sticky bottom-0 bg-[#F5EFE8] pb-2">
             <Button
               onClick={handleConfirm}
               disabled={publishing}
-              className="flex-1 bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-bold py-6"
+              className="flex-1 bg-[#8B5E3C] hover:bg-[#6B4226] text-white font-bold py-6 text-sm sm:text-base whitespace-normal text-center leading-snug"
             >
               {publishing ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin shrink-0" />
                   Publicando...
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="w-5 h-5" />
-                  Confirmar & Publicar Pagina de Vendas
+                  <ShoppingCart className="w-5 h-5 shrink-0" />
+                  <span className="sm:hidden">Publicar Página</span>
+                  <span className="hidden sm:inline">Confirmar & Publicar Pagina de Vendas</span>
                 </>
               )}
             </Button>
-            <Button variant="outline" onClick={onCancel} disabled={publishing} className="px-6 border-[#D9CEC2] text-[#5C5146]">
+            <Button variant="outline" onClick={onCancel} disabled={publishing} className="px-6 border-[#D9CEC2] text-[#5C5146] w-full sm:w-auto">
               Cancelar
             </Button>
           </div>
@@ -181,6 +182,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Field({ label, value, onChange, large }: { label: string; value: string; onChange: (v: string) => void; large?: boolean }) {
   if (large) {
+    // Altura acompanha o texto (nada fica cortado)
+    const rows = Math.min(12, Math.max(3, Math.ceil(((value || "").length || 0) / 55)))
     return (
       <div>
         <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider block mb-1">{label}</span>
@@ -188,7 +191,7 @@ function Field({ label, value, onChange, large }: { label: string; value: string
           value={value}
           onChange={e => onChange(e.target.value)}
           className="bg-[#F5EFE8] border-[#D9CEC2] text-sm min-h-[60px]"
-          rows={3}
+          rows={rows}
         />
       </div>
     )
