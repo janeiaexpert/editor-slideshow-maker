@@ -109,14 +109,19 @@ Retorne APENAS um JSON com as chaves: "Valor Ideal", "Ancoragem", "Parcelamento"
 Cada valor deve ser TEXTO COMPLETO E PRONTO PARA PUBLICAR, contextualizado ao nicho do produto.
 USE a ideia do produto para descrever o que o cliente recebe na oferta (módulos, bônus, acessos).
 Não use emojis.
-REGRAS DE PREÇO:
+REGRA DE NÚMEROS (obrigatória, acima de todas as outras): NUNCA escreva valores em R$ manualmente. Onde precisar de número, use EXATAMENTE estes códigos (o sistema calcula e substitui automaticamente):
+- {{PRECO}} = preço final do produto
+- {{PARCELA12}} = valor da parcela em 12x
+- {{ANCORA}} = preço cheio para ancoragem
+- {{VAGAS}} = número de vagas da escassez
+- {{GARANTIA_DIAS}} = dias de garantia
+Exemplo correto: "De {{ANCORA}} por apenas {{PRECO}}, ou 12x de {{PARCELA12}} sem juros. Garantia de {{GARANTIA_DIAS}} dias. Apenas {{VAGAS}} vagas."
+REGRAS DE PREÇO (para o caso de precisar escrever por extenso):
 - O valor informado pelo usuário já é o preço FINAL de venda (sem desconto)
-- Na Ancoragem: invente um valor cheio MAIOR (ex: se o produto vale R$ 497, Ancore de R$ 997)
-- No Parcelamento: DIVIDA o valor informado por 12 para mostrar a parcela (ex: R$ 497 → 12x de R$ 41,42). NUNCA repita o valor integral como parcela
 - Escreva R$ uma única vez (ex: "R$ 497", nunca "R$ R$ 497")
 - Na Escassez: use números realistas (ex: 50 vagas, 100 vagas), NUNCA use o número 12
 - Na Garantia: use 7 dias (padrão do mercado)
-- Não invente valores numéricos diferentes do informado. Use o valor informado como base para todos os cálculos.`,
+- Não invente valores numéricos diferentes do informado.`,
 
   funil: `Gere um funil de vendas completo, ESPECÍFICO para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Checkout", "Order Bump", "Upsell 1", "Upsell 2", "Downsell", "Obrigado".
@@ -424,47 +429,75 @@ Retorne APENAS um JSON com as chaves: "Slide 1 — Gancho", "Slide 2 — Dor", "
 SEM EMOCOS. APENAS TEXTO PURO.`,
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json()
-    const { ideia, tom, lucro, step, paleta } = body
-
-    if (!ideia) {
-      return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
-    }
-
-    // Paleta escolhida pelo usuário (cores: [primaria, secundaria, destaque, fundo, texto])
-    const paletaCores: string[] | null =
-      paleta && Array.isArray(paleta.cores) && paleta.cores.length >= 5 &&
-      paleta.cores.every((c: unknown) => typeof c === "string" && /^#[0-9a-fA-F]{6}$/.test(c))
-        ? paleta.cores.slice(0, 5)
-        : null
-    const paletaBlock = paletaCores
-      ? `\n\nPALETA OBRIGATÓRIA DO USUÁRIO (substitui QUALQUER cor mencionada acima — use EXCLUSIVAMENTE estas cores):\n- Cor primária (CTAs, destaques, elementos principais): ${paletaCores[0]}\n- Cor secundária (hover, gradientes, detalhes): ${paletaCores[1]}\n- Cor de destaque (palavras em evidência, selos): ${paletaCores[2]}\n- Cor de fundo claro: ${paletaCores[3]}\n- Cor de texto escuro: ${paletaCores[4]}\n${paleta?.nome ? `Nome da paleta: ${paleta.nome}\n` : ""}É PROIBIDO usar marrom #8B5E3C, dourado #D4B896 ou qualquer outra cor fora desta paleta.`
-      : ""
-
-    // Se for um step especifico, gerar apenas ele
-    if (step && STEP_PROMPTS[step]) {
-      const systemPrompt = STEP_PROMPTS[step] + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
-      const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
-
-IDEIA DO PRODUTO: ${ideia}
-TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "60000"}
-
-${systemPrompt}
-
-REGRAS OBRIGATÓRIAS:
-- USE A IDEIA ACIMA como base para TODA a copy — nicho, promessa, método, avatar, dor, desejo
-- ADAPTE cada framework (PAS, AIDA, 4U, QUEST, Value Stack) AO PRODUTO ESPECÍFICO, não use templates genéricos
-- Ex: se a ideia é "Curso de Fotografia para Iniciantes", a copy fala de ISO, abertura, luz natural, ensaio, preset — NÃO de "resultados" abstratos
-- Ex: se a ideia é "Método Produtividade para Mães", a copy fala de rotina, filhos, tempo, energia, manhã — NÃO de "produtividade" genérica
-- NÃO INVENTE números, métricas, depoimentos, prazos, resultados quantificáveis
-- Placeholders APENAS onde o usuário deve inserir dados REAIS: [INSIRA SEU PRINT/RESULTADO REAL], [INSIRA CASE REAL], [INSIRA SEUS DADOS REAIS]
-- Gere textos COMPLETOS, prontos para copiar e usar. Não use emojis. Não use colchetes genéricos.`
-
 // Cores padrão do sistema (quando a IA ignora a paleta, elas aparecem no HTML/SVG)
 const DEFAULT_CORES = ["#8B5E3C", "#6B4226", "#D4B896", "#F5EFE8", "#1A1A1A"]
+
+const fmtBR = (v: number) =>
+  v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+function parseBR(text: string): number | null {
+  const m = text.match(/R\$\s*([\d.,]+)/)
+  if (!m) return null
+  const n = parseFloat(m[1].replace(/\./g, "").replace(",", "."))
+  return isNaN(n) ? null : n
+}
+
+// Garante que os números da oferta batem com o preço real do produto.
+// A IA deve usar códigos {{PRECO}} {{PARCELA12}} {{ANCORA}} {{VAGAS}} {{GARANTIA_DIAS}},
+// que são calculados aqui com precisão total. Qualquer número literal que ela
+// escrever é auditado e corrigido (parcela = preço/12, ancoragem > preço).
+function enforceOfertaNumbers(content: Record<string, string>, lucro: number): Record<string, string> {
+  if (!lucro || lucro <= 0) return content
+  const out = { ...content }
+  const tokens: Record<string, string> = {
+    PRECO: fmtBR(lucro),
+    PARCELA12: fmtBR(lucro / 12),
+    ANCORA: fmtBR(lucro * 2),
+    VAGAS: "50",
+    GARANTIA_DIAS: "7",
+  }
+  const fillTokens = (t: string) =>
+    t.replace(/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/g, (m, name: string) => tokens[name.toUpperCase()] ?? m)
+  for (const key of Object.keys(out)) {
+    out[key] = fillTokens(out[key])
+  }
+  const parcelaFmt = fmtBR(lucro / 12)
+  const cheioFmt = fmtBR(lucro * 2)
+  const fixParcela = (t: string) =>
+    t.replace(/12\s*x\s*(de\s*)?R\$\s*[\d.,]+/gi, `12x de R$ ${parcelaFmt}`)
+  for (const key of ["Parcelamento", "Valor Ideal", "Oferta Principal"]) {
+    if (out[key]) out[key] = fixParcela(out[key])
+  }
+  if (out["Ancoragem"]) {
+    const atual = parseBR(out["Ancoragem"])
+    if (atual !== null && atual <= lucro) {
+      out["Ancoragem"] = out["Ancoragem"].replace(/R\$\s*[\d.,]+/, `R$ ${cheioFmt}`)
+    }
+  }
+  if (out["Valor Ideal"]) {
+    // O preço principal precisa aparecer exatamente como informado
+    const want = fmtBR(lucro)
+    if (!out["Valor Ideal"].includes(want)) {
+      out["Valor Ideal"] = out["Valor Ideal"].replace(/R\$\s*[\d.,]+/, `R$ ${want}`)
+    }
+  }
+  if (out["Escassez"]) {
+    out["Escassez"] = out["Escassez"].replace(/\b12(\s+(vagas|lugares|alunos|inscritos|unidades))/gi, "50$1")
+  }
+  // A IA às vezes devolve placeholders em vez de calcular: preenche com os
+  // valores reais (válido só aqui na oferta; em outros passos [VALOR] é proposital)
+  const fillPlaceholders = (t: string) =>
+    t
+      .replace(/\[INSIRA O VALOR DA PARCELA\]/gi, fmtBR(lucro / 12))
+      .replace(/\[INSIRA O VALOR ANCORADO[^\]]*\]/gi, fmtBR(lucro * 2))
+      .replace(/\[VALOR CHEIO\]/gi, fmtBR(lucro * 2))
+      .replace(/\[PARCELA\]/gi, fmtBR(lucro / 12))
+      .replace(/\[VALOR\]/gi, fmtBR(lucro))
+  for (const key of Object.keys(out)) {
+    out[key] = fillPlaceholders(out[key])
+  }
+  return out
+}
 
 // Garante a paleta mesmo quando o modelo ignora a instrução: troca as cores
 // padrão pelas cores escolhidas (só quando a paleta é diferente do padrão).
@@ -515,6 +548,47 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
   return out
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { ideia, tom, lucro, step, paleta } = body
+
+    if (!ideia) {
+      return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
+    }
+
+    // Paleta escolhida pelo usuário (cores: [primaria, secundaria, destaque, fundo, texto])
+    const paletaCores: string[] | null =
+      paleta && Array.isArray(paleta.cores) && paleta.cores.length >= 5 &&
+      paleta.cores.every((c: unknown) => typeof c === "string" && /^#[0-9a-fA-F]{6}$/.test(c))
+        ? paleta.cores.slice(0, 5)
+        : null
+    const paletaBlock = paletaCores
+      ? `\n\nPALETA OBRIGATÓRIA DO USUÁRIO (substitui QUALQUER cor mencionada acima — use EXCLUSIVAMENTE estas cores):\n- Cor primária (CTAs, destaques, elementos principais): ${paletaCores[0]}\n- Cor secundária (hover, gradientes, detalhes): ${paletaCores[1]}\n- Cor de destaque (palavras em evidência, selos): ${paletaCores[2]}\n- Cor de fundo claro: ${paletaCores[3]}\n- Cor de texto escuro: ${paletaCores[4]}\n${paleta?.nome ? `Nome da paleta: ${paleta.nome}\n` : ""}É PROIBIDO usar marrom #8B5E3C, dourado #D4B896 ou qualquer outra cor fora desta paleta.`
+      : ""
+
+    // Se for um step especifico, gerar apenas ele
+    if (step && STEP_PROMPTS[step]) {
+      const lucroNum = Number(lucro) || 0
+      const systemPrompt = STEP_PROMPTS[step] + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
+      const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
+
+IDEIA DO PRODUTO: ${ideia}
+TOM: ${tom || "Persuasivo e direto"}
+LUCRO DESEJADO: R$ ${lucro || "60000"}
+
+${systemPrompt}
+
+REGRAS OBRIGATÓRIAS:
+- USE A IDEIA ACIMA como base para TODA a copy — nicho, promessa, método, avatar, dor, desejo
+- ADAPTE cada framework (PAS, AIDA, 4U, QUEST, Value Stack) AO PRODUTO ESPECÍFICO, não use templates genéricos
+- Ex: se a ideia é "Curso de Fotografia para Iniciantes", a copy fala de ISO, abertura, luz natural, ensaio, preset — NÃO de "resultados" abstratos
+- Ex: se a ideia é "Método Produtividade para Mães", a copy fala de rotina, filhos, tempo, energia, manhã — NÃO de "produtividade" genérica
+- NÃO INVENTE números, métricas, depoimentos, prazos, resultados quantificáveis
+- Placeholders APENAS onde o usuário deve inserir dados REAIS: [INSIRA SEU PRINT/RESULTADO REAL], [INSIRA CASE REAL], [INSIRA SEUS DADOS REAIS]
+- Gere textos COMPLETOS, prontos para copiar e usar. Não use emojis. Não use colchetes genéricos.`
+
+
 // Try AI providers
       const result = await aiChat({
         messages: [
@@ -527,10 +601,14 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
 
       // Se IA disponível, tenta parsear JSON
       if (result) {
+        const finishStep = (obj: Record<string, unknown>) => {
+          const cleaned = cleanStepJson(obj)
+          return NextResponse.json(step === "oferta" ? enforceOfertaNumbers(cleaned, lucroNum) : cleaned)
+        }
         try {
           const parsed = JSON.parse(result.content)
           if (parsed && typeof parsed === "object") {
-            return NextResponse.json(cleanStepJson(parsed as Record<string, unknown>))
+            return finishStep(parsed as Record<string, unknown>)
           }
         } catch {
           const jsonMatch = result.content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
@@ -538,7 +616,7 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
             try {
               const parsed = JSON.parse(jsonMatch[1])
               if (parsed && typeof parsed === "object") {
-                return NextResponse.json(cleanStepJson(parsed as Record<string, unknown>))
+                return finishStep(parsed as Record<string, unknown>)
               }
             } catch {}
           }
@@ -652,6 +730,7 @@ CAMPOS OBRIGATÓRIOS TAMBÉM (gere TODOS com conteúdo COMPLETO, nenhum pode ser
 }
 
 REGRAS: Personalize 100% para o nicho. NUNCA use colchetes. NUNCA use emojis.
+VALORES NUMÉRICOS: nunca escreva preços manualmente — use os códigos {{PRECO}} (preço), {{PARCELA12}} (parcela 12x), {{ANCORA}} (preço cheio), {{VAGAS}} (vagas), {{GARANTIA_DIAS}} (garantia). Eles são calculados automaticamente.
 ATENÇÃO: NUNCA invente números, dados, métricas, depoimentos ou qualquer prova social. Todo campo de prova social deve conter exatamente o texto "[INSIRA AQUI SEUS DEPOIMENTOS E DADOS REAIS DE ALUNOS]". Não escreva nenhuma frase genérica como "alunos reais", "resultados comprovados" ou "depoimentos verdadeiros" — isso também é conteúdo fabricado. O usuário deve inserir os dados reais manualmente.`
 
     const userPrompt = `Crie um produto digital COMPLETO baseado na ideia abaixo:
@@ -684,13 +763,27 @@ REGRAS OBRIGATÓRIAS:
 
     const content = sanitizeText(result.content)
 
+    // Preenche códigos numéricos {{PRECO}} etc. também na geração completa
+    const fillAllTokens = (t: string): string => {
+      const L = Number(lucro) || 0
+      if (!L) return t
+      const tokens: Record<string, string> = {
+        PRECO: fmtBR(L),
+        PARCELA12: fmtBR(L / 12),
+        ANCORA: fmtBR(L * 2),
+        VAGAS: "50",
+        GARANTIA_DIAS: "7",
+      }
+      return t.replace(/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/g, (m, name: string) => tokens[name.toUpperCase()] ?? m)
+    }
+
     try {
       const parsed = JSON.parse(content)
       return NextResponse.json(parsed)
     } catch {
       const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
       if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[1])
+        const parsed = JSON.parse(fillAllTokens(jsonMatch[1]))
         return NextResponse.json(parsed)
       }
       return NextResponse.json({ error: "Formato invalido", raw: content }, { status: 502 })
