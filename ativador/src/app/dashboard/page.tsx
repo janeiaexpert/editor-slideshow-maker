@@ -12,7 +12,7 @@ import {
   ArrowLeft, ShoppingCart, DollarSign, TrendingUp, BarChart3,
   Mail, MessageSquare, Gift, ShieldCheck, Target, Zap, Eye,
   Palette, Play, RotateCcw, Camera, X,
-  RefreshCw, Star, Package, Book
+  RefreshCw, Star, Package, Book, Settings, Sparkles
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
 import { sanitizeSvg, sanitizeText } from "@/lib/security"
@@ -852,16 +852,16 @@ function DashboardInner() {
       <div className="bg-[#EDE6DC] border-b border-[#D9CEC2] sticky top-0 z-30">
         <div className="max-w-[900px] mx-auto px-2 sm:px-4">
           <Tabs value={activeTab} onValueChange={v => { setShowIdeiaForm(false); setActiveTab(v) }} className="w-full">
-            <TabsList className="flex w-full gap-0 bg-transparent p-0 h-auto overflow-x-auto scrollbar-hide">
+            <TabsList className="flex w-full gap-1 bg-[#D9CEC2]/60 rounded-2xl p-1 h-auto overflow-x-auto scrollbar-hide">
               {[
-                { id: "produto", label: "Produto", emoji: "📦" },
-                { id: "vendas", label: "Vendas", emoji: "💰" },
-                { id: "operacao", label: "Opera\u00E7\u00E3o", emoji: "⚙️" },
-                { id: "biblioteca", label: "Biblioteca", emoji: "📚" },
-                { id: "custom", label: "Meu Produto", emoji: "✨" },
+                { id: "produto", label: "Produto", Icon: Package },
+                { id: "vendas", label: "Vendas", Icon: ShoppingCart },
+                { id: "operacao", label: "Operação", Icon: Settings },
+                { id: "biblioteca", label: "Biblioteca", Icon: Book },
+                { id: "custom", label: "Meu Produto", Icon: Sparkles },
               ].map(tab => (
-                <TabsTrigger key={tab.id} value={tab.id} className="flex-1 min-w-[72px] shrink-0 text-[10px] sm:text-xs py-2 sm:py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-[#8B5E3C] data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold text-[#5C5146] hover:text-[#8B5E3C] transition-all">
-                  <span className="sm:hidden">{tab.emoji}</span>
+                <TabsTrigger key={tab.id} value={tab.id} title={tab.label} className="flex-1 min-w-[64px] shrink-0 flex items-center justify-center gap-1.5 text-[10px] sm:text-xs py-2 sm:py-2.5 px-2 rounded-xl text-[#5C5146] hover:text-[#8B5E3C] transition-all data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold data-[state=active]:shadow-sm">
+                  <tab.Icon className="w-4 h-4 shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
                 </TabsTrigger>
               ))}
