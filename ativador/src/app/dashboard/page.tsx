@@ -495,6 +495,7 @@ function DashboardInner() {
   const [activeTab, setActiveTab] = useState(() => loadState("activeTab", "produto"))
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedSteps, setExpandedSteps] = useState<string[]>(() => loadState("expandedSteps", []))
+  const [infoStep, setInfoStep] = useState<string | null>(null)
   const [stepIdeia, setStepIdeia] = useState(() => loadState("stepIdeia", ""))
   const [nicho, setNicho] = useState(() => loadState("nicho", ""))
   const [publicoAlvo, setPublicoAlvo] = useState(() => loadState("publicoAlvo", ""))
@@ -860,9 +861,9 @@ function DashboardInner() {
                 { id: "biblioteca", label: "Biblioteca", Icon: Book },
                 { id: "custom", label: "Meu Produto", Icon: Sparkles },
               ].map(tab => (
-                <TabsTrigger key={tab.id} value={tab.id} title={tab.label} className="flex-1 min-w-[64px] shrink-0 flex items-center justify-center gap-1.5 text-[10px] sm:text-xs py-2 sm:py-2.5 px-2 rounded-xl text-[#5C5146] hover:text-[#8B5E3C] transition-all data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold data-[state=active]:shadow-sm">
+                <TabsTrigger key={tab.id} value={tab.id} title={tab.label} className="flex-1 min-w-[64px] shrink-0 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 text-[10px] sm:text-xs py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[#5C5146] hover:text-[#8B5E3C] transition-all data-[state=active]:bg-white data-[state=active]:text-[#8B5E3C] data-[state=active]:font-bold data-[state=active]:shadow-sm">
                   <tab.Icon className="w-4 h-4 shrink-0" />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="text-[8px] sm:text-xs leading-tight">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -1128,12 +1129,12 @@ function DashboardInner() {
                         <span className="text-sm font-semibold text-[#1A1A1A]">{step.title}</span>
                         {!step.generated && (
                           <div className="group relative">
-                            <button className="text-[#A67C52] hover:text-[#8B5E3C] transition-colors" onClick={e => e.stopPropagation()}>
+                            <button className="text-[#A67C52] hover:text-[#8B5E3C] transition-colors" title="Ver dica" aria-label="Ver dica" onClick={e => { e.stopPropagation(); setInfoStep(prev => prev === step.id ? null : step.id) }}>
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             </button>
-                            <div className="absolute left-0 top-full mt-1 w-56 p-2 bg-[#1A1A1A] text-white text-[10px] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                            <div className={`absolute left-0 top-full mt-1 w-56 p-2 bg-[#1A1A1A] text-white text-[10px] rounded-lg shadow-lg transition-all z-50 pointer-events-none ${infoStep === step.id ? "opacity-100 visible" : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"}`}>
                               <p className="font-bold mb-1">Dica:</p>
                               <p>{getStepGuide(step.id)}</p>
                             </div>
