@@ -1117,7 +1117,7 @@ function DashboardInner() {
                   const isCurrentInStepMode = stepByStepMode && actualIdx === firstIncompleteIdx
 
                 return (
-                <Card key={step.id} className={`step-card-glass overflow-hidden transition-all ${step.generated ? "border-green-300 bg-green-50/30" : ""} ${isCurrentInStepMode ? "ring-2 ring-[#8B5E3C] ring-offset-2" : ""}`}>
+                <Card key={step.id} className={`step-card-glass transition-all ${step.generated ? "border-green-300 bg-green-50/30" : ""} ${isCurrentInStepMode ? "ring-2 ring-[#8B5E3C] ring-offset-2" : ""}`}>
                   <div
                     className="flex items-center gap-3 p-3 sm:p-4 cursor-pointer hover:bg-white/50 transition-colors select-none"
                     onClick={() => toggleStep(step.id)}
@@ -1148,8 +1148,17 @@ function DashboardInner() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             </button>
-                            <div className={`absolute left-0 top-full mt-1 w-56 p-2 bg-[#1A1A1A] text-white text-[10px] rounded-lg shadow-lg transition-all z-50 pointer-events-none ${infoStep === step.id ? "opacity-100 visible" : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"}`}>
-                              <p className="font-bold mb-1">Dica:</p>
+                            <div className={`absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-3rem)] p-2.5 bg-[#1A1A1A] text-white text-[10px] rounded-lg shadow-lg transition-all z-50 ${infoStep === step.id ? "opacity-100 visible" : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"}`}>
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="font-bold">Dica:</p>
+                                <button
+                                  className="text-white/60 hover:text-white p-0.5 -m-0.5"
+                                  aria-label="Fechar dica"
+                                  onClick={e => { e.stopPropagation(); setInfoStep(null) }}
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                               <p>{getStepGuide(step.id)}</p>
                             </div>
                           </div>
@@ -1164,7 +1173,7 @@ function DashboardInner() {
                   </div>
 
                   {expandedSteps.includes(step.id) && (
-                    <div className="border-t border-[#D9CEC2] p-4 space-y-3 animate-in step-card-enter">
+                    <div className="border-t border-[#D9CEC2] p-4 space-y-3 animate-in step-card-enter rounded-b-xl overflow-hidden">
                       {!step.generated ? (
                         <div className="text-center py-4">
                           <p className="text-sm text-[#5C5146] mb-3">Clique em gerar para criar o conteudo</p>
