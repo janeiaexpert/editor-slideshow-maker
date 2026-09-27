@@ -12,7 +12,7 @@ import {
   ArrowLeft, ShoppingCart, DollarSign, TrendingUp, BarChart3,
   Mail, MessageSquare, Gift, ShieldCheck, Target, Zap, Eye,
   Palette, Play, RotateCcw, Camera, X,
-  RefreshCw, Star, Package, Book, Settings, Sparkles
+  RefreshCw, Star, Package, Book, Settings, Sparkles, LogOut
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
 import { sanitizeSvg, sanitizeText } from "@/lib/security"
@@ -712,6 +712,11 @@ function DashboardInner() {
     toast("Pronto! Comece um novo produto.")
   }, [])
 
+  const handleLogout = useCallback(async () => {
+    try { await fetch("/api/auth/logout", { method: "POST" }) } catch {}
+    router.push("/login")
+  }, [router])
+
   const toggleStep = useCallback((id: string) => {
     setExpandedSteps(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -818,6 +823,15 @@ function DashboardInner() {
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Novo Produto</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-semibold transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg"
+              title="Sair do sistema"
+              style={{touchAction:'manipulation'}}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </div>
