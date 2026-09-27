@@ -130,6 +130,23 @@ function PreviewInner() {
   const subtitleText = headline.Subtítulo || `Aprenda tudo o que precisa para criar e vender seu ${data.name} com inteligência artificial.`
   const benefitText = headline["Benefício Central"] || "Resultados reais em poucos dias, sem precisar de experiência anterior."
   const socialProof = headline["Prova Social"] || ""
+
+  // Preços da oferta: usa o passo "oferta" gerado; cai para cálculo sobre o lucro;
+  // por último mantém os valores legados para não quebrar páginas antigas.
+  const parseBR = (t: string): number | null => {
+    const m = t.match(/R\$\s*([\d.,]+)/)
+    if (!m) return null
+    const n = parseFloat(m[1].replace(/\./g, "").replace(",", "."))
+    return isNaN(n) ? null : n
+  }
+  const fmtBR = (v: number) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const lucroNum = Number(data.lucro) || 0
+  const pv = (oferta as Record<string, string>) || {}
+  const offerPrice = parseBR(pv["Valor Ideal"] || "") ?? (lucroNum > 0 ? lucroNum : 197)
+  const offerAnchor = parseBR(pv["Ancoragem"] || "") ?? offerPrice * 2
+  const parcelMatch = (pv["Parcelamento"] || "").match(/12\s*x\s*(de\s*)?R\$\s*([\d.,]+)/i)
+  const offerParcel = (parcelMatch ? parseBR(`R$ ${parcelMatch[2]}`) : null) ?? offerPrice / 12
+  const [offerInt, offerDec] = fmtBR(offerPrice).split(",")
   const P = resolvePalette(data.paleta)
   const brandVars = {
     "--brand": P.primary,
@@ -369,13 +386,13 @@ function PreviewInner() {
           <div className="bg-neutral-50 border-2 border-(--brand)/15 rounded-3xl p-8 sm:p-10 text-center max-w-lg mx-auto relative shadow-xl shadow-neutral-200/50">
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-(--brand) text-white text-[10px] tracking-widest uppercase px-5 py-1.5 rounded-full font-bold shadow-md shadow-(--brand)/20">Melhor Oferta</div>
             <div className="mt-2">
-              <p className="text-neutral-400 line-through text-lg">De R$ 597,00</p>
+              <p className="text-neutral-400 line-through text-lg">De R$ {fmtBR(offerAnchor)}</p>
               <div className="flex items-baseline justify-center gap-1 mt-1">
                 <span className="text-neutral-500 text-lg">R$</span>
-                <span className="text-5xl sm:text-6xl font-bold text-neutral-900">197</span>
-                <span className="text-neutral-500 text-lg">,00</span>
+                <span className="text-5xl sm:text-6xl font-bold text-neutral-900">{offerInt}</span>
+                <span className="text-neutral-500 text-lg">,{offerDec}</span>
               </div>
-              <p className="text-neutral-500 text-sm mt-2">ou <strong>12x de R$ 19,70</strong> sem juros no cartão</p>
+              <p className="text-neutral-500 text-sm mt-2">ou <strong>12x de R$ {fmtBR(offerParcel)}</strong> sem juros no cartão</p>
             </div>
             <ul className="mt-8 space-y-3 text-left max-w-xs mx-auto">
               {[
