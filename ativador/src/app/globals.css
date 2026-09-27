@@ -359,3 +359,17 @@ body::before {
     bottom: calc(76px + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* ============ PASSWORD FIELDS: só um olho (o do app) ============ */
+/* Esconde o botão nativo de mostrar senha do Edge/Chrome */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
