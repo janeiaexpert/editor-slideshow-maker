@@ -26,14 +26,15 @@ function LoginInner() {
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault()
-    if (!password || loading) return
+    const clean = password.trim()
+    if (!clean || loading) return
     setLoading(true)
     setError("")
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password: clean }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -76,6 +77,9 @@ function LoginInner() {
               onChange={e => setPassword(e.target.value)}
               placeholder="Senha de acesso"
               autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               autoFocus
               className="pr-10"
             />
