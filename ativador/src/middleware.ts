@@ -1,11 +1,23 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { GATE_COOKIE, verifyGateToken } from "./lib/gate"
 
-// Bloqueio de acesso DESATIVADO por decisão da dona (sistema aberto).
-// Mantido o arquivo para reativar no futuro se precisar.
-export async function middleware() {
-  return NextResponse.next()
+const PROTECTED_API = ["/api/chat", "/api/generate", "/api/publish"]
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+  const ok = await verifyGateToken(req.cookies.get(GATE_COOKIE)?.value)
+  if (ok) return NextResponse.next()
+
+  if (PROTECTED_API.some(p => pathname === p || pathname.startsWith(p + "/"))) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
+  }
+
+  const url = req.nextUrl.clone()
+  url.pathname = "/login"
+  url.searchParams.set("next", pathname)
+  return NextResponse.redirect(url)
 }
 
 export const config = {
-  matcher: [],
+  matcher: ["/dashboard/:path*", "/api/chat/:path*", "/api/generate/:path*", "/api/publish/:path*"],
 }
