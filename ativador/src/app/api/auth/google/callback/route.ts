@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { GATE_COOKIE, createGateToken } from "@/lib/gate"
-import { allowedEmails, baseUrl } from "../route"
+import { registrarAcesso } from "@/lib/acessos"
+import { allowedEmails, baseUrl } from "@/lib/google-auth"
 
 // Etapa 2: o Google devolve o código aqui
 export async function GET(req: NextRequest) {
@@ -57,7 +58,8 @@ export async function GET(req: NextRequest) {
       return fail("google-nao-autorizado")
     }
 
-    const gate = await createGateToken()
+    const gate = await createGateToken(info.email.toLowerCase())
+    registrarAcesso({ email: info.email.toLowerCase(), metodo: "google", data: new Date().toISOString() }).catch(() => {})
     const url = req.nextUrl.clone()
     url.pathname = next
     url.search = ""

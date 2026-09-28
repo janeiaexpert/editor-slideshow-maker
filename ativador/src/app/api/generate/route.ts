@@ -548,6 +548,50 @@ function cleanStepJson(obj: Record<string, unknown>): Record<string, string> {
   return out
 }
 
+const STOPWORDS_ESPEC = new Set([
+  "sobre", "entre", "quando", "onde", "muito", "mais", "menos", "cada",
+  "todos", "todas", "meu", "minha", "meus", "minhas", "seu", "sua",
+  "seus", "suas", "nosso", "nossa", "nossos", "nossas", "isso", "isto",
+  "aquilo", "voce", "vocês", "você", "ele", "ela", "eles", "elas",
+  "porque", "através", "durante", "depois", "antes", "ainda", "sempre",
+  "nunca", "pouco", "forma", "jeito", "maneira", "coisa", "algo",
+  "através", "fazer", "termos", "desde", "senão", "então",
+])
+
+// Palavras-chave do produto (para exigir especificidade da IA)
+function keywordsDaIdeia(ideia: string): string[] {
+  const words = (ideia.toLowerCase().match(/[a-zà-ú]{5,}/g) || []).filter(w => !STOPWORDS_ESPEC.has(w))
+  const freq = new Map<string, number>()
+  for (const w of words) freq.set(w, (freq.get(w) || 0) + 1)
+  return [...freq.entries()]
+    .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)
+    .slice(0, 6)
+    .map(([w]) => w)
+}
+
+function tryParseJson(t: string): Record<string, unknown> | null {
+  try {
+    const p: unknown = JSON.parse(t)
+    if (p && typeof p === "object") return p as Record<string, unknown>
+  } catch {}
+  const m = t.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+  if (m) {
+    try {
+      const p: unknown = JSON.parse(m[1])
+      if (p && typeof p === "object") return p as Record<string, unknown>
+    } catch {}
+  }
+  return null
+}
+
+// Todo valor precisa citar literalmente o tema do produto
+function valoresEspecificos(obj: Record<string, unknown>, kws: string[]): boolean {
+  if (kws.length === 0) return true
+  const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
+  if (vals.length === 0) return false
+  return vals.every(v => kws.some(k => v.toLowerCase().includes(k)))
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -590,7 +634,7 @@ REGRAS OBRIGATÓRIAS:
 
 
 // Try AI providers
-      const result = await aiChat({
+      let result = await aiChat({
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -598,6 +642,26 @@ REGRAS OBRIGATÓRIAS:
         temperature: 0.8,
         maxTokens: 4000,
       })
+
+      // Passos que precisam citar o produto: se vier genérico, manda refazer 1x
+      if (result && ["modulos", "entregaveis", "bonus"].includes(step)) {
+        const kws = keywordsDaIdeia(ideia)
+        const first = tryParseJson(result.content)
+        if (first && !valoresEspecificos(first, kws)) {
+          const retry = await aiChat({
+            messages: [
+              { role: "system", content: systemPrompt },
+              {
+                role: "user",
+                content: `${userPrompt}\n\nATENÇÃO: sua resposta anterior ficou GENÉRICA (serviria para qualquer produto). REESCREVA tudo usando literalmente estas palavras do produto: ${kws.join(", ")}. Cada item DEVE mencionar o tema específico. Mantenha o limite de tamanho e o formato JSON.`,
+              },
+            ],
+            temperature: 0.7,
+            maxTokens: 4000,
+          })
+          if (retry) result = retry
+        }
+      }
 
       // Se IA disponível, tenta parsear JSON
       if (result) {
