@@ -13,7 +13,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
   }
 
-  // Páginas protegidas redirecionam para o login
+  // Páginas protegidas redirecionam para o login (só Google)
   const url = req.nextUrl.clone()
   url.pathname = "/login"
   url.searchParams.set("next", pathname)
