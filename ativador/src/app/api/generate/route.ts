@@ -385,7 +385,7 @@ FAQ — Perguntas que DESARMAM OBJEÇÕES (ordem de prioridade):
 1. Preço: "Por que custa R$ [valor]? → Comparação: 1 ensaio paga o curso"
 2. Tempo: "Tenho pouco tempo → 15 min/dia, aulas de 10 min, acesso vitalício"
 3. Suporte: "E se travar? → Comunidade ativa + plantão semanal + email prioridade"
-4. Resultado: "Funciona pra mim? → Método testado por 500+ alunos, adaptável a qualquer nicho"
+4. Resultado: "Funciona pra mim? → método passo a passo, adaptável a qualquer nicho (sem promessa de resultado)"
 5. Garantia: "E se não gostar? → 30 dias incondicional + garantia reversa de resultado"
 6. Pagamento: "Parcelado tem juros? → 12x sem juros no cartão, PIX à vista com 5% off"
 7. Acesso: "Como recebo? → Imediato por email, área de membros vitalícia"

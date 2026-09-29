@@ -532,6 +532,7 @@ function DashboardInner() {
   const [capaPhotoReels, setCapaPhotoReels] = useState<string | null>(null)
   const [selectedPalette, setSelectedPalette] = useState<{ id: string; nome: string; cores: string[] } | null>(() => loadState("selectedPalette", null))
   const [selectedFont, setSelectedFont] = useState<{ id: string; nome: string } | null>(() => loadState("selectedFont", null))
+  const [metricas, setMetricas] = useState<Record<string, string>>(() => loadState("metricas", {}))
   const [showIdeiaForm, setShowIdeiaForm] = useState(() => loadState("showIdeiaForm", true))
   const [stepByStepMode, setStepByStepMode] = useState(false)
   const [idea, setIdea] = useState("")
@@ -586,6 +587,7 @@ function DashboardInner() {
   useEffect(() => { saveState("transformacao", transformacao) }, [transformacao])
   useEffect(() => { saveState("selectedPalette", selectedPalette) }, [selectedPalette])
   useEffect(() => { saveState("selectedFont", selectedFont) }, [selectedFont])
+  useEffect(() => { saveState("metricas", metricas) }, [metricas])
   useEffect(() => { saveState("showIdeiaForm", showIdeiaForm) }, [showIdeiaForm])
 
   const updateStepContent = useCallback((id: string, content: Record<string, string>) => {
@@ -1584,6 +1586,7 @@ function DashboardInner() {
               bonus: bonusContent,
               ctaLink: "#",
               ctaText: "Quero Meu Acesso Agora",
+              metricas,
             }}
             onConfirm={async (edited) => {
               const savedSteps: Record<string, Record<string, string>> = {}
@@ -1597,6 +1600,12 @@ function DashboardInner() {
                 else if (s.id === "bonus") savedSteps[s.id] = edited.bonus
                 else savedSteps[s.id] = s.content
               })
+
+              // Números reais preenchidos pela dona do produto (opcional)
+              setMetricas(edited.metricas || {})
+              if (edited.metricas && Object.values(edited.metricas).some(v => (v || "").trim())) {
+                savedSteps["metricas"] = edited.metricas
+              }
 
               const previewData = {
                 ideia: stepIdeia || idea,

@@ -120,11 +120,21 @@ function PreviewInner() {
   const modulesList = Object.values(modulos).filter(Boolean) as string[]
   const deliverablesList = Object.values(entregaveis).filter(Boolean) as string[]
 
+  // Números reais informados pela dona do produto antes de publicar.
+  // Vazio = a linha de números nem aparece (nada é inventado aqui).
+  const metricasSteps = s.metricas || {}
+  const metricas = [1, 2, 3, 4]
+    .map(n => ({
+      valor: (metricasSteps[`m${n}_valor`] || "").trim(),
+      label: (metricasSteps[`m${n}_label`] || "").trim(),
+    }))
+    .filter(m => m.valor && m.label)
+
   const faqs = [
     { q: "Como funciona o acesso?", a: "Imediatamente após a confirmação do pagamento, você recebe acesso completo por e-mail e na área de membros. Tudo pronto para começar agora mesmo." },
     { q: "Tem garantia?", a: "Sim! 7 dias de garantia incondicional. Se por qualquer motivo não ficar satisfeito, devolvemos 100% do seu dinheiro. Zero risco." },
     { q: "Preciso de experiência prévia?", a: "Não. O conteúdo foi desenhado do zero para funcionar mesmo que você nunca tenha mexido com isso antes. Cada etapa é explicada passo a passo." },
-    { q: "Quanto tempo leva para ver resultados?", a: "Alunos dedicados começam a ver resultados nas primeiras 2 semanas. O método foi testado com centenas de pessoas em diferentes nichos." },
+    { q: "Quanto tempo leva para ver resultados?", a: "O ritmo depende de você. O conteúdo está organizado em etapas curtas e práticas — comece pelo módulo 1 e siga sem pular etapas." },
   ]
 
   const headlineText = headline.Headline || data.name
@@ -175,7 +185,7 @@ function PreviewInner() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-(--brand)/20 border border-(--brand)/30 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="w-3.5 h-3.5 text-(--brand-light)" />
-              <span className="text-xs tracking-widest uppercase text-(--brand-light)">Método Validado</span>
+              <span className="text-xs tracking-widest uppercase text-(--brand-light)">Método Passo a Passo</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
               {headlineText}
@@ -197,32 +207,26 @@ function PreviewInner() {
             )}
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
       </section>
 
-      {/* SOCIAL PROOF BAR */}
-      <section className="bg-white border-b border-neutral-100">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-10 lg:gap-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><Users className="w-5 h-5 text-green-600" /></div>
-              <div><p className="text-lg font-bold text-neutral-900">500+</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Alunos ativos</p></div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center"><Star className="w-5 h-5 text-amber-500 fill-amber-500" /></div>
-              <div><p className="text-lg font-bold text-neutral-900">4.9</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Avaliação média</p></div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-blue-600" /></div>
-              <div><p className="text-lg font-bold text-neutral-900">97%</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Taxa de aprovação</p></div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-(--brand)/10 flex items-center justify-center"><ShieldCheck className="w-5 h-5 text-(--brand)" /></div>
-              <div><p className="text-lg font-bold text-neutral-900">7 dias</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">Garantia total</p></div>
+      {/* NÚMEROS REAIS — só o que a própria pessoa preencheu antes de publicar */}
+      {metricas.length > 0 && (
+        <section className="bg-white border-b border-neutral-100">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-10 lg:gap-16">
+              {metricas.map((m, i) => {
+                const Icone = [Users, Star, TrendingUp, Award][i % 4]
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-(--brand)/10 flex items-center justify-center"><Icone className="w-5 h-5 text-(--brand)" /></div>
+                    <div><p className="text-lg font-bold text-neutral-900">{m.valor}</p><p className="text-[10px] tracking-widest uppercase text-neutral-400">{m.label}</p></div>
+                  </div>
+                )
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* PROBLEM HOOKS */}
       {anuncios["Hook Topo"] && (
@@ -294,7 +298,7 @@ function PreviewInner() {
             <div className="text-center mb-12">
               <span className="inline-block text-xs tracking-widest uppercase text-(--brand) font-semibold mb-3">Conteúdo Completo</span>
               <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">Tudo que você vai aprender</h2>
-              <p className="mt-3 text-neutral-500 max-w-lg mx-auto">{modulesList.length} módulos práticos, do básico ao avançado. Cada etapa foi testada por centenas de alunos.</p>
+              <p className="mt-3 text-neutral-500 max-w-lg mx-auto">{modulesList.length} módulos práticos, do básico ao avançado.</p>
             </div>
             <div className="space-y-3">
               {modulesList.map((mod, i) => (
@@ -469,7 +473,7 @@ function PreviewInner() {
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">Não deixe para depois. Seus resultados começam hoje.</h2>
-          <p className="mt-4 text-white/50 max-w-lg mx-auto leading-relaxed">Cada dia que passa sem agir é um dia atrasado. Junte-se a quem já está transformando seus resultados.</p>
+          <p className="mt-4 text-white/50 max-w-lg mx-auto leading-relaxed">Cada dia que passa sem agir é um dia atrasado. Comece hoje mesmo e dê o próximo passo dos seus resultados.</p>
           <a href={sanitizeUrl(data.ctaLink || "#")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2.5 bg-(--brand) hover:bg-(--brand-dark) text-white px-10 py-4 text-sm tracking-widest uppercase font-bold transition-all rounded-xl group shadow-lg shadow-(--brand)/25">
             {data.ctaText || "QUERO COMEÇAR AGORA"}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

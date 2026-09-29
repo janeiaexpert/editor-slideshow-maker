@@ -15,6 +15,7 @@ type EditableData = {
   anuncios: Record<string, string>
   oferta: Record<string, string>
   bonus: Record<string, string>
+  metricas: Record<string, string>
   ctaLink: string
   ctaText: string
 }
@@ -114,6 +115,27 @@ export function EditablePreview({
               ))}
             </Section>
           )}
+
+          {/* NÚMEROS REAIS (prova social) */}
+          <Section title="NÚMEROS DA PÁGINA (SOMENTE DADOS REAIS)">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  value={d.metricas[`m${n}_valor`] || ""}
+                  onChange={e => setD(prev => ({ ...prev, metricas: { ...prev.metricas, [`m${n}_valor`]: e.target.value } }))}
+                  placeholder={n === 1 ? "ex.: 120" : "Número (em branco = não mostrar)"}
+                  className="sm:w-40 bg-[#F5EFE8] border-[#D9CEC2] text-sm"
+                />
+                <Input
+                  value={d.metricas[`m${n}_label`] || ""}
+                  onChange={e => setD(prev => ({ ...prev, metricas: { ...prev.metricas, [`m${n}_label`]: e.target.value } }))}
+                  placeholder={n === 1 ? "ex.: alunos no curso" : "Rótulo (ex.: nota no NPS)"}
+                  className="flex-1 bg-[#F5EFE8] border-[#D9CEC2] text-sm"
+                />
+              </div>
+            ))}
+            <p className="text-[10px] text-[#A67C52]">Esses números aparecem no topo da página de vendas. Coloque apenas dados reais e verificáveis (nunca invente). O que ficar em branco não aparece na página.</p>
+          </Section>
 
           {/* CTA LINK (seguro) */}
           <Section title="BOTÃO DE COMPRA (CTA)">
