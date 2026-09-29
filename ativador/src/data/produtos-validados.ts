@@ -1,6 +1,7 @@
 ﻿export interface ProdutoValidado {
   id: string
   nome: string
+  preco: number
   tag: string
   descricao: string
   publico: string
@@ -84,6 +85,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "chatgpt-vendas",
     nome: "ChatGPT para Vendas",
+    preco: 197,
     tag: "AUTOMAÇÃO",
     descricao: "Use IA conversacional (ChatGPT, Claude, Gemini) para automatizar vendas: scripts, follow-up, nutrição de leads e fechamento no WhatsApp e Instagram.",
     publico: "Empreendedores e Vendedores",
@@ -94,6 +96,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "avatares-ia",
     nome: "Avatares Digitais com IA",
+    preco: 297,
     tag: "CRIAÇÃO",
     descricao: "Gere avatares realistas com IA (HeyGen Avatar IV, Synthesia, Kling) para vídeos, lives e marketing — inclusive apresentadores ao vivo no TikTok e YouTube.",
     publico: "Criadores de Conteúdo",
@@ -104,6 +107,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "carrosseis-virais",
     nome: "Carrosséis Virais com IA",
+    preco: 197,
     tag: "CONTEÚDO",
     descricao: "Produza carrosséis e Shorts que geram retenção usando IA no roteiro, design e storytelling — do gancho à legenda otimizada.",
     publico: "Social Media e Criadores",
@@ -114,6 +118,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "ia-iniciantes",
     nome: "IA para Iniciantes",
+    preco: 297,
     tag: "TECNOLOGIA",
     descricao: "Do zero ao primeiro projeto com IA em 2026: ChatGPT, Gemini, Copilot e Notion AI na prática, sem programação.",
     publico: "Iniciantes em Tecnologia",
@@ -124,6 +129,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "copy-ia",
     nome: "Copywriting com IA",
+    preco: 397,
     tag: "MARKETING",
     descricao: "Gere anúncios, e-mails, páginas de vendas e VSLs com IA usando prompt engineering e frameworks validados (PAS, AIDA, 4U).",
     publico: "Marketers e Copywriters",
@@ -134,6 +140,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "video-ia",
     nome: "Edição de Vídeo com IA",
+    preco: 397,
     tag: "PRODUÇÃO",
     descricao: "Produza vídeos completos com IA em 2026: roteiro, voz sintética, avatar, edição e legendas — do Reels ao YouTube.",
     publico: "Criadores de Vídeo",
@@ -144,6 +151,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "cursos-ia",
     nome: "Criação de Cursos com IA",
+    preco: 497,
     tag: "INFOPRODUTO",
     descricao: "Produza e lance cursos digitais com IA em 2026: validação de nicho, roteiro, slides, edição e estratégia na Hotmart e Kiwify.",
     publico: "Infoprodutores",
@@ -154,6 +162,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "automacao-marketing",
     nome: "Automação de Marketing com IA",
+    preco: 497,
     tag: "AUTOMAÇÃO",
     descricao: "Monte marketing automatizado com agentes de IA em 2026: n8n, WhatsApp, e-mail, CRM e funil funcionando sozinho.",
     publico: "Empreendedores Digitais",
@@ -164,6 +173,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "design-ia",
     nome: "Design Gráfico com IA",
+    preco: 297,
     tag: "DESIGN",
     descricao: "Crie logos, posts, banners e identidade visual com IA em 2026: Midjourney v7, Adobe Firefly, Canva AI e Flux.",
     publico: "Designers e Empreendedores",
@@ -174,6 +184,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "afiliados-ia",
     nome: "Marketing de Afiliados com IA",
+    preco: 297,
     tag: "AFILIADOS",
     descricao: "Venda como afiliado com IA em 2026: escolha de produtos (Hotmart, Kiwify, Eduzz), conteúdo SEO, reviews e anúncios.",
     publico: "Afiliados Digitais",
@@ -184,6 +195,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "trafego-ia",
     nome: "Tráfego Pago com IA",
+    preco: 597,
     tag: "ANÚNCIOS",
     descricao: "Gestão de tráfego com IA em 2026: criativos em volume, segmentação, testes A/B e relatórios que justificam seu preço.",
     publico: "Gestores de Tráfego",
@@ -194,6 +206,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "musica-ia",
     nome: "Música e Áudio com IA",
+    preco: 197,
     tag: "ÁUDIO",
     descricao: "Produza músicas, trilhas, efeitos e narrações com IA em 2026: Suno, Udio e ElevenLabs para vídeos, podcasts e marcas.",
     publico: "Produtores e Criadores",
@@ -204,6 +217,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "chatbot-atendimento",
     nome: "Chatbot e Atendimento com IA",
+    preco: 397,
     tag: "ATENDIMENTO",
     descricao: "Atendimento 24h com agentes de IA em 2026: WhatsApp API, base de conhecimento, agendamento e transferência humana.",
     publico: "Empresas e Loja Virtual",
@@ -214,6 +228,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "ebook-ia",
     nome: "E-book Digital com IA",
+    preco: 97,
     tag: "CONTEÚDO",
     descricao: "Escreva e publique e-books com IA em 2026: pesquisa de nicho, escrita, capa, diagramação e Amazon KDP + Hotmart.",
     publico: "Escritores e Infoprodutores",
@@ -224,6 +239,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "dados-ia",
     nome: "Análise de Dados com IA",
+    preco: 497,
     tag: "DADOS",
     descricao: "Transforme dados em decisão com IA em 2026: dashboards, relatórios executivos e previsões para vendas e marketing.",
     publico: "Analistas e Gestores",
@@ -234,6 +250,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "personas-ia",
     nome: "Criação de Personas com IA",
+    preco: 147,
     tag: "MARKETING",
     descricao: "Crie personas, jornadas e mensagens com IA em 2026 — e use UGC e micro-influenciadores para validar na prática.",
     publico: "Marketers e Estrategistas",
@@ -244,6 +261,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "claude-ecossistema",
     nome: "Claude: Chat, Code, Cowork & Designer",
+    preco: 597,
     tag: "ECOSSISTEMA IA",
     descricao: "Domine o ecossistema Claude em 2026: chat avançado, Claude Code para programação e fluxos profissionais com IA.",
     publico: "Profissionais e Desenvolvedores",
@@ -254,6 +272,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "vibe-coding",
     nome: "Vibe Coding com IA",
+    preco: 597,
     tag: "DESENVOLVIMENTO",
     descricao: "Crie sites, landing pages e sistemas descrevendo em português em 2026: Lovable, Bolt, v0, Cursor e Windsurf.",
     publico: "Não-Programadores e Empreendedores",
@@ -264,6 +283,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "skills-ia",
     nome: "Skills de IA: Claude, Codex & Manus",
+    preco: 497,
     tag: "HABILIDADES IA",
     descricao: "Habilidades práticas nas IAs líderes de 2026: ChatGPT, Claude, Gemini, Codex, Manus e Copilot — uso profissional.",
     publico: "Profissionais e Empreendedores",
@@ -273,6 +293,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
   {
     id: "criar-gpts",
     nome: "Aprenda a Criar GPTs",
+    preco: 197,
     tag: "PERSONALIZAÇÃO",
     descricao: "Crie assistentes personalizados com os dados do seu negócio em 2026: GPTs, Gems e atendentes de WhatsApp com IA.",
     publico: "Empreendedores e Criadores",

@@ -240,7 +240,10 @@ export default function HomePage() {
                 <Badge variant="outline" className="text-xs text-[#8B5E3C] border-[#8B5E3C]/50 bg-white/50">
                   {selectedProduct.tag}
                 </Badge>
-                <h3 className="text-lg font-bold text-[#1A1A1A]">{selectedProduct.nome}</h3>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-lg font-bold text-[#1A1A1A]">{selectedProduct.nome}</h3>
+                  <span className="text-sm font-bold text-[#8B5E3C]">R$ {selectedProduct.preco.toLocaleString("pt-BR")}</span>
+                </div>
                 <p className="text-sm text-[#5C5146] leading-relaxed">{selectedProduct.descricao}</p>
                 <p className="text-xs text-[#8B5E3C] font-medium">Público: {selectedProduct.publico}</p>
               </div>

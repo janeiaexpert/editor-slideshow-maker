@@ -196,7 +196,7 @@ interface ProdutoInfo {
   publico: string
   paleta?: { id: string; nome: string; cores: string[] }
   fonte?: { id: string; nome: string }
-  preco?: string
+  preco?: number
 }
 
 const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: ProdutoInfo) => Record<string, string>> = {
@@ -562,18 +562,22 @@ function DashboardInner() {
     const enrichedIdea = [ideaText, nicho ? `Nicho: ${nicho}` : "", publicoAlvo ? `Público-alvo: ${publicoAlvo}` : "", transformacao ? `Transformação desejada: ${transformacao}` : ""].filter(Boolean).join(". ")
 
     const resolvedProduto = produtoInfo || (() => {
-      const matched = PRODUTOS_VALIDADOS.find(p =>
-        ideaText.toLowerCase().includes(p.nome.toLowerCase()) ||
-        p.nome.toLowerCase().includes(ideaText.toLowerCase().split(" ")[0] || "")
-      )
-      return matched ? { nome: matched.nome, tag: matched.tag, descricao: matched.descricao, publico: matched.publico } : undefined
+      const matched = PRODUTOS_VALIDADOS.find(p => p.ideia === ideaText) ||
+        PRODUTOS_VALIDADOS.find(p =>
+          ideaText.toLowerCase().includes(p.nome.toLowerCase()) ||
+          p.nome.toLowerCase().includes(ideaText.toLowerCase().split(" ")[0] || "")
+        )
+      return matched ? { nome: matched.nome, tag: matched.tag, descricao: matched.descricao, publico: matched.publico, preco: matched.preco } : undefined
     })()
+
+    const precoProduto = Number(resolvedProduto?.preco) || 0
+    const precoFinal = lucroVal > 0 ? lucroVal : (precoProduto > 0 ? precoProduto : 497)
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: lucroVal, step: stepId, paleta: selectedPalette }),
+        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette }),
       })
       let content: Record<string, string> | null = null
       if (res.ok) {
@@ -582,13 +586,13 @@ function DashboardInner() {
       }
       if (!content) {
         const fallback = FALLBACKS[stepId]
-        content = fallback ? fallback(ideaText, lucroVal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        content = fallback ? fallback(ideaText, precoFinal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado automaticamente" }
       }
       updateStepContent(stepId, content)
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
-      const content = fallback ? fallback(ideaText, lucroVal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado (offline)" }
+      const content = fallback ? fallback(ideaText, precoFinal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado (offline)" }
       updateStepContent(stepId, content)
       return content
     }
@@ -597,7 +601,9 @@ function DashboardInner() {
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
     localStorage.removeItem(LS_KEY)
     setStepIdeia(ideia)
-    setLucro(lucroVal)
+    const precoProduto = produtoInfo?.preco ?? PRODUTOS_VALIDADOS.find(p => p.ideia === ideia)?.preco
+    const precoFinal = lucroVal > 0 ? lucroVal : (precoProduto && precoProduto > 0 ? precoProduto : 497)
+    setLucro(precoFinal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
     setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
@@ -621,7 +627,7 @@ function DashboardInner() {
         current++
         setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
-        await doGenerate(step.id, ideia, tomText, lucroVal, produtoInfo)
+        await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo)
       }
     }
     setAutoGenerating(false)
@@ -655,13 +661,14 @@ function DashboardInner() {
         if (produto) {
           setStepIdeia(produto.ideia)
           setShowIdeiaForm(false)
-          const lucroDefault = 497
+          const lucroDefault = produto.preco || 497
           setLucro(lucroDefault)
           setTom("Persuasivo e direto")
 
           setTimeout(() => {
             handleSelectProduto(produto.ideia, lucroDefault, {
               nome: produto.nome,
+              preco: produto.preco,
               tag: produto.tag,
               descricao: produto.descricao,
               publico: produto.publico
@@ -682,12 +689,14 @@ function DashboardInner() {
         const tagParam = searchParams.get("tag")
         const descParam = searchParams.get("descricao")
         const pubParam = searchParams.get("publico")
-        const lucroDefault = 497
+        const precoParam = Number(searchParams.get("preco")) || 0
+        const lucroDefault = precoParam || 497
         setLucro(lucroDefault)
         setTom("Persuasivo e direto")
 
         const produtoInfo: ProdutoInfo | undefined = (nomeParam || descParam) ? {
           nome: nomeParam || "",
+          preco: precoParam || undefined,
           tag: tagParam || "",
           descricao: descParam || "",
           publico: pubParam || ""
@@ -994,7 +1003,7 @@ function DashboardInner() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">Lucro Desejado</label>
+                <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">Preço do Produto</label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#5C5146] font-semibold">R$</span>
                   <Input
@@ -1008,7 +1017,7 @@ function DashboardInner() {
                     }}
                     onKeyDown={e => e.stopPropagation()}
                     className="pl-8"
-                    placeholder="Quanto quer ganhar? (ex: 10.000)"
+                    placeholder="Preço do produto (ex: 197)"
                   />
                 </div>
                 <Conversor moeda="BRL" valor={lucro} />

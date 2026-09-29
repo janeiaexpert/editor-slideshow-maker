@@ -151,7 +151,7 @@ ATENÇÃO: Não invente preços. Use [VALOR] como placeholder.`,
   dashboard: `Gere um dashboard de KPIs ESPECÍFICO para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Receita Projetada", "Meta Mensal", "Ticket Médio", "Conversão", "CAC", "ROI", "ROAS", "LTV".
 Cada valor deve ser TEXTO COMPLETO contextualizado ao nicho do produto.
-Use o PREÇO informado pelo usuário (LUCRO DESEJADO) como base para TODOS os cálculos. Faça cálculos MATEMÁTICOS CORRETOS:
+Use o PREÇO informado pelo usuário como base para TODOS os cálculos. Faça cálculos MATEMÁTICOS CORRETOS:
 
 EXEMPLO com preço de R$ 497:
 - Ticket Médio: "R$ 497 (básico) / R$ 647 com upsell e order bump"
@@ -386,7 +386,7 @@ SUBSTITUA TODOS OS PLACEHOLDERS por conteúdo REAL baseado na IDEIA do produto:
 - [PROBLEMA] → dor real do avatar
 - [DESCRIÇÃO BREVE DOS MÓDULOS] → descrição dos módulos
 - [MÓDULOS HTML] → cards HTML reais com títulos, descrições + 3 bullets cada
-- [VALOR CHEIO], [VALOR], [N], [PARCELA] → use o LUCRO DESEJADO para calcular (valor cheio = lucro x 2.5, parcela = valor/12)
+- [VALOR CHEIO], [VALOR], [N], [PARCELA] → use o PREÇO DO PRODUTO para calcular (valor cheio = preço x 2, parcela = preço/12)
 - [BENEFÍCIO 1-6] → benefícios reais com fórmula [Verbo] + [Resultado] + [Contexto]
 - [PERGUNTA FAQ 1-8] → perguntas baseadas em objeções reais do nicho
 - [RESPOSTA FAQ 1-8] → respostas que vendem, não apenas informam
@@ -619,7 +619,7 @@ export async function POST(req: NextRequest) {
 
 IDEIA DO PRODUTO: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "497"}
+PREÇO DO PRODUTO: R$ ${lucro || "497"}
 
 ${systemPrompt}
 
@@ -801,7 +801,7 @@ ATENÇÃO: NUNCA invente números, dados, métricas, depoimentos ou qualquer pro
 
 IDEIA DO PRODUTO: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "497"}
+PREÇO DO PRODUTO: R$ ${lucro || "497"}
 
 REGRAS OBRIGATÓRIAS:
 - USE A IDEIA ACIMA como base para TODOS os campos — nicho, promessa, método, avatar, dor, desejo, objeções

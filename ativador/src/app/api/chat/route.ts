@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
 function generateLocalReply(msg: string, ideia?: string): string {
   const lower = msg.toLowerCase()
   if (lower.includes("preco") || lower.includes("preço") || lower.includes("valor"))
-    return "**Sugestao de preco:** Para produto digital, comece entre R$27-R$97. Use ancoragem (mostrar valor 3x maior), parcelamento em 12x e garantia de 7 dias. Quer que eu gere a oferta completa?"
+    return "**Sugestao de preco:** Cada produto da vitrine ja vem com o preco de mercado 2026 (R$ 97 a R$ 597). Para produto proprio, use R$ 197-497. Ancore mostrando o valor 2x maior, parcelamento em 12x e garantia de 7 dias. Quer que eu gere a oferta completa?"
   if (lower.includes("headline") || lower.includes("titulo"))
     return "**Dica de headline:** Use a formula: [Resultado Desejado] + [Prazo] + [Sem dor]. Ex: 'Crie seu primeiro produto digital em 7 dias sem precisar de audiencia'. Quer que eu gere uma headline personalizada?"
   if (lower.includes("modulo") || lower.includes("aula"))

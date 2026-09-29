@@ -78,7 +78,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
   return (
     <div className="space-y-4">
       <p className="text-xs text-[#5C5146]">
-        Escolha um produto validado, defina quanto quer ganhar e o sistema modela tudo para voce vender.
+        Escolha um produto validado, confira o preço de mercado (já preenchido) e o sistema modela tudo para voce vender.
       </p>
 
       <div className="relative">
@@ -139,7 +139,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
         {filteredProducts.map(p => (
           <button
             key={p.id}
-            onClick={() => { setSelected(p.id); setLucro(0) }}
+            onClick={() => { setSelected(p.id); setLucro(p.preco) }}
             className="vitrine-card relative border-2 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5] bg-white/40"
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "rgba(255,255,255,0.3)" }}
           >
@@ -188,7 +188,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
 
               <div>
                 <label className="text-xs font-semibold text-[#8B5E3C] uppercase tracking-wider">
-                  Quanto quer ganhar com este produto?
+                  Preço do produto (mercado 2026)
                 </label>
                 <div className="relative mt-1.5">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#5C5146] font-semibold">R$</span>
@@ -197,7 +197,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                     value={lucro || ""}
                     onChange={e => setLucro(e.target.value === "" ? 0 : Number(e.target.value))}
                     className="pl-8"
-                    placeholder="Quanto quer ganhar? (ex: 10000)"
+                    placeholder="Preço do produto (ex: 197)"
                   />
                 </div>
               </div>
