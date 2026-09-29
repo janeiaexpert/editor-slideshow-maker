@@ -41,8 +41,8 @@ async function hmacHex(message: string, secret: string): Promise<string> {
     .join("")
 }
 
-export async function createGateToken(): Promise<string> {
-  const payload = b64urlEncode(JSON.stringify({ v: 1, t: Date.now() }))
+export async function createGateToken(email?: string): Promise<string> {
+  const payload = b64urlEncode(JSON.stringify({ v: 1, t: Date.now(), email: email || "" }))
   const sig = await hmacHex(payload, getSecret())
   return `${payload}.${sig}`
 }
