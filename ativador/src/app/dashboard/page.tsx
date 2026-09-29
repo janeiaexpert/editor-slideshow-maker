@@ -32,7 +32,7 @@ type StepData = {
   title: string
   description: string
   icon: React.ReactNode
-  tab: "produto" | "vendas" | "operacao"
+  tab: "produto" | "vendas" | "operacao" | "artefatos"
   content: Record<string, string>
   generated: boolean
 }
@@ -56,6 +56,14 @@ const INITIAL_STEPS: StepData[] = [
   // === OPERACAO TAB ===
   { id:"dashboard", title:"Dashboard", description:"KPIs, m\u00E9tricas e gr\u00E1ficos", icon:<BarChart3 className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
   { id:"escala", title:"Estrat\u00E9gias de Escala", description:"Pr\u00F3ximo produto, cross sell, ascens\u00E3o de valor", icon:<Zap className="w-4 h-4"/>, tab:"operacao", content:{}, generated:false },
+
+  // === ARTEFATOS TAB ===
+  { id:"logo", title:"Logo em SVG", description:"Logotipo vetorial com as cores da paleta", icon:<Palette className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"capa", title:"Capas para Redes", description:"Capa de feed e capa de reels do produto", icon:<Camera className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"card_oferta", title:"Card de Oferta", description:"Imagem de oferta para posts e stories", icon:<Copy className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"certificado", title:"Certificado", description:"Certificado de conclus\u00E3o personalizado", icon:<ShieldCheck className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"landing", title:"Landing Page HTML", description:"P\u00E1gina de vendas pronta para publicar", icon:<FileText className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
+  { id:"story", title:"Roteiro Story e Reel", description:"Roteiros curtos para stories e reels", icon:<Play className="w-4 h-4"/>, tab:"artefatos", content:{}, generated:false },
 
 ]
 
@@ -612,7 +620,7 @@ function DashboardInner() {
     if (produtoInfo?.fonte) setSelectedFont(produtoInfo.fonte)
 
     const tomText = tom || "Persuasivo e direto"
-    const allTabs = ["produto", "vendas", "operacao"]
+    const allTabs = ["produto", "vendas", "operacao", "artefatos"]
     const allSteps = steps.filter(s => allTabs.includes(s.tab))
     const totalSteps = allSteps.length
 
@@ -785,7 +793,7 @@ function DashboardInner() {
     toast(`Todos os passos de ${tab} foram gerados!`)
 
     // Auto-navegar para a próxima aba
-    const tabOrder = ["produto", "vendas", "operacao"]
+    const tabOrder = ["produto", "vendas", "operacao", "artefatos"]
     const currentIdx = tabOrder.indexOf(tab)
     if (currentIdx < tabOrder.length - 1) {
       const nextTab = tabOrder[currentIdx + 1]
@@ -880,6 +888,7 @@ function DashboardInner() {
               {[
                 { id: "produto", label: "Produto", Icon: Package },
                 { id: "vendas", label: "Vendas", Icon: ShoppingCart },
+                { id: "artefatos", label: "Artefatos", Icon: Download },
                 { id: "operacao", label: "Operação", Icon: Settings },
                 { id: "biblioteca", label: "Biblioteca", Icon: Book },
                 { id: "custom", label: "Meu Produto", Icon: Sparkles },
@@ -1091,7 +1100,7 @@ function DashboardInner() {
 
         {/* Tabs content */}
         <Tabs value={activeTab} onValueChange={v => { setShowIdeiaForm(false); setActiveTab(v) }} className="w-full">
-          {["produto", "vendas", "operacao"].map(tab => (
+              {["produto", "vendas", "artefatos", "operacao"].map(tab => (
             <TabsContent key={tab} value={tab} className="mt-3 space-y-2">
               <div className="flex gap-2">
                 <Button
