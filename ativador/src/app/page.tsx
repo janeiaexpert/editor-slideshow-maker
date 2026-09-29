@@ -7,6 +7,7 @@ import { ArrowRight, Store, Zap, PenTool, CheckCircle, ChevronDown, ChevronUp } 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
+import { PALETTES, FONTS } from "@/data/identidade"
 import { sanitizeSvg } from "@/lib/security"
 
 const VITRINE = PRODUTOS_VALIDADOS
@@ -14,10 +15,18 @@ const VITRINE = PRODUTOS_VALIDADOS
 export default function HomePage() {
   const router = useRouter()
   const [selectedProduct, setSelectedProduct] = useState<typeof PRODUTOS_VALIDADOS[0] | null>(null)
+  const [paletaEscolhida, setPaletaEscolhida] = useState("marrom")
+  const [fonteEscolhida, setFonteEscolhida] = useState("inter")
   const [vitrineAberta, setVitrineAberta] = useState(true)
   const [vitrineExpandida, setVitrineExpandida] = useState(false)
   const VITRINE_INICIAL = 8
   const vitrineVisivel = vitrineExpandida ? VITRINE : VITRINE.slice(0, VITRINE_INICIAL)
+
+  const abrirProduto = (p: typeof PRODUTOS_VALIDADOS[0]) => {
+    setSelectedProduct(p)
+    setPaletaEscolhida(p.paleta?.id || "marrom")
+    setFonteEscolhida(p.fonte?.id || "inter")
+  }
 
   const focarVitrine = () => {
     requestAnimationFrame(() => document.getElementById("vitrine-section")?.scrollIntoView({ behavior: "smooth", block: "start" }))
@@ -161,7 +170,7 @@ export default function HomePage() {
                       <div
                         key={v.id}
                         className="relative group cursor-pointer"
-                        onClick={() => setSelectedProduct(v)}
+                        onClick={() => abrirProduto(v)}
                       >
                         <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
@@ -246,6 +255,43 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm text-[#5C5146] leading-relaxed">{selectedProduct.descricao}</p>
                 <p className="text-xs text-[#8B5E3C] font-medium">Público: {selectedProduct.publico}</p>
+                <div className="bg-[#F5EFE8] border border-[#D9CEC2] rounded-lg px-3 py-2.5 space-y-2">
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider pt-1">Cores</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {PALETTES.map(p => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          title={p.nome}
+                          onClick={e => { e.stopPropagation(); setPaletaEscolhida(p.id) }}
+                          className={`flex rounded-full p-0.5 border-2 transition-all ${paletaEscolhida === p.id ? "border-[#8B5E3C] scale-110 shadow-md" : "border-transparent hover:border-[#D4B896]"}`}
+                        >
+                          {p.cores.map(c => (
+                            <span key={c} className="w-2.5 h-2.5 rounded-full border border-white/70 -ml-0.5 first:ml-0" style={{ background: c }} />
+                          ))}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider pt-1">Fonte</span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {FONTS.map(f => (
+                        <button
+                          key={f.id}
+                          type="button"
+                          title={f.estilo}
+                          onClick={e => { e.stopPropagation(); setFonteEscolhida(f.id) }}
+                          className={`px-2 py-0.5 rounded-md text-[11px] border transition-all ${fonteEscolhida === f.id ? "bg-[#8B5E3C] text-white border-[#8B5E3C] font-bold" : "bg-white text-[#5C5146] border-[#D9CEC2] hover:border-[#8B5E3C]"}`}
+                        >
+                          {f.nome}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-[#A67C52]">A cor e a fonte escolhidas já saem aplicadas em todo o produto.</p>
+                </div>
               </div>
             </div>
 
@@ -256,6 +302,8 @@ export default function HomePage() {
                 onClick={(e) => {
                   e.stopPropagation()
                   sessionStorage.setItem("selectedProductId", selectedProduct.id)
+                  sessionStorage.setItem("selectedPaletaId", paletaEscolhida)
+                  sessionStorage.setItem("selectedFonteId", fonteEscolhida)
                   router.push("/dashboard?auto=1")
                 }}
               >

@@ -8,6 +8,45 @@
   iconeSvg: string
   ideia: string
   atualizadoEm?: string
+  paleta?: { id: string; nome: string; cores: string[] }
+  fonte?: { id: string; nome: string }
+}
+
+import { acharPaleta, acharFonte } from "./identidade"
+
+const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
+  "chatgpt-vendas": { paleta: "azul", fonte: "inter" },
+  "avatares-ia": { paleta: "roxo", fonte: "poppins" },
+  "carrosseis-virais": { paleta: "laranja", fonte: "bebas" },
+  "ia-iniciantes": { paleta: "verde", fonte: "inter" },
+  "copy-ia": { paleta: "rosa", fonte: "playfair" },
+  "video-ia": { paleta: "preto", fonte: "montserrat" },
+  "cursos-ia": { paleta: "marrom", fonte: "lora" },
+  "automacao-marketing": { paleta: "ciano", fonte: "roboto" },
+  "design-ia": { paleta: "vermelho", fonte: "playfair" },
+  "afiliados-ia": { paleta: "verde", fonte: "poppins" },
+  "trafego-ia": { paleta: "laranja", fonte: "oswald" },
+  "musica-ia": { paleta: "roxo", fonte: "bebas" },
+  "chatbot-atendimento": { paleta: "azul", fonte: "roboto" },
+  "ebook-ia": { paleta: "marrom", fonte: "lora" },
+  "dados-ia": { paleta: "ciano", fonte: "montserrat" },
+  "personas-ia": { paleta: "rosa", fonte: "raleway" },
+  "claude-ecossistema": { paleta: "preto", fonte: "inter" },
+  "vibe-coding": { paleta: "ciano", fonte: "oswald" },
+  "skills-ia": { paleta: "azul", fonte: "raleway" },
+  "criar-gpts": { paleta: "verde", fonte: "montserrat" },
+}
+
+function comIdentidade(p: ProdutoValidado): ProdutoValidado {
+  const i = IDENTIDADES[p.id]
+  if (!i) return p
+  const pa = acharPaleta(i.paleta)
+  const fo = acharFonte(i.fonte)
+  return {
+    ...p,
+    paleta: pa ? { id: pa.id, nome: pa.nome, cores: pa.cores } : p.paleta,
+    fonte: fo ? { id: fo.id, nome: fo.nome } : p.fonte,
+  }
 }
 
 function lucideIcon(inner: string, color = "#D4B896", sw = 2, size = 24): string {
@@ -301,7 +340,7 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     atualizadoEm: "22/09/2026",
     ideia: "Quero ensinar empreendedores a criar assistentes de IA com os dados do próprio negócio em 2026: GPTs personalizados (instruções, base de conhecimento com PDFs e planilhas, ações), Gems do Gemini para rotinas com Google Workspace, e atendentes de WhatsApp com IA para vendas e suporte. Casos: assistente de vendas com catálogo, suporte com base de conhecimento, treinamento de equipes, geradores de conteúdo por nicho e analisadores de documentos. Inclui testes, iteração e publicação.\n\nBÔNUS MONETIZAÇÃO: Como vender assistentes personalizados — sugestão 2026: R$ 800-3.000 por projeto + recorrência R$ 300-800/mês. Nichos: advocacia (contratos), clínicas (triagem), imobiliárias (qualificação), e-commerce (atendimento). Assistentes como lead magnet e pacotes por empresa.\n\nBÔNUS PROSPECÇÃO: Como achar empresas que usam IA genérica e precisam de dados próprios. Prospecção no LinkedIn (operações, inovação). Como gerar um demo funcional em minutos com perguntas reais do negócio. Script: demonstrar genérico vs personalizado lado a lado."
   },
-]
+].map(comIdentidade)
 
 export function gerarCoverSvg(p: ProdutoValidado): string {
   return coverSvg(p)

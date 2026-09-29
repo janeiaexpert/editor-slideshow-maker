@@ -6,6 +6,11 @@ type Paleta = {
   cores?: string[]
 }
 
+type Fonte = {
+  id?: string
+  nome?: string
+}
+
 type ProductData = {
   ideia: string
   tom: string
@@ -15,6 +20,7 @@ type ProductData = {
   ctaText: string
   steps: Record<string, Record<string, string>>
   paleta?: Paleta | null
+  fonte?: Fonte | null
 }
 
 function sanitizePaleta(p: unknown): Paleta | null {
@@ -28,6 +34,18 @@ function sanitizePaleta(p: unknown): Paleta | null {
     ...(typeof obj.id === "string" ? { id: obj.id } : {}),
     ...(typeof obj.nome === "string" ? { nome: obj.nome } : {}),
     ...(cores.length > 0 ? { cores } : {}),
+  }
+}
+
+function sanitizeFonte(f: unknown): Fonte | null {
+  if (!f || typeof f !== "object") return null
+  const obj = f as Record<string, unknown>
+  const id = typeof obj.id === "string" && /^[-a-z0-9]{1,32}$/i.test(obj.id) ? obj.id : undefined
+  const nome = typeof obj.nome === "string" && obj.nome.trim() ? obj.nome.trim().slice(0, 40) : undefined
+  if (!id && !nome) return null
+  return {
+    ...(id ? { id } : {}),
+    ...(nome ? { nome } : {}),
   }
 }
 
@@ -120,6 +138,7 @@ export async function POST(req: NextRequest) {
       ctaText: body.ctaText || "Quero Meu Acesso Agora",
       steps: body.steps || {},
       paleta: sanitizePaleta(body.paleta),
+      fonte: sanitizeFonte(body.fonte),
     }
 
     // Tenta persistir no servidor (Blob primeiro, Supabase como alternativa).

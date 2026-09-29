@@ -14,6 +14,7 @@ type SalesData = {
   ctaLink?: string
   ctaText?: string
   paleta?: { id?: string; nome?: string; cores?: string[] } | null
+  fonte?: { id?: string; nome?: string } | null
 }
 
 const PALETTE_DEFAULT = {
@@ -148,6 +149,9 @@ function PreviewInner() {
   const offerParcel = (parcelMatch ? parseBR(`R$ ${parcelMatch[2]}`) : null) ?? offerPrice / 12
   const [offerInt, offerDec] = fmtBR(offerPrice).split(",")
   const P = resolvePalette(data.paleta)
+  const fonteId = data.fonte?.id && /^[-a-z0-9]{1,32}$/i.test(data.fonte.id) ? data.fonte.id : ""
+  const fonteNome = data.fonte?.nome ? data.fonte.nome.replace(/[<>"'`\\]/g, "").slice(0, 40) : ""
+  const fonteFamilia = fonteId ? `var(--font-${fonteId})` : fonteNome ? `"${fonteNome}", sans-serif` : ""
   const brandVars = {
     "--brand": P.primary,
     "--brand-dark": P.secondary,
@@ -156,7 +160,10 @@ function PreviewInner() {
   } as CSSProperties
 
   return (
-    <div className="min-h-screen bg-white" style={brandVars}>
+    <div className="min-h-screen bg-white pg-venda" style={brandVars}>
+      {fonteFamilia && (
+        <style dangerouslySetInnerHTML={{ __html: `.pg-venda h1,.pg-venda h2,.pg-venda h3,.pg-venda h4,.pg-venda h5{font-family:${fonteFamilia} !important}` }} />
+      )}
 
       {/* HERO */}
       <section className="relative bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 text-white overflow-hidden">

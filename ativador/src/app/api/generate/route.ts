@@ -603,7 +603,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { ideia, tom, lucro, step, paleta, prompt: customPrompt } = body
+    const { ideia, tom, lucro, step, paleta, fonte, prompt: customPrompt } = body
 
     if (!ideia) {
       return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
@@ -623,7 +623,11 @@ export async function POST(req: NextRequest) {
     if (step && STEP_PROMPTS[step]) {
       const lucroNum = Number(lucro) || 0
       const basePrompt = typeof customPrompt === "string" && customPrompt.trim().length > 0 ? customPrompt.trim() : STEP_PROMPTS[step]
-      const systemPrompt = basePrompt + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
+      const fonteNome = fonte && typeof fonte.nome === "string" && fonte.nome.trim() ? fonte.nome.trim().slice(0, 40) : ""
+      const fonteBlock = fonteNome
+        ? `\n\nTIPOGRAFIA OBRIGATORIA: use a fonte "${fonteNome}" (Google Fonts) nos titulos e textos deste conteudo. Se o formato for SVG ou HTML, declare font-family com "${fonteNome}" e uma fallback sans-serif. Nao use outras fontes decorativas.`
+        : ""
+      const systemPrompt = basePrompt + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "") + fonteBlock
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
 
 IDEIA DO PRODUTO: ${ideia}

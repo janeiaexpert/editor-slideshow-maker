@@ -17,8 +17,18 @@ const TAG_GROUPS: Record<string, string[]> = {
   "Ferramentas IA": ["ECOSSISTEMA IA", "DESENVOLVIMENTO", "HABILIDADES IA", "PERSONALIZAÇÃO", "TECNOLOGIA", "INFOPRODUTO", "DESIGN"],
 }
 
+interface ProdutoInfoEnvio {
+  nome: string
+  tag: string
+  descricao: string
+  publico: string
+  preco?: number
+  paleta?: { id: string; nome: string; cores: string[] }
+  fonte?: { id: string; nome: string }
+}
+
 interface BibliotecaProps {
-  onSelectProduto: (ideia: string, lucro: number) => void
+  onSelectProduto: (ideia: string, lucro: number, produtoInfo?: ProdutoInfoEnvio) => void
 }
 
 export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
@@ -62,17 +72,28 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
     setShowCrossSell(true)
   }
 
+  const infoDe = (p: typeof PRODUTOS_VALIDADOS[0]): ProdutoInfoEnvio => ({
+    nome: p.nome,
+    tag: p.tag,
+    descricao: p.descricao,
+    publico: p.publico,
+    preco: p.preco,
+    paleta: p.paleta,
+    fonte: p.fonte,
+  })
+
   const handleCrossSellConfirm = (ideia: string, totalLucro: number) => {
     setGerando(true)
     setShowCrossSell(false)
-    onSelectProduto(ideia, totalLucro)
+    const alvo = PRODUTOS_VALIDADOS.find(p => p.ideia === ideia) || produto
+    onSelectProduto(ideia, totalLucro, alvo ? infoDe(alvo) : undefined)
   }
 
   const handleCrossSellSkip = () => {
     if (!produto) return
     setGerando(true)
     setShowCrossSell(false)
-    onSelectProduto(produto.ideia, lucro)
+    onSelectProduto(produto.ideia, lucro, infoDe(produto))
   }
 
   return (
@@ -183,6 +204,25 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
 
               <p className="text-xs text-[#5C5146] leading-relaxed">{produto.descricao}</p>
               <p className="text-[10px] text-[#A67C52] font-semibold">Para: {produto.publico}{produto.atualizadoEm ? ` • Atualizado em ${produto.atualizadoEm}` : ""}</p>
+
+              {(produto.paleta || produto.fonte) && (
+                <div className="flex items-center gap-2 flex-wrap bg-[#F5EFE8] border border-[#D9CEC2] rounded-lg p-2.5">
+                  <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">Identidade:</span>
+                  {produto.paleta && (
+                    <span className="inline-flex items-center gap-1.5" title={`Paleta: ${produto.paleta.nome}`}>
+                      <span className="flex">
+                        {produto.paleta.cores.map(c => (
+                          <span key={c} className="w-3.5 h-3.5 rounded-full border border-white -ml-1 first:ml-0" style={{ background: c }} />
+                        ))}
+                      </span>
+                      <span className="text-[11px] text-[#5C5146] font-semibold">{produto.paleta.nome}</span>
+                    </span>
+                  )}
+                  {produto.fonte && (
+                    <span className="text-[11px] text-[#5C5146]">• Fonte: <strong>{produto.fonte.nome}</strong></span>
+                  )}
+                </div>
+              )}
 
               <div className="h-px bg-[#D9CEC2]" />
 

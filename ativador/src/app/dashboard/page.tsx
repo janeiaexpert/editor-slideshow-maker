@@ -25,6 +25,7 @@ import { EditablePreview } from "@/components/editable-preview"
 import { TrilhaProgresso } from "@/components/trilha-progresso"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
+import { acharPaleta, acharFonte } from "@/data/identidade"
 
 
 type StepData = {
@@ -596,7 +597,7 @@ function DashboardInner() {
           ideaText.toLowerCase().includes(p.nome.toLowerCase()) ||
           p.nome.toLowerCase().includes(ideaText.toLowerCase().split(" ")[0] || "")
         )
-      return matched ? { nome: matched.nome, tag: matched.tag, descricao: matched.descricao, publico: matched.publico, preco: matched.preco } : undefined
+      return matched ? { nome: matched.nome, tag: matched.tag, descricao: matched.descricao, publico: matched.publico, preco: matched.preco, paleta: matched.paleta, fonte: matched.fonte } : undefined
     })()
 
     const precoProduto = Number(resolvedProduto?.preco) || 0
@@ -606,7 +607,7 @@ function DashboardInner() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette, prompt: customPrompt || undefined }),
+        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette, fonte: selectedFont, prompt: customPrompt || undefined }),
       })
       let content: Record<string, string> | null = null
       if (res.ok) {
@@ -625,7 +626,7 @@ function DashboardInner() {
       updateStepContent(stepId, content)
       return content
     }
-  }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette])
+  }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette, selectedFont])
 
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
     localStorage.removeItem(LS_KEY)
@@ -637,8 +638,15 @@ function DashboardInner() {
     setActiveTab("produto")
     setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
     setExpandedSteps([])
-    if (produtoInfo?.paleta) setSelectedPalette(produtoInfo.paleta)
-    if (produtoInfo?.fonte) setSelectedFont(produtoInfo.fonte)
+    const matchProduto = PRODUTOS_VALIDADOS.find(p => p.ideia === ideia) ||
+      PRODUTOS_VALIDADOS.find(p =>
+        ideia.toLowerCase().includes(p.nome.toLowerCase()) ||
+        p.nome.toLowerCase().includes(ideia.toLowerCase().split(" ")[0] || "")
+      )
+    const paletaSel = produtoInfo?.paleta || matchProduto?.paleta
+    const fonteSel = produtoInfo?.fonte || matchProduto?.fonte
+    setSelectedPalette(paletaSel || null)
+    setSelectedFont(fonteSel || null)
 
     const tomText = tom || "Persuasivo e direto"
     const allTabs = ["produto", "vendas", "operacao", "artefatos"]
@@ -686,6 +694,12 @@ function DashboardInner() {
       const productId = sessionStorage.getItem("selectedProductId")
       if (productId) {
         sessionStorage.removeItem("selectedProductId")
+        const paletaId = sessionStorage.getItem("selectedPaletaId")
+        const fonteId = sessionStorage.getItem("selectedFonteId")
+        sessionStorage.removeItem("selectedPaletaId")
+        sessionStorage.removeItem("selectedFonteId")
+        const paletaCustom = paletaId ? acharPaleta(paletaId) : undefined
+        const fonteCustom = fonteId ? acharFonte(fonteId) : undefined
         const produto = PRODUTOS_VALIDADOS.find(p => p.id === productId)
         if (produto) {
           setStepIdeia(produto.ideia)
@@ -700,7 +714,9 @@ function DashboardInner() {
               preco: produto.preco,
               tag: produto.tag,
               descricao: produto.descricao,
-              publico: produto.publico
+              publico: produto.publico,
+              paleta: paletaCustom ? { id: paletaCustom.id, nome: paletaCustom.nome, cores: paletaCustom.cores } : produto.paleta,
+              fonte: fonteCustom ? { id: fonteCustom.id, nome: fonteCustom.nome } : produto.fonte
             })
           }, 300)
           return
@@ -920,6 +936,21 @@ function DashboardInner() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span className="hidden sm:inline">Salvo</span>
+              </div>
+            )}
+            {(selectedPalette || selectedFont) && (
+              <div className="flex items-center gap-1.5 text-white/85 text-[10px] bg-white/10 border border-white/20 px-2 py-1 rounded-lg max-w-[45vw] sm:max-w-none truncate" title="Cores e fonte já aplicadas neste produto">
+                {selectedPalette && (
+                  <span className="flex items-center gap-1 min-w-0">
+                    <span className="flex shrink-0">
+                      {selectedPalette.cores.map(c => (
+                        <span key={c} className="w-2.5 h-2.5 rounded-full border border-white/70 -ml-0.5 first:ml-0" style={{ background: c }} />
+                      ))}
+                    </span>
+                    <span className="font-semibold truncate hidden sm:inline">{selectedPalette.nome}</span>
+                  </span>
+                )}
+                {selectedFont && <span className="shrink-0 hidden sm:inline">• Fonte {selectedFont.nome}</span>}
               </div>
             )}
           </div>
@@ -1506,6 +1537,7 @@ function DashboardInner() {
                 ctaText: edited.ctaText,
                 steps: savedSteps,
                 paleta: selectedPalette,
+                fonte: selectedFont,
               }
 
               let publishId: string | null = null
