@@ -619,7 +619,7 @@ export async function POST(req: NextRequest) {
 
 IDEIA DO PRODUTO: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "60000"}
+LUCRO DESEJADO: R$ ${lucro || "497"}
 
 ${systemPrompt}
 
@@ -732,7 +732,7 @@ REGRAS OBRIGATÓRIAS:
       // IA indisponível (sem chave API) -> usar templates locais do dashboard
       // Construir resposta básica modo texto
       const nome = ideia.split(".")[0] || "Produto"
-      const lucroVal = lucro || 60000
+      const lucroVal = lucro || 497
       const fv = lucroVal.toLocaleString("pt-BR")
       const parcela = Math.round(lucroVal / 12)
       const fParcela = parcela.toLocaleString("pt-BR")
@@ -801,7 +801,7 @@ ATENÇÃO: NUNCA invente números, dados, métricas, depoimentos ou qualquer pro
 
 IDEIA DO PRODUTO: ${ideia}
 TOM: ${tom || "Persuasivo e direto"}
-LUCRO DESEJADO: R$ ${lucro || "60000"}
+LUCRO DESEJADO: R$ ${lucro || "497"}
 
 REGRAS OBRIGATÓRIAS:
 - USE A IDEIA ACIMA como base para TODOS os campos — nicho, promessa, método, avatar, dor, desejo, objeções

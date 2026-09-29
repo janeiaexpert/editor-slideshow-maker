@@ -491,7 +491,7 @@ function DashboardInner() {
     return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated } : s)
   })
   const [tom, setTom] = useState(() => loadState("tom", ""))
-  const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); return typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0 })
+  const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); const n = typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0; return n > 50000 ? 497 : n })
   const [activeTab, setActiveTab] = useState(() => loadState("activeTab", "produto"))
   const [loading, setLoading] = useState<string | null>(null)
   const [expandedSteps, setExpandedSteps] = useState<string[]>(() => loadState("expandedSteps", []))
@@ -655,7 +655,7 @@ function DashboardInner() {
         if (produto) {
           setStepIdeia(produto.ideia)
           setShowIdeiaForm(false)
-          const lucroDefault = 60000
+          const lucroDefault = 497
           setLucro(lucroDefault)
           setTom("Persuasivo e direto")
 
@@ -682,7 +682,7 @@ function DashboardInner() {
         const tagParam = searchParams.get("tag")
         const descParam = searchParams.get("descricao")
         const pubParam = searchParams.get("publico")
-        const lucroDefault = 60000
+        const lucroDefault = 497
         setLucro(lucroDefault)
         setTom("Persuasivo e direto")
 

@@ -14,9 +14,14 @@ const VITRINE = PRODUTOS_VALIDADOS
 export default function HomePage() {
   const router = useRouter()
   const [selectedProduct, setSelectedProduct] = useState<typeof PRODUTOS_VALIDADOS[0] | null>(null)
-  const [vitrineAberta, setVitrineAberta] = useState(false)
+  const [vitrineAberta, setVitrineAberta] = useState(true)
+  const [vitrineExpandida, setVitrineExpandida] = useState(false)
   const VITRINE_INICIAL = 8
-  const vitrineVisivel = vitrineAberta ? VITRINE : VITRINE.slice(0, VITRINE_INICIAL)
+  const vitrineVisivel = vitrineExpandida ? VITRINE : VITRINE.slice(0, VITRINE_INICIAL)
+
+  const focarVitrine = () => {
+    requestAnimationFrame(() => document.getElementById("vitrine-section")?.scrollIntoView({ behavior: "smooth", block: "start" }))
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F5EFE8] via-[#EDE6DC] to-[#E8DFD4] flex items-start sm:items-center justify-center p-4 py-8 sm:py-4 overflow-y-auto">
@@ -68,8 +73,9 @@ export default function HomePage() {
 
                 <button
                   onClick={() => {
-                    const el = document.getElementById("vitrine-section")
-                    el?.scrollIntoView({ behavior: "smooth" })
+                    setVitrineAberta(true)
+                    setVitrineExpandida(false)
+                    setTimeout(() => document.getElementById("vitrine-section")?.scrollIntoView({ behavior: "smooth" }), 50)
                   }}
                   className="flex items-start gap-3 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] rounded-xl p-4 text-left transition-all group"
                 >
@@ -133,49 +139,62 @@ export default function HomePage() {
 
             {/* Vitrine */}
             <div id="vitrine-section">
-              <div className="flex items-center gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => { setVitrineAberta(!vitrineAberta); focarVitrine() }}
+                className="w-full flex items-center gap-2 mb-2 text-left"
+                aria-expanded={vitrineAberta}
+              >
                 <Store className="w-4 h-4 text-[#A67C52]" />
                 <span className="text-[#A67C52] text-xs font-bold uppercase tracking-wider">Vitrine — Produtos Prontos</span>
-              </div>
-              <p className="text-[#5C5146] text-xs mb-3">Clique em um produto para gerar toda a estrutura automaticamente.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                {vitrineVisivel.map(v => (
-                  <div
-                    key={v.id}
-                    className="relative group cursor-pointer"
-                    onClick={() => setSelectedProduct(v)}
-                  >
-                    <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
-                      <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
-                      <div className="p-2 text-center">
-                        <Badge variant="outline" className="text-[9px] text-[#8B5E3C] border-[#8B5E3C]/50 mb-1 bg-white/50">
-                          {v.tag}
-                        </Badge>
-                        <span className="text-[10px] sm:text-xs font-semibold text-[#1A1A1A] block leading-tight">{v.nome}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-[#A67C52] uppercase">
+                  {vitrineAberta ? "Recolher" : "Mostrar"}
+                  {vitrineAberta ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </span>
+              </button>
 
-              {VITRINE.length > VITRINE_INICIAL && (
-                <button
-                  onClick={() => setVitrineAberta(!vitrineAberta)}
-                  className="mt-3 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] hover:bg-[#F5EFE8] rounded-xl py-2.5 text-xs font-bold text-[#8B5E3C] transition-all"
-                >
-                  {vitrineAberta ? (
-                    <>
-                      <ChevronUp className="w-4 h-4" />
-                      Recolher lista
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-4 h-4" />
-                      Ver todos ({VITRINE.length} produtos)
-                    </>
-                  )}
-                </button>
+              {vitrineAberta && (
+                <>
+                  <p className="text-[#5C5146] text-xs mb-3">Clique em um produto para gerar toda a estrutura automaticamente.</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+                    {vitrineVisivel.map(v => (
+                      <div
+                        key={v.id}
+                        className="relative group cursor-pointer"
+                        onClick={() => setSelectedProduct(v)}
+                      >
+                        <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
+                          <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
+                          <div className="p-2 text-center">
+                            <Badge variant="outline" className="text-[9px] text-[#8B5E3C] border-[#8B5E3C]/50 mb-1 bg-white/50">
+                              {v.tag}
+                            </Badge>
+                            <span className="text-[10px] sm:text-xs font-semibold text-[#1A1A1A] block leading-tight">{v.nome}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => { setVitrineExpandida(!vitrineExpandida); focarVitrine() }}
+                    className="mt-3 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] hover:bg-[#F5EFE8] rounded-xl py-2.5 text-xs font-bold text-[#8B5E3C] transition-all"
+                  >
+                    {vitrineExpandida ? (
+                      <>
+                        <ChevronUp className="w-4 h-4" />
+                        Recolher lista
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4" />
+                        Ver todos ({VITRINE.length} produtos)
+                      </>
+                    )}
+                  </button>
+                </>
               )}
             </div>
 
