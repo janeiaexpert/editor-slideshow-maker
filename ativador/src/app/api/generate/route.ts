@@ -592,10 +592,18 @@ function valoresEspecificos(obj: Record<string, unknown>, kws: string[]): boolea
   return vals.every(v => kws.some(k => v.toLowerCase().includes(k)))
 }
 
+export async function GET(req: NextRequest) {
+  const step = req.nextUrl.searchParams.get("step")
+  if (!step || !STEP_PROMPTS[step]) {
+    return NextResponse.json({ error: "Passo inválido" }, { status: 400 })
+  }
+  return NextResponse.json({ prompt: STEP_PROMPTS[step] })
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { ideia, tom, lucro, step, paleta } = body
+    const { ideia, tom, lucro, step, paleta, prompt: customPrompt } = body
 
     if (!ideia) {
       return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
@@ -614,7 +622,8 @@ export async function POST(req: NextRequest) {
     // Se for um step especifico, gerar apenas ele
     if (step && STEP_PROMPTS[step]) {
       const lucroNum = Number(lucro) || 0
-      const systemPrompt = STEP_PROMPTS[step] + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
+      const basePrompt = typeof customPrompt === "string" && customPrompt.trim().length > 0 ? customPrompt.trim() : STEP_PROMPTS[step]
+      const systemPrompt = basePrompt + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "")
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
 
 IDEIA DO PRODUTO: ${ideia}

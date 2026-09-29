@@ -35,6 +35,7 @@ type StepData = {
   tab: "produto" | "vendas" | "operacao" | "artefatos"
   content: Record<string, string>
   generated: boolean
+  prompt?: string
 }
 
 const INITIAL_STEPS: StepData[] = [
@@ -91,6 +92,23 @@ function getStepGuide(stepId: string): string {
   }
   return guides[stepId] || "Clique em gerar para criar o conteúdo deste passo."
 }
+
+const slugify = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "arquivo"
+
+const downloadFile = (name: string, data: string, mime: string) => {
+  const blob = new Blob([data], { type: mime })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
+}
+
+const conteudoHTML = (v: string) => v.includes("<!DOCTYPE") || v.includes("<html") || (v.includes("<style") && v.includes("<body"))
 
 const KNOWN_PRODUCTS_KEY = "ativador_known_products"
 const NEW_PRODUCTS_KEY = "ativador_new_products"
@@ -495,8 +513,8 @@ function DashboardInner() {
     return () => el.removeEventListener("keydown", handler, true)
   }, [])
   const [steps, setSteps] = useState<StepData[]>(() => {
-    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean }>>("stepsData", {})
-    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated } : s)
+    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string }>>("stepsData", {})
+    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt } : s)
   })
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); const n = typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0; return n > 50000 ? 497 : n })
@@ -520,6 +538,9 @@ function DashboardInner() {
   const [showEditablePreview, setShowEditablePreview] = useState(false)
   const [editingField, setEditingField] = useState<{ stepId: string; key: string } | null>(null)
   const [editValue, setEditValue] = useState("")
+  const [promptEditorId, setPromptEditorId] = useState<string | null>(null)
+  const [promptDraft, setPromptDraft] = useState("")
+  const [defaultPrompts, setDefaultPrompts] = useState<Record<string, string>>({})
   const [newProducts, setNewProductsState] = useState<string[]>([])
   const [showNewBanner, setShowNewBanner] = useState(true)
 
@@ -548,8 +569,8 @@ function DashboardInner() {
   }
 
   useEffect(() => {
-    const data: Record<string, { content: Record<string, string>; generated: boolean }> = {}
-    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated } })
+    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string }> = {}
+    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt } })
     saveState("stepsData", data)
   }, [steps])
   useEffect(() => { saveState("tom", tom) }, [tom])
@@ -566,7 +587,7 @@ function DashboardInner() {
     setSteps(prev => prev.map(s => s.id === id ? { ...s, content, generated: true } : s))
   }, [])
 
-  const doGenerate = useCallback(async (stepId: string, ideaText: string, tomText: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
+  const doGenerate = useCallback(async (stepId: string, ideaText: string, tomText: string, lucroVal: number, produtoInfo?: ProdutoInfo, customPrompt?: string) => {
     const enrichedIdea = [ideaText, nicho ? `Nicho: ${nicho}` : "", publicoAlvo ? `Público-alvo: ${publicoAlvo}` : "", transformacao ? `Transformação desejada: ${transformacao}` : ""].filter(Boolean).join(". ")
 
     const resolvedProduto = produtoInfo || (() => {
@@ -585,7 +606,7 @@ function DashboardInner() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette }),
+        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette, prompt: customPrompt || undefined }),
       })
       let content: Record<string, string> | null = null
       if (res.ok) {
@@ -635,7 +656,7 @@ function DashboardInner() {
         current++
         setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
-        await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo)
+        await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo, step.prompt)
       }
     }
     setAutoGenerating(false)
@@ -647,7 +668,7 @@ function DashboardInner() {
     const ideaText = stepIdeia || idea
     setLoading(step.id)
     try {
-      await doGenerate(step.id, ideaText, tom || "Persuasivo e direto", lucro)
+      await doGenerate(step.id, ideaText, tom || "Persuasivo e direto", lucro, undefined, step.prompt)
       setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
     } catch {
       toast("Erro ao gerar. Tente novamente.")
@@ -780,6 +801,77 @@ function DashboardInner() {
       .join("\n\n---\n\n")
     navigator.clipboard.writeText(text)
     toast("Conteúdo copiado!")
+  }
+
+  const loadDefaultPrompt = useCallback(async (stepId: string) => {
+    if (defaultPrompts[stepId]) return defaultPrompts[stepId]
+    try {
+      const res = await fetch(`/api/generate?step=${encodeURIComponent(stepId)}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.prompt) {
+          setDefaultPrompts(prev => ({ ...prev, [stepId]: data.prompt }))
+          return data.prompt as string
+        }
+      }
+    } catch {}
+    return ""
+  }, [defaultPrompts])
+
+  const openPromptEditor = async (step: StepData) => {
+    if (promptEditorId === step.id) { setPromptEditorId(null); return }
+    setPromptEditorId(step.id)
+    if (step.prompt) { setPromptDraft(step.prompt); return }
+    setPromptDraft("")
+    const def = await loadDefaultPrompt(step.id)
+    setPromptDraft(def)
+  }
+
+  const savePrompt = (stepId: string) => {
+    const value = promptDraft.trim()
+    if (!value) { toast("O prompt não pode ficar vazio"); return }
+    setSteps(prev => prev.map(s => s.id === stepId ? { ...s, prompt: value } : s))
+    setPromptEditorId(null)
+    toast("Prompt salvo! Clique em Gerar ou Regenerar para usar.")
+  }
+
+  const resetPrompt = (stepId: string) => {
+    setSteps(prev => prev.map(s => {
+      if (s.id !== stepId) return s
+      const copy: StepData = { ...s }
+      delete copy.prompt
+      return copy
+    }))
+    setPromptEditorId(null)
+    toast("Prompt restaurado ao padrão")
+  }
+
+  const handleDownloadSVG = (step: StepData) => {
+    let count = 0
+    for (const [k, v] of Object.entries(step.content)) {
+      if (typeof v !== "string") continue
+      let svg = fillVars(v, stepIdeia || idea, tom, lucro)
+      if (!svg.trim().startsWith("<svg")) continue
+      const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
+      if (photo && step.id === "capa") {
+        const h = k.includes("Reels") ? 1920 : 1350
+        const imgTag = `<image href="${photo}" x="0" y="0" width="1080" height="${h}" preserveAspectRatio="xMidYMid slice" opacity="0.35"/><rect width="1080" height="${h}" fill="#1A1A1A" opacity="0.45"/>`
+        svg = svg.replace(/<svg([^>]*)>/, `<svg$1>${imgTag}`)
+      }
+      downloadFile(`${slugify(step.title)}-${slugify(k)}.svg`, svg, "image/svg+xml;charset=utf-8")
+      count++
+    }
+    toast(count > 0 ? `${count} arquivo(s) SVG baixado(s)!` : "Nenhum SVG neste card")
+  }
+
+  const handleDownloadHTML = (step: StepData) => {
+    let count = 0
+    for (const [k, v] of Object.entries(step.content)) {
+      if (typeof v !== "string" || !conteudoHTML(v)) continue
+      downloadFile(`${slugify(step.title)}-${slugify(k)}.html`, fillVars(v, stepIdeia || idea, tom, lucro), "text/html;charset=utf-8")
+      count++
+    }
+    toast(count > 0 ? `${count} arquivo(s) HTML baixado(s)!` : "Nenhum HTML neste card")
   }
 
   const handleGenerateAll = async (tab: string) => {
@@ -1133,6 +1225,9 @@ function DashboardInner() {
                 return visibleSteps.map((step, tabIdx) => {
                   const actualIdx = tabSteps.indexOf(step)
                   const isCurrentInStepMode = stepByStepMode && actualIdx === firstIncompleteIdx
+                  const vals = Object.values(step.content).filter((v): v is string => typeof v === "string")
+                  const stepHasSvg = vals.some(v => v.trim().startsWith("<svg"))
+                  const stepHasHtml = vals.some(v => conteudoHTML(v))
 
                 return (
                 <Card key={step.id} className={`step-card-glass transition-all ${step.generated ? "border-green-300 bg-green-50/30" : ""} ${isCurrentInStepMode ? "ring-2 ring-[#8B5E3C] ring-offset-2" : ""}`}>
@@ -1192,6 +1287,26 @@ function DashboardInner() {
 
                   {expandedSteps.includes(step.id) && (
                     <div className="border-t border-[#D9CEC2] p-4 space-y-3 animate-in step-card-enter rounded-b-xl overflow-hidden">
+                      {promptEditorId === step.id && (
+                        <div className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">Prompt deste card (editavel)</span>
+                            <div className="flex gap-1.5">
+                              <Button size="sm" className="h-6 px-2 text-[10px] bg-[#8B5E3C] hover:bg-[#6B4226] text-white" onClick={() => savePrompt(step.id)}>Salvar prompt</Button>
+                              <Button size="sm" variant="outline" className="h-6 px-2 text-[10px] text-[#5C5146]" onClick={() => resetPrompt(step.id)}>Restaurar padrao</Button>
+                              <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-[#5C5146]" onClick={() => setPromptEditorId(null)}>Fechar</Button>
+                            </div>
+                          </div>
+                          <textarea
+                            value={promptDraft}
+                            onChange={e => setPromptDraft(e.target.value)}
+                            onKeyDown={e => e.stopPropagation()}
+                            placeholder="Carregando prompt padrao..."
+                            className="w-full min-h-[220px] text-[11px] font-mono leading-relaxed text-[#5C5146] bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap"
+                          />
+                          <p className="text-[10px] text-[#5C5146] leading-relaxed">Este texto e o que a IA recebe para criar este card. Edite como quiser, salve e clique em Gerar/Regenerar. Para voltar ao padrao, use Restaurar padrao.</p>
+                        </div>
+                      )}
                       {!step.generated ? (
                         <div className="text-center py-4">
                           <p className="text-sm text-[#5C5146] mb-3">Clique em gerar para criar o conteudo</p>
@@ -1203,6 +1318,11 @@ function DashboardInner() {
                             <Play className="w-4 h-4" />
                             {loading === step.id ? "Gerando..." : "Gerar " + step.title}
                           </Button>
+                          <div className="mt-3">
+                            <Button variant="outline" size="sm" onClick={() => openPromptEditor(step)} className="text-[10px] sm:text-xs px-2 sm:px-3">
+                              <MessageSquare className="w-3 h-3" /> {promptEditorId === step.id ? "Fechar prompt" : "Editar Prompt"}
+                            </Button>
+                          </div>
                         </div>
                       ) : (
                         <>
@@ -1289,7 +1409,14 @@ function DashboardInner() {
                             <Button variant="outline" size="sm" onClick={() => handleExport(step, "pdf")} className="text-[10px] sm:text-xs px-2 sm:px-3"><FileText className="w-3 h-3" /> PDF</Button>
                             <Button variant="outline" size="sm" onClick={() => handleExport(step, "docx")} className="text-[10px] sm:text-xs px-2 sm:px-3"><FileDown className="w-3 h-3" /> DOCX</Button>
                             <Button variant="outline" size="sm" onClick={() => handleExport(step, "md")} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> MD</Button>
-                            {Object.values(step.content).some(v => typeof v === "string" && v.startsWith("<svg")) && (
+                            <Button variant="outline" size="sm" onClick={() => openPromptEditor(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><MessageSquare className="w-3 h-3" /> <span className="hidden xs:inline">{promptEditorId === step.id ? "Fechar prompt" : "Editar Prompt"}</span></Button>
+                            {stepHasSvg && (
+                              <Button variant="outline" size="sm" onClick={() => handleDownloadSVG(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> SVG</Button>
+                            )}
+                            {stepHasHtml && (
+                              <Button variant="outline" size="sm" onClick={() => handleDownloadHTML(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> HTML</Button>
+                            )}
+                            {stepHasSvg && (
                               <>
                                 <Button variant="outline" size="sm" onClick={() => handleExportCapaPNG(step)} className="text-[10px] sm:text-xs px-2 sm:px-3"><Download className="w-3 h-3" /> PNG</Button>
                                 <div className="w-full flex flex-wrap gap-1.5 sm:gap-2 mt-1 sm:mt-2">
