@@ -26,6 +26,7 @@ import { TrilhaProgresso } from "@/components/trilha-progresso"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
 import { acharPaleta, acharFonte } from "@/data/identidade"
+import { IdentidadeSeletor } from "@/components/identidade-seletor"
 
 
 type StepData = {
@@ -542,6 +543,7 @@ function DashboardInner() {
   const [promptEditorId, setPromptEditorId] = useState<string | null>(null)
   const [promptDraft, setPromptDraft] = useState("")
   const [defaultPrompts, setDefaultPrompts] = useState<Record<string, string>>({})
+  const [mostrarIdentidade, setMostrarIdentidade] = useState(false)
   const [newProducts, setNewProductsState] = useState<string[]>([])
   const [showNewBanner, setShowNewBanner] = useState(true)
 
@@ -918,41 +920,48 @@ function DashboardInner() {
 
   const activeSteps = steps.filter(s => s.tab === activeTab)
 
+  const chipIdentidade = (selectedPalette || selectedFont) ? (
+    <div className="flex items-center gap-1.5 text-white/85 text-[10px] bg-white/10 border border-white/20 px-2 py-0.5 rounded-md min-w-0 truncate" title="Cores e fonte já aplicadas neste produto">
+      {selectedPalette && (
+        <span className="flex items-center gap-1 min-w-0">
+          <span className="flex shrink-0">
+            {selectedPalette.cores.map(c => (
+              <span key={c} className="w-2.5 h-2.5 rounded-full border border-white/70 -ml-0.5 first:ml-0" style={{ background: c }} />
+            ))}
+          </span>
+          <span className="font-semibold truncate">{selectedPalette.nome}</span>
+        </span>
+      )}
+      {selectedFont && <span className="truncate">• Fonte {selectedFont.nome}</span>}
+    </div>
+  ) : null
+
   return (
     <div className="min-h-screen bg-[#F5EFE8]">
       {/* Header all devices */}
       <header className="relative px-4 py-3 sm:px-6 sm:py-4" style={{background: "linear-gradient(135deg, #6B4226 0%, #8B5E3C 40%, #A67C52 70%, #8B5E3C 100%)", zIndex: 50}}>
         <div className="absolute top-0 left-1/4 w-64 h-full bg-gradient-to-r from-[#D4B896]/20 via-[#FFD700]/10 to-transparent blur-2xl pointer-events-none" />
         <div className="absolute -top-4 right-1/3 w-48 h-16 bg-[#D4B896]/15 blur-3xl pointer-events-none" />
-        <div className="max-w-[900px] mx-auto flex items-center justify-between relative z-50">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="max-w-[900px] mx-auto flex items-center justify-between gap-2 relative z-50">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <button onClick={() => router.push("/")} className="text-white/70 hover:text-white transition-colors shrink-0" style={{touchAction:'manipulation'}}>
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-white text-sm sm:text-base font-bold truncate">Ativador <span className="text-[#D4B896]">Automático</span></h1>
-            {!showIdeiaForm && (
-              <div className="flex items-center gap-1 text-white/50 text-[10px]">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="hidden sm:inline">Salvo</span>
-              </div>
-            )}
-            {(selectedPalette || selectedFont) && (
-              <div className="flex items-center gap-1.5 text-white/85 text-[10px] bg-white/10 border border-white/20 px-2 py-1 rounded-lg max-w-[45vw] sm:max-w-none truncate" title="Cores e fonte já aplicadas neste produto">
-                {selectedPalette && (
-                  <span className="flex items-center gap-1 min-w-0">
-                    <span className="flex shrink-0">
-                      {selectedPalette.cores.map(c => (
-                        <span key={c} className="w-2.5 h-2.5 rounded-full border border-white/70 -ml-0.5 first:ml-0" style={{ background: c }} />
-                      ))}
-                    </span>
-                    <span className="font-semibold truncate hidden sm:inline">{selectedPalette.nome}</span>
-                  </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 min-w-0">
+                <h1 className="text-white text-sm sm:text-base font-bold truncate">Ativador <span className="text-[#D4B896]">Automático</span></h1>
+                {!showIdeiaForm && (
+                  <div className="hidden sm:flex items-center gap-1 text-white/50 text-[10px] shrink-0">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Salvo</span>
+                  </div>
                 )}
-                {selectedFont && <span className="shrink-0 hidden sm:inline">• Fonte {selectedFont.nome}</span>}
               </div>
-            )}
+              {chipIdentidade && <div className="sm:hidden mt-1 min-w-0">{chipIdentidade}</div>}
+            </div>
+            {chipIdentidade && <div className="hidden sm:block shrink-0 min-w-0">{chipIdentidade}</div>}
           </div>
           <div className="flex items-center gap-1 shrink-0 relative z-30">
             <button
@@ -1245,6 +1254,48 @@ function DashboardInner() {
                   <span className="hidden sm:inline">{stepByStepMode ? "Modo Lista" : "Passo a Passo"}</span>
                 </Button>
               </div>
+
+              {tab === "produto" && (
+                <div className="bg-white border border-[#D9CEC2] rounded-xl overflow-hidden">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between gap-2 p-3 hover:bg-[#F5EFE8] transition-colors"
+                    onClick={() => setMostrarIdentidade(v => !v)}
+                  >
+                    <span className="flex items-center gap-2 text-xs font-bold text-[#8B5E3C] min-w-0">
+                      <Palette className="w-4 h-4 shrink-0" />
+                      <span className="truncate">Cores e Fonte do Produto</span>
+                    </span>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="flex shrink-0">
+                        {(selectedPalette?.cores || acharPaleta("marrom")?.cores || []).map(c => (
+                          <span key={c} className="w-3 h-3 rounded-full border border-white -ml-0.5 first:ml-0" style={{ background: c }} />
+                        ))}
+                      </span>
+                      <span className="text-[10px] text-[#5C5146] truncate hidden sm:inline">
+                        {selectedPalette?.nome || "Marrom Clássico"} • {selectedFont?.nome || "Inter"}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-[#5C5146] shrink-0 transition-transform ${mostrarIdentidade ? "rotate-180" : ""}`} />
+                    </span>
+                  </button>
+                  {mostrarIdentidade && (
+                    <div className="border-t border-[#D9CEC2] p-3">
+                      <IdentidadeSeletor
+                        paletaId={selectedPalette?.id || "marrom"}
+                        fonteId={selectedFont?.id || "inter"}
+                        onPaleta={id => { const p = acharPaleta(id); if (p) setSelectedPalette({ id: p.id, nome: p.nome, cores: p.cores }) }}
+                        onFonte={id => { const f = acharFonte(id); if (f) setSelectedFont({ id: f.id, nome: f.nome }) }}
+                        nomeExibicao={(() => {
+                          const ideiaAtual = stepIdeia || idea
+                          const m = PRODUTOS_VALIDADOS.find(p => p.ideia === ideiaAtual) || PRODUTOS_VALIDADOS.find(p => ideiaAtual.includes(p.nome))
+                          return m?.nome || (ideiaAtual ? ideiaAtual.split(/[.,]/)[0].slice(0, 40) : "")
+                        })()}
+                      />
+                      <p className="text-[10px] text-[#A67C52] mt-3">Troque a cor ou a fonte e clique em Gerar ou Regenerar nos passos para aplicar.</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {(() => {
                 const tabSteps = steps.filter(s => s.tab === tab)
