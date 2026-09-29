@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Store, Zap, PenTool, CheckCircle } from "lucide-react"
+import { ArrowRight, Store, Zap, PenTool, CheckCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
@@ -14,6 +14,9 @@ const VITRINE = PRODUTOS_VALIDADOS
 export default function HomePage() {
   const router = useRouter()
   const [selectedProduct, setSelectedProduct] = useState<typeof PRODUTOS_VALIDADOS[0] | null>(null)
+  const [vitrineAberta, setVitrineAberta] = useState(false)
+  const VITRINE_INICIAL = 8
+  const vitrineVisivel = vitrineAberta ? VITRINE : VITRINE.slice(0, VITRINE_INICIAL)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F5EFE8] via-[#EDE6DC] to-[#E8DFD4] flex items-start sm:items-center justify-center p-4 py-8 sm:py-4 overflow-y-auto">
@@ -136,7 +139,7 @@ export default function HomePage() {
               </div>
               <p className="text-[#5C5146] text-xs mb-3">Clique em um produto para gerar toda a estrutura automaticamente.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                {VITRINE.map(v => (
+                {vitrineVisivel.map(v => (
                   <div
                     key={v.id}
                     className="relative group cursor-pointer"
@@ -155,6 +158,25 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
+
+              {VITRINE.length > VITRINE_INICIAL && (
+                <button
+                  onClick={() => setVitrineAberta(!vitrineAberta)}
+                  className="mt-3 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] hover:bg-[#F5EFE8] rounded-xl py-2.5 text-xs font-bold text-[#8B5E3C] transition-all"
+                >
+                  {vitrineAberta ? (
+                    <>
+                      <ChevronUp className="w-4 h-4" />
+                      Recolher lista
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Ver todos ({VITRINE.length} produtos)
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* CTA Principal */}
