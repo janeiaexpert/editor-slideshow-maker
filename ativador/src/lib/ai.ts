@@ -42,7 +42,7 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b:free", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
+      body: JSON.stringify({ model: "openai/gpt-oss-20b:free", messages, temperature, max_tokens: Math.min(maxTokens, 8000) }),
       signal: controller.signal,
     })
     clearTimeout(timeout)
@@ -72,7 +72,7 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_KEY}` },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages, temperature, max_tokens: Math.min(maxTokens, 4000) }),
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages, temperature, max_tokens: Math.min(maxTokens, 8000) }),
       signal: controller.signal,
     })
     clearTimeout(timeout)
@@ -110,7 +110,7 @@ async function callGemini(opts: CallOptions): Promise<string | null> {
     const timeout = setTimeout(() => controller.abort(), 45000)
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents, generationConfig: { temperature, maxOutputTokens: Math.min(maxTokens, 4000) } }), signal: controller.signal }
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents, generationConfig: { temperature, maxOutputTokens: Math.min(maxTokens, 8000) } }), signal: controller.signal }
     )
     clearTimeout(timeout)
     if (res.status === 429) {

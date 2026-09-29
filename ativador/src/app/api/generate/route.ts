@@ -408,13 +408,7 @@ SUBSTITUA TODOS OS PLACEHOLDERS por conteúdo REAL baseado na IDEIA do produto:
 - [PERGUNTA FAQ 1-8] → perguntas baseadas em objeções reais do nicho
 - [RESPOSTA FAQ 1-8] → respostas que vendem, não apenas informam
 
-CSS INTERNO COMPLETO no <style> — INCLUA:
-- @keyframes para float, pulse, fade-in-up, slide-in, rotate-slow
-- .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
-- .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
-- Classes utilitárias: .italic, .text-gold, .bg-gradient-mesh, .card-hover, .btn-primary, .btn-ghost
-- Scrollbar personalizada fina
-- Reduced motion: @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+TAMANHO DO ARQUIVO (obrigatório): o HTML inteiro deve ficar entre 9.000 e 15.000 caracteres — CSS compacto (sem comentários longos e sem repetir regras), animações essenciais apenas. O arquivo DEVE terminar com </body></html>; NUNCA corte o HTML no meio.
 
 VARIAÇÃO DE LAYOUT (gere layout DIFERENTE a cada vez):
 - Varie: Hero centralizado vs Hero assimétrico (texto esquerda, visual direita)
@@ -458,6 +452,15 @@ const CORES_SUBSTITUIVEIS: Array<[string, number]> = [
   ["#0D0D0D", 4], ["#2D2D2D", 1], ["#5C3A1E", 1], ["#5C5146", 4],
   ["#A67C52", 2], ["#D4A574", 2], ["#D9CEC2", 2],
 ]
+
+// Um artefato só vale se vier COMPLETO — se a IA estourou o limite de tokens e
+// cortou no meio, devolvemos erro para o dashboard usar o template local.
+function artefatoCompleto(step: string, obj: Record<string, unknown>): boolean {
+  const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
+  if (step === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
+  if (["logo", "capa", "card_oferta", "certificado"].includes(step)) return vals.some(v => v.includes("</svg>"))
+  return true
+}
 
 const fmtBR = (v: number) =>
   v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -677,13 +680,15 @@ REGRAS OBRIGATÓRIAS:
 
 
 // Try AI providers
+      // Landing é HTML longo: precisa de mais tamanhao de resposta senão corta no meio
+      const maxTokensArtefato = step === "landing" ? 8000 : ehArtefato ? 6000 : 4000
       let result = await aiChat({
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
         temperature: 0.8,
-        maxTokens: 4000,
+        maxTokens: maxTokensArtefato,
       })
 
       // Passos que precisam citar o produto: se vier genérico, manda refazer 1x
@@ -719,6 +724,9 @@ REGRAS OBRIGATÓRIAS:
                 typeof v === "string" ? enforcePaletteColors(v, coresAplicadas) : v,
               ])
             )
+          }
+          if (ehArtefato && !artefatoCompleto(step, cleaned)) {
+            return NextResponse.json({ error: "A IA devolveu o arquivo incompleto. Gere este passo de novo." }, { status: 422 })
           }
           return NextResponse.json(step === "oferta" ? enforceOfertaNumbers(cleaned, lucroNum) : cleaned)
         }
@@ -778,7 +786,11 @@ REGRAS OBRIGATÓRIAS:
             return NextResponse.json(svgResult)
           }
         }
-        // Texto válido da IA mas fora do formato esperado: devolve sem perder o conteúdo
+        // Texto da IA fora do formato esperado: nos passos de texto devolve assim mesmo,
+        // mas em artefatos isso viraria um bloco de texto/código bagunçado — sinal de falha
+        if (ehArtefato) {
+          return NextResponse.json({ error: "A IA não devolveu o artefato completo. Gere este passo de novo." }, { status: 422 })
+        }
         return NextResponse.json({ "Conteúdo": cleanStepValue(content) })
       }
 

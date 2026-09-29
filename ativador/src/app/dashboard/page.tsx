@@ -479,6 +479,15 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
   }),
 }
 
+// Um artefato (SVG/HTML) só é aproveitável se vier COMPLETO.
+// Se a IA cortou no limite de tokens, o card viraria um bloco de texto/código solto.
+function artefatoOk(stepId: string, c: Record<string, string>): boolean {
+  const vals = Object.values(c).filter((v): v is string => typeof v === "string")
+  if (stepId === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
+  if (["logo", "capa", "card_oferta", "certificado"].includes(stepId)) return vals.some(v => v.includes("</svg>"))
+  return true
+}
+
 const LS_KEY = "ativador_dashboard"
 
 function loadState<T>(key: string, fallback: T): T {
@@ -545,6 +554,7 @@ function DashboardInner() {
   const [promptDraft, setPromptDraft] = useState("")
   const [defaultPrompts, setDefaultPrompts] = useState<Record<string, string>>({})
   const [mostrarIdentidade, setMostrarIdentidade] = useState(false)
+  const [showHtmlCode, setShowHtmlCode] = useState<string | null>(null)
   const [newProducts, setNewProductsState] = useState<string[]>([])
   const [showNewBanner, setShowNewBanner] = useState(true)
 
@@ -625,6 +635,8 @@ function DashboardInner() {
         const data = await res.json()
         if (data && typeof data === "object" && !data.error) content = data
       }
+      // Resposta incompleta/cortada? Usa o template local pronto em vez de texto solto
+      if (content && !artefatoOk(stepId, content)) content = null
       if (!content) {
         const fallback = FALLBACKS[stepId]
         content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado automaticamente" }
@@ -1474,8 +1486,18 @@ function DashboardInner() {
                                       </div>
                                     ) : (
                                       <div className="bg-white rounded-lg p-3">
-                                        <span className="text-[10px] font-bold text-[#5C5146] uppercase tracking-wider block mb-2">Codigo HTML</span>
-                                        <pre className="text-[11px] text-[#5C5146] whitespace-pre-wrap break-all max-h-[300px] overflow-auto font-mono">{filled}</pre>
+                                        <button
+                                          className="flex items-center justify-between w-full"
+                                          onClick={() => setShowHtmlCode(showHtmlCode === `${step.id}:${key}` ? null : `${step.id}:${key}`)}
+                                        >
+                                          <span className="text-[10px] font-bold text-[#5C5146] uppercase tracking-wider">Codigo HTML</span>
+                                          <span className="text-[10px] font-bold text-[#8B5E3C] uppercase tracking-wider">
+                                            {showHtmlCode === `${step.id}:${key}` ? "Ocultar codigo" : "Ver codigo"}
+                                          </span>
+                                        </button>
+                                        {showHtmlCode === `${step.id}:${key}` && (
+                                          <pre className="mt-2 text-[11px] text-[#5C5146] whitespace-pre-wrap break-all max-h-[300px] overflow-auto font-mono">{filled}</pre>
+                                        )}
                                       </div>
                                     )}
                                   </div>
