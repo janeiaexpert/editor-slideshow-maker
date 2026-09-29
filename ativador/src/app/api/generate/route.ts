@@ -182,68 +182,85 @@ Exemplo: Método Produtividade → Próximo: Método para empresas. Cross Sell: 
 Não use emojis.
 ATENÇÃO: Não invente números. Use [VALOR] ou [N] como placeholder.`,
 
-  logo: `Gere um logotipo profissional em SVG para um produto digital.
+  logo: `Gere um logotipo profissional de estúdio em SVG para um produto digital.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Design sofisticado e moderno, com visual hierarchy clara
-- Elemento marcante: um ícone/forma que comunique o tema do produto (círculo, hexágono, escudo, etc.)
-- Tipografia de alto contraste entre nome (bold, grande) e subtítulo (leve, uppercase, letter-spaced)
-- Paleta de cores premium: marrom #8B5E3C (primária), D4B896 (dourada), F5EFE8 (fundo claro), 1A1A1A (texto escuro)
-- Fundo com acabamento limpo (canto arredondado 12px), layout horizontal 500x180
-- Duas versões: uma em fundo claro (F5EFE8) e uma em fundo escuro (1A1A1A)
-- Use <defs> com <linearGradient> para dar profundidade
+DIREÇÃO DE ARTE (obrigatório):
+- Layout horizontal 1080x260: símbolo à esquerda + wordmark à direita, alinhados na mesma linha de base
+- Símbolo: UMA forma geométrica limpa e memorável (monograma do produto, selo, hexágono, escudo estilizado) de 160x160, com gradiente sutil (linearGradient) da cor primária para a secundária e sombra suave via <filter><feDropShadow dy="4" stdDeviation="6" flood-opacity="0.25">
+- PROIBIDO: clip-art, emoji, desenho literal de objeto, ícone genérico de bulinha, texto dentro do símbolo
+- Wordmark: nome do produto 56px weight 800 com letter-spacing -1; tagline 20px uppercase letter-spacing 6 em cor primária — separados por 10px
+- Proporção equilibrada: margem interna 32px, respiro de 36px entre símbolo e texto, nada colado na borda
+- Versão principal em fundo claro da paleta; versão alternativa em fundo escuro da paleta com texto na cor clara
+- CONTRASTE: o texto deve ter contraste mínimo AA sobre o fundo da sua versão
+- CORES: use exclusivamente as cores da PALETA OBRIGATÓRIA enviada (primária, secundária, destaque, fundo, texto). Nenhum hex fora da paleta; branco ou preto puros apenas se a paleta não tiver claro/escuro equivalentes
+- TIPOGRAFIA: use a fonte indicada na TIPOGRAFIA OBRIGATORIA (com fallback sans-serif) no wordmark e na tagline
 - Substitua dados do usuário por placeholders: [NOME], [SUBTÍTULO]
+
+QUALIDADE DE PORTFÓLIO: o resultado deve parecer um logotipo criado por designer — simetria, grid, respiro e hierarquia impecáveis. Nada de "feito por template".
 
 Retorne APENAS um JSON com as chaves: "Logo Principal SVG", "Logo Alternativo SVG", "Cores da Marca", "Usos do Logo".
 Não use emojis.`,
 
-  capa: `Gere capas profissionais para redes sociais em SVG para um produto digital.
+  capa: `Gere capas profissionais de estúdio para redes sociais em SVG.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Design editorial premium com fundo gradiente escuro (#1A1A1A → #2D2D2D)
-- Elementos decorativos sutis: círculos grandes semi-transparentes como textura de fundo
-- Headline em destaque com 88-120px, weight 800, letter-spacing -1 a -2
-- Palavra de destaque na cor dourada #D4B896
-- Linha divisória fina (#8B5E3C) entre headline e subtítulo
-- Barra semi-transparente na parte inferior com nome do produto e oferta
-- Proporções exatas: Feed 1080x1350 (4:5), Reels 1080x1920 (9:16)
-- Use <defs> com <linearGradient> para profundidade
-- Substitua por placeholders: [HEADLINE], [SUBTÍTULO], [NOME DO PRODUTO], [OFERTA]
+DIREÇÃO DE ARTE (obrigatório):
+- DUAS capas: "Feed 1080x1350" (4:5) e "Reels 1080x1920" (9:16) — ambas com o mesmo sistema visual
+- Fundo: gradiente entre as duas cores mais escuras da PALETA OBRIGATÓRIA + malha sutil de linhas/grade em opacidade 0.04-0.06 (textura de estúdio, não bolhas aleatórias)
+- GRADE: margens 90px nas laterais, 140px no topo, 160px no rodapé (área segura do Instagram). Tudo alinhado à esquerda numa coluna de no máximo 860px
+- HIERARQUIA EM 4 NÍVEIS: eyebrow/tag (16px uppercase letter-spacing 6, cor de destaque) → filete de 4px x 160px → headline (84-110px, weight 800, line-height 0.95, no máx. 5 palavras por linha, UMA palavra em cor de destaque) → subtítulo (24px, opacidade 0.7)
+- Espaçamento consistente: 28px entre níveis, 40px entre filete e headline
+- DECORATIVOS: no máximo 2 elementos — ex.: um círculo grande em opacidade 0.05 fora da área de texto + um glow radial sutil. PROIBIDO: confete, clip-art, ícones decorativos, bolhas soltas
+- Rodapé: barra de 920x96 com fundo em opacidade 0.12 e stroke 1px em opacidade 0.2, contendo nome do produto (18px weight 700) e oferta (16px, cor de destaque)
+- Headline com sombra leve via <feDropShadow> (stdDeviation 8, opacidade 0.3) para legibilidade
+- CORES: exclusivamente as cores da PALETA OBRIGATÓRIA enviada. Nenhum hex fora da paleta
+- TIPOGRAFIA: fonte indicada na TIPOGRAFIA OBRIGATORIA nos títulos (fallback sans-serif)
+- Placeholders: [HEADLINE], [DESTAQUE], [SUBTÍTULO], [TAG], [NOME DO PRODUTO], [OFERTA]
+
+QUALIDADE DE PORTFÓLIO: composição editorial com respiro generoso, alinhamento óptico e uma única intenção visual. Nada de "template pronto".
 
 Retorne APENAS um JSON com as chaves: "Feed 1080x1350 SVG", "Reels 1080x1920 SVG", "Dicas de Uso".
 Não use emojis.`,
 
-  card_oferta: `Gere um card de oferta promocional profissional em SVG.
+  card_oferta: `Gere um card de oferta promocional de estúdio em SVG.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Design dark premium: fundo gradiente #1A1A1A → #0D0D0D
-- Borda elegante com outline sutil (#8B5E3C, opacidade 0.3)
-- Círculo decorativo grande semi-transparente ao centro como profundidade
-- Selo "OFERTA ESPECIAL" em uppercase, letter-spacing 8px, cor #D4B896
-- Preço antigo riscado (opacidade 0.5)
-- Preço novo GIGANTE 120px, weight 800, cor branca
-- Botão CTA com gradiente marrom (#8B5E3C → #5C3A1E), border-radius 35px
-- Selo de garantia e urgência abaixo do CTA
-- Proporção 1080x1350 (vertical para Stories)
-- Use <defs> com <linearGradient>
-- Substitua por placeholders: [VALOR], [VALOR CHEIO], [N], [PARCELA]
+DIREÇÃO DE ARTE (obrigatório):
+- Proporção 1080x1350 vertical (Stories), tudo centralizado numa coluna
+- Fundo: gradiente diagonal entre as duas cores escuras da PALETA OBRIGATÓRIA + 1 textura geométrica sutil (grade ou arcos) em opacidade 0.05
+- MOLDURA: retângulo interno recuado 40px, raio 32px, stroke 2px da cor de destaque em opacidade 0.35
+- GRADE E RESPIRO: mínimo 72px livres das bordas; 40px entre blocos; nada colado
+- BLOCOS DE CIMA PARA BAIXO:
+  1. Selo pill: fundo da cor de destaque em opacidade 0.15, stroke 1px, texto 16px uppercase letter-spacing 6, padding 10x24, raio 999
+  2. Subtítulo de contexto 24px opacidade 0.75
+  3. Preço antigo riscado (line-through) 28px opacidade 0.5
+  4. Preço novo 130px weight 800 em caixa alta + parcela 26px abaixo
+  5. CTA: botão 560x96, raio 48, gradiente primária→secundária, texto 22px uppercase letter-spacing 3 weight 700, sombra da cor primária em opacidade 0.35
+  6. Selo de garantia/urgência 16px opacidade 0.7 com um ícone minimalista de traço (linha/verify) desenhado em SVG — sem emoji
+- CORES: exclusivamente as cores da PALETA OBRIGATÓRIA enviada. Nenhum hex fora da paleta. Texto principal na cor clara da paleta
+- TIPOGRAFIA: fonte indicada na TIPOGRAFIA OBRIGATORIA (fallback sans-serif)
+- Placeholders: [VALOR], [VALOR CHEIO], [PARCELA]
+
+QUALIDADE DE PORTFÓLIO: conversão com elegância — hierarquia de preço clara, sombras contidas, alinhamento perfeito. Nada de "template pronto".
 
 Retorne APENAS um JSON com as chaves: "Card Oferta SVG", "Indicado para", "Copy para Legenda".
 Não use emojis.`,
 
   certificado: `Gere um template de certificado de conclusão profissional em SVG.
 
-CRITÉRIOS DE QUALIDADE (obrigatório):
-- Formato paisagem 842x595 (A4 landscape)
-- Fundo off-white #F5EFE8 com acabamento limp
-- Moldura dupla: borda externa com gradiente marrom (#8B5E3C → #D4B896), interna fina (#D4B896)
-- Círculo decorativo semi-transparente no topo
-- Título "CERTIFICADO" em Georgia, 40px, cor marrom
-- Subtítulo "DE CONCLUSÃO" em uppercase com letter-spacing 6px
-- Nome do aluno em Georgia 32px bold com linha abaixo
-- Nome do curso em Georgia 22px bold marrom
-- Linhas de assinatura e data na parte inferior
-- Substitua por placeholders: [NOME DO ALUNO], [NOME DO CURSO], [CARGA], [DATA]
+DIREÇÃO DE ARTE (obrigatório):
+- Formato paisagem 842x595 (A4 landscape) com fundo na cor de fundo clara da PALETA OBRIGATÓRIA
+- MOLDURA DUPLA: externa 3px com gradiente primária→destaque e raio 10px; interna 1px em opacidade 0.6 recuada 14px; respiro de 44px até o conteúdo
+- Selo/monograma circular no topo centro: 72px, fundo primária em opacidade 0.12, anel de 2px da cor primária com um pequeno formato geométrico dentro (sem emoji)
+- TIPOGRAFIA (serifa clássica para autoridade — use a fonte indicada se houver, senão Georgia/serif):
+  "CERTIFICADO" 42px weight 700 letter-spacing 8 na cor primária
+  "DE CONCLUSÃO" 16px uppercase letter-spacing 8 na cor secundária
+  filete de 180px na cor de destaque
+- Nome do aluno: 34px bold com filete de 220px abaixo na cor primária
+- Texto corrido 14px cor secundária; nome do curso 22px bold na cor primária; carga horária/data 12px opacidade 0.8
+- RODAPÉ: duas linhas de assinatura de 200px com rótulos 11px uppercase letter-spacing 3 — alinhadas nas laterais com o mesmo respiro
+- CORES: exclusivamente as cores da PALETA OBRIGATÓRIA enviada. Nenhum hex fora da paleta
+- Placeholders: [NOME DO ALUNO], [NOME DO CURSO], [CARGA], [DATA]
+
+QUALIDADE DE PORTFÓLIO: documento institucional — simetria, filetes finos, hierarquia tipográfica e margens generosas. Nada de "template pronto".
 
 Retorne APENAS um JSON com as chaves: "Certificado SVG", "Instruções", "Personalização".
 Não use emojis.`,
@@ -252,16 +269,16 @@ Não use emojis.`,
 
 CRITÉRIOS DE QUALIDADE (obrigatório):
 - Design MINIMALISTA PREMIUM, tipografia Inter + Playfair Display (serif para headlines) do Google Fonts
-- Hero com GRADIENTE MULTI-CAMADA bonito: fundo escuro (#1A1A1A → #2D2D2D) + mesh gradients, radial gradients decorativos sutis, glow elegante
-- Headline GRANDE (clamp 40-72px) em Playfair Display, peso 900, linha 1.0, palavra de destaque em #D4B896 com ITÁLICO
-- Sub-headline em Inter, branco opacidade 0.7, tamanho clamp 18-24px, com ITÁLICO para frases-chave
-- CTA pill-shaped (border-radius 9999px) com gradiente marrom (#8B5E3C → #6B4226), hover: shadow-lg + translateY(-2px) + scale(1.02)
-- SEÇÃO BENEFÍCIOS/MÓDULOS: grid responsivo (auto-fit, minmax 260px), cards brancos com borda #D9CEC2, hover: sobe 8px, borda #8B5E3C, shadow-xl
-- Número do benefício em círculo marrom com gradiente
-- BULLET POINTS com marcadores personalizados (✓¦ ou —¢ em #D4B896) em listas
+- Hero com GRADIENTE MULTI-CAMADA bonito: fundo escuro (gradiente entre a cor de texto escura e a cor secundária da PALETA OBRIGATÓRIA) + mesh gradients, radial gradients decorativos sutis, glow elegante
+- Headline GRANDE (clamp 40-72px) em Playfair Display, peso 900, linha 1.0, palavra de destaque na cor de destaque da PALETA OBRIGATÓRIA com ITÁLICO
+- Sub-headline em Inter, texto claro em opacidade 0.7, tamanho clamp 18-24px, com ITÁLICO para frases-chave
+- CTA pill-shaped (border-radius 9999px) com gradiente da cor primária → secundária da PALETA OBRIGATÓRIA, hover: shadow-lg + translateY(-2px) + scale(1.02)
+- SEÇÃO BENEFÍCIOS/MÓDULOS: grid responsivo (auto-fit, minmax 260px), cards na cor de fundo clara da paleta com borda em opacidade 0.4, hover: sobe 8px, borda na cor primária, shadow-xl
+- Número do benefício em círculo com gradiente da cor primária
+- BULLET POINTS com marcadores personalizados desenhados (check ou traço) na cor de destaque da paleta em listas
 - FRASES CHAVE EM ITÁLICO (font-style: italic) para ênfase visual
-- Seção de oferta escura com box centralizado (max-w 600px), preço em destaque #D4B896 clamp 36-56px, lista de itens com check verde (#22C55E)
-- Selo de garantia: "Pagamento 100% seguro" + ícone de cadeado
+- Seção de oferta escura com box centralizado (max-w 600px), preço em destaque na cor de destaque da paleta clamp 36-56px, lista de itens com check na cor de destaque
+- Selo de garantia: "Pagamento 100% seguro" + ícone de cadeado minimalista (SVG inline)
 - SEÇÃO FAQ/DÚVIDAS FREQUENTES — accordion com 6-8 perguntas REAIS baseadas no nicho do produto
 - Footer escuro com direitos reservados
 
@@ -282,11 +299,11 @@ ELEMENTOS 3D COM MOTION (suave e sutil):
 - Seção de oferta: reveal suave com scale 0.98 → 1.0 e opacity 0 → 1
 
 BOTÕES MODERNOS (suave e elegante):
-- CTA Principal: gradiente #8B5E3C → #6B4226, border-radius 9999px, padding 14px 36px
-- Hover: sombra 0 12px 24px rgba(139,94,60,0.2), translateY(-2px), scale(1.015)
+- CTA Principal: gradiente da cor primária → secundária da PALETA OBRIGATÓRIA, border-radius: 9999px, padding: 14px 36px
+- Hover: sombra suave na cor primária (opacidade 0.25), translateY(-2px), scale(1.015)
 - Transição: cubic-bezier(0.25, 0.46, 0.45, 0.94) 400ms — fluido, sem snap
-- CTA Secundário (ghost): fundo transparente, borda 1.5px #D4B896, texto #D4B896
-- Hover ghost: fundo rgba(212,184,150,0.15), borda #D4B896
+- CTA Secundário (ghost): fundo transparente, borda 1.5px na cor de destaque da paleta, texto na cor de destaque
+- Hover ghost: fundo na cor de destaque com opacidade 0.15, borda na cor de destaque
 - Botões: font-weight 600 (não 800), letter-spacing 0.5px, transição suave
 - Small CTA: padding 10px 24px, font-size 13px
 
@@ -307,21 +324,21 @@ CSS INTERNO COMPLETO no <style> — INCLUA:
 - .card-3d { transform-style: preserve-3d; transition: transform 0.5s ease-out, box-shadow 0.5s ease-out; }
 - .card-3d:hover { transform: perspective(1200px) rotateY(3deg) rotateX(1.5deg) translateZ(5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
 - .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); }
-- .btn-primary { background: linear-gradient(135deg, #8B5E3C, #6B4226); border-radius: 9999px; padding: 14px 36px; color: white; font-weight: 600; letter-spacing: 0.3px; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); box-shadow: 0 4px 12px rgba(139,94,60,0.25); }
-- .btn-primary:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 12px 24px rgba(139,94,60,0.25); }
-- .btn-ghost { background: transparent; border: 1.5px solid #D4B896; color: #D4B896; border-radius: 9999px; padding: 14px 36px; transition: all 0.4s ease; }
-- .btn-ghost:hover { background: rgba(212,184,150,0.12); }
+- .btn-primary { background: linear-gradient(135deg, CORES[0], CORES[1]) (cor primária → secundária da paleta); border-radius: 9999px; padding: 14px 36px; color: texto claro; font-weight: 600; letter-spacing: 0.3px; transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94); box-shadow: sombra sutil na cor primária; }
+- .btn-primary:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 12px 24px com a cor primária da paleta; }
+- .btn-ghost { background: transparent; border: 1.5px solid cor de destaque da paleta; color: cor de destaque; border-radius: 9999px; padding: 14px 36px; transition: all 0.4s ease; }
+- .btn-ghost:hover { background: cor de destaque com opacidade 0.12; }
 - .floating { animation: float 8s ease-in-out infinite; }
 - @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 - .parallax-bg { will-change: transform; }
-- Scrollbar personalizada: scrollbar-width thin; scrollbar-color: #8B5E3C #F5EFE8;
+- Scrollbar personalizada: scrollbar-width thin; scrollbar-color: cor primária cor de fundo clara (cores da paleta);
 - Reduced motion: @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
 SEÇÕES OBRIGATÓRIAS (na ordem exata):
-1. Hero (badge, headline com palavra em ITÁLICO + #D4B896, sub-headline com ITÁLICO, CTA principal + CTA secundário ghost)
+1. Hero (badge, headline com palavra em ITÁLICO + cor de destaque da paleta, sub-headline com ITÁLICO, CTA principal + CTA secundário ghost)
 2. Problema/Agitação (texto curto em ITÁLICO centralizado, max-width 600px)
 3. O que você vai aprender / Benefícios (grid de 4-6 cards com números, títulos, descrições + bullet points internos)
-4. Para quem é / Não é para (2 colunas com check/cross em #D4B896 / #EF4444)
+4. Para quem é / Não é para (2 colunas com check/cross na cor de destaque da paleta / vermelho)
 5. Depoimentos — USE APENAS PLACEHOLDER: "[INSIRA DEPOIMENTOS REAIS AQUI]" com estrutura de card pronta
 6. Oferta (preço tachado → preço real, parcelamento, garantia, lista do que inclui com bullets ✓¦)
 7. FAQ / Dúvidas Frequentes (accordion animado, 6-8 perguntas específicas do nicho)
@@ -381,7 +398,7 @@ Ex: "Garantir Minha Vaga Agora → Acesso Imediato + 30 Dias Grátis + Preset Pa
 SUBSTITUA TODOS OS PLACEHOLDERS por conteúdo REAL baseado na IDEIA do produto:
 - [NOME DO PRODUTO] → nome real do produto
 - [HEADLINE] → headline usando fórmula acima
-- [PALAVRA DE DESTAQUE] → palavra-chave do nicho (em ITÁLICO + #D4B896)
+- [PALAVRA DE DESTAQUE] → palavra-chave do nicho (em ITÁLICO + cor de destaque da paleta)
 - [SUBTÍTULO] → subtítulo persuasivo com ITÁLICO em frase-chave
 - [PROBLEMA] → dor real do avatar
 - [DESCRIÇÃO BREVE DOS MÓDULOS] → descrição dos módulos
@@ -431,6 +448,16 @@ SEM EMOCOS. APENAS TEXTO PURO.`,
 
 // Cores padrão do sistema (quando a IA ignora a paleta, elas aparecem no HTML/SVG)
 const DEFAULT_CORES = ["#8B5E3C", "#6B4226", "#D4B896", "#F5EFE8", "#1A1A1A"]
+
+// Steps que geram artefatos visuais (SVG/HTML) — a paleta vale para todos eles
+const ARTIFACT_STEPS = ["logo", "capa", "card_oferta", "certificado", "landing"]
+
+// Cores que a IA costuma usar quando ignora a paleta → mapeadas para o slot da paleta
+const CORES_SUBSTITUIVEIS: Array<[string, number]> = [
+  ["#8B5E3C", 0], ["#6B4226", 1], ["#D4B896", 2], ["#F5EFE8", 3], ["#1A1A1A", 4],
+  ["#0D0D0D", 4], ["#2D2D2D", 1], ["#5C3A1E", 1], ["#5C5146", 4],
+  ["#A67C52", 2], ["#D4A574", 2], ["#D9CEC2", 2],
+]
 
 const fmtBR = (v: number) =>
   v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -506,8 +533,8 @@ function enforcePaletteColors(content: string, cores: string[] | null): string {
   const same = cores.every((c, i) => c.toLowerCase() === DEFAULT_CORES[i].toLowerCase())
   if (same) return content
   let out = content
-  DEFAULT_CORES.forEach((def, i) => {
-    out = out.replace(new RegExp(def, "gi"), cores[i])
+  CORES_SUBSTITUIVEIS.forEach(([def, idx]) => {
+    out = out.replace(new RegExp(def, "gi"), cores[idx])
   })
   return out
 }
@@ -615,8 +642,11 @@ export async function POST(req: NextRequest) {
       paleta.cores.every((c: unknown) => typeof c === "string" && /^#[0-9a-fA-F]{6}$/.test(c))
         ? paleta.cores.slice(0, 5)
         : null
-    const paletaBlock = paletaCores
-      ? `\n\nPALETA OBRIGATÓRIA DO USUÁRIO (substitui QUALQUER cor mencionada acima — use EXCLUSIVAMENTE estas cores):\n- Cor primária (CTAs, destaques, elementos principais): ${paletaCores[0]}\n- Cor secundária (hover, gradientes, detalhes): ${paletaCores[1]}\n- Cor de destaque (palavras em evidência, selos): ${paletaCores[2]}\n- Cor de fundo claro: ${paletaCores[3]}\n- Cor de texto escuro: ${paletaCores[4]}\n${paleta?.nome ? `Nome da paleta: ${paleta.nome}\n` : ""}É PROIBIDO usar marrom #8B5E3C, dourado #D4B896 ou qualquer outra cor fora desta paleta.`
+    const ehArtefato = typeof step === "string" && ARTIFACT_STEPS.includes(step)
+    // Artefatos SEMPRE recebem uma paleta explícita (padrão do sistema se o usuário não escolheu)
+    const coresAplicadas: string[] | null = paletaCores || (ehArtefato ? DEFAULT_CORES : null)
+    const paletaBlock = coresAplicadas
+      ? `\n\nPALETA OBRIGATÓRIA DO USUÁRIO (estas cores SUBSTITUEM todos os exemplos de cor citados acima; qualquer hex diferente destes está ERRADO):\n- Cor primária (CTAs, fundos principais, elementos de marca): ${coresAplicadas[0]}\n- Cor secundária (gradientes, hover, camadas escuras): ${coresAplicadas[1]}\n- Cor de destaque (palavras em evidência, selos, filetes): ${coresAplicadas[2]}\n- Cor de fundo claro (áreas claras, cards, papel): ${coresAplicadas[3]}\n- Cor de texto escuro (corpo de texto, títulos sobre fundo claro): ${coresAplicadas[4]}\n${paleta?.nome ? `Nome da paleta: ${paleta.nome}\n` : ""}PROIBIDO qualquer cor fora desta lista (inclusive #8B5E3C, #D4B896, #22C55E, #EF4444 puros), a menos que a paleta acima seja exatamente essa cor. Aplique a paleta em TODO fill, stroke, gradiente, sombra e texto do SVG/HTML.`
       : ""
 
     // Se for um step especifico, gerar apenas ele
@@ -627,7 +657,7 @@ export async function POST(req: NextRequest) {
       const fonteBlock = fonteNome
         ? `\n\nTIPOGRAFIA OBRIGATORIA: use a fonte "${fonteNome}" (Google Fonts) nos titulos e textos deste conteudo. Se o formato for SVG ou HTML, declare font-family com "${fonteNome}" e uma fallback sans-serif. Nao use outras fontes decorativas.`
         : ""
-      const systemPrompt = basePrompt + (["landing", "logo", "capa", "card_oferta", "certificado"].includes(step) ? paletaBlock : "") + fonteBlock
+      const systemPrompt = basePrompt + paletaBlock + fonteBlock
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
 
 IDEIA DO PRODUTO: ${ideia}
@@ -679,7 +709,17 @@ REGRAS OBRIGATÓRIAS:
       // Se IA disponível, tenta parsear JSON
       if (result) {
         const finishStep = (obj: Record<string, unknown>) => {
-          const cleaned = cleanStepJson(obj)
+          let cleaned = cleanStepJson(obj)
+          // Artefatos: força a paleta escolhida em todo valor string (rede de segurança
+          // caso a IA tenha ignorado a PALETA OBRIGATÓRIA)
+          if (ehArtefato && coresAplicadas) {
+            cleaned = Object.fromEntries(
+              Object.entries(cleaned).map(([k, v]) => [
+                k,
+                typeof v === "string" ? enforcePaletteColors(v, coresAplicadas) : v,
+              ])
+            )
+          }
           return NextResponse.json(step === "oferta" ? enforceOfertaNumbers(cleaned, lucroNum) : cleaned)
         }
         try {
@@ -704,7 +744,7 @@ REGRAS OBRIGATÓRIAS:
         if (step === "landing") {
           const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
           if (htmlMatch) {
-            return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], paletaCores), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
+            return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], coresAplicadas), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
           }
         }
         if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
@@ -717,10 +757,10 @@ REGRAS OBRIGATÓRIAS:
               : ["Certificado SVG"]
             svgMatches.forEach((svg: string, i: number) => {
               const key = svgKeys[i] || `SVG ${i + 1}`
-              svgResult[key] = enforcePaletteColors(svg, paletaCores)
+              svgResult[key] = enforcePaletteColors(svg, coresAplicadas)
             })
             if (step === "logo") {
-              const c = paletaCores || DEFAULT_CORES
+              const c = coresAplicadas || DEFAULT_CORES
               svgResult["Cores da Marca"] = `Primaria: ${c[0]} | Secundaria: ${c[1]} | Fundo: ${c[3]} | Texto: ${c[4]} | Detalhe: ${c[2]}`
               svgResult["Usos do Logo"] = "Versao Principal: fundo claro. Versao Alternativa: fundo escuro."
             }
@@ -763,7 +803,7 @@ REGRAS OBRIGATÓRIAS:
       if (step !== "landing") {
         return NextResponse.json(null)
       }
-      modoTexto["HTML Landing Page"] = enforcePaletteColors(modoTexto["HTML Landing Page"], paletaCores)
+      modoTexto["HTML Landing Page"] = enforcePaletteColors(modoTexto["HTML Landing Page"], coresAplicadas)
       return NextResponse.json(modoTexto)
     }
 

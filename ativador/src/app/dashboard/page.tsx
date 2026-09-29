@@ -530,8 +530,8 @@ function DashboardInner() {
   const [transformacao, setTransformacao] = useState(() => loadState("transformacao", ""))
   const [capaPhotoFeed, setCapaPhotoFeed] = useState<string | null>(null)
   const [capaPhotoReels, setCapaPhotoReels] = useState<string | null>(null)
-  const [selectedPalette, setSelectedPalette] = useState<{ id: string; nome: string; cores: string[] } | null>(null)
-  const [selectedFont, setSelectedFont] = useState<{ id: string; nome: string } | null>(null)
+  const [selectedPalette, setSelectedPalette] = useState<{ id: string; nome: string; cores: string[] } | null>(() => loadState("selectedPalette", null))
+  const [selectedFont, setSelectedFont] = useState<{ id: string; nome: string } | null>(() => loadState("selectedFont", null))
   const [showIdeiaForm, setShowIdeiaForm] = useState(() => loadState("showIdeiaForm", true))
   const [stepByStepMode, setStepByStepMode] = useState(false)
   const [idea, setIdea] = useState("")
@@ -584,6 +584,8 @@ function DashboardInner() {
   useEffect(() => { saveState("nicho", nicho) }, [nicho])
   useEffect(() => { saveState("publicoAlvo", publicoAlvo) }, [publicoAlvo])
   useEffect(() => { saveState("transformacao", transformacao) }, [transformacao])
+  useEffect(() => { saveState("selectedPalette", selectedPalette) }, [selectedPalette])
+  useEffect(() => { saveState("selectedFont", selectedFont) }, [selectedFont])
   useEffect(() => { saveState("showIdeiaForm", showIdeiaForm) }, [showIdeiaForm])
 
   const updateStepContent = useCallback((id: string, content: Record<string, string>) => {
@@ -605,11 +607,16 @@ function DashboardInner() {
     const precoProduto = Number(resolvedProduto?.preco) || 0
     const precoFinal = lucroVal > 0 ? lucroVal : (precoProduto > 0 ? precoProduto : 497)
 
+    // Paleta efetiva: a escolha atual do usuário vence a paleta original do produto
+    const paletaEfetiva = selectedPalette || produtoInfo?.paleta || resolvedProduto?.paleta || null
+    const produtoBase = resolvedProduto || { nome: "", tag: "", descricao: "", publico: "" }
+    const produtoFallback: ProdutoInfo = { ...produtoBase, paleta: paletaEfetiva || resolvedProduto?.paleta }
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: selectedPalette, fonte: selectedFont, prompt: customPrompt || undefined }),
+        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, prompt: customPrompt || undefined }),
       })
       let content: Record<string, string> | null = null
       if (res.ok) {
@@ -618,13 +625,13 @@ function DashboardInner() {
       }
       if (!content) {
         const fallback = FALLBACKS[stepId]
-        content = fallback ? fallback(ideaText, precoFinal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado automaticamente" }
       }
       updateStepContent(stepId, content)
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
-      const content = fallback ? fallback(ideaText, precoFinal, resolvedProduto) : { "Conteúdo": "Conteúdo gerado (offline)" }
+      const content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado (offline)" }
       updateStepContent(stepId, content)
       return content
     }
@@ -1283,8 +1290,20 @@ function DashboardInner() {
                       <IdentidadeSeletor
                         paletaId={selectedPalette?.id || "marrom"}
                         fonteId={selectedFont?.id || "inter"}
-                        onPaleta={id => { const p = acharPaleta(id); if (p) setSelectedPalette({ id: p.id, nome: p.nome, cores: p.cores }) }}
-                        onFonte={id => { const f = acharFonte(id); if (f) setSelectedFont({ id: f.id, nome: f.nome }) }}
+                        onPaleta={id => {
+                          const p = acharPaleta(id)
+                          if (p) {
+                            setSelectedPalette({ id: p.id, nome: p.nome, cores: p.cores })
+                            if (steps.some(s => s.generated)) toast("Cor atualizada. Clique em Gerar ou Regenerar nos passos para aplicar as novas cores.")
+                          }
+                        }}
+                        onFonte={id => {
+                          const f = acharFonte(id)
+                          if (f) {
+                            setSelectedFont({ id: f.id, nome: f.nome })
+                            if (steps.some(s => s.generated)) toast("Fonte atualizada. Regenere os passos para aplicar.")
+                          }
+                        }}
                         nomeExibicao={(() => {
                           const ideiaAtual = stepIdeia || idea
                           const m = PRODUTOS_VALIDADOS.find(p => p.ideia === ideiaAtual) || PRODUTOS_VALIDADOS.find(p => ideiaAtual.includes(p.nome))
