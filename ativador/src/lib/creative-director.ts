@@ -39,7 +39,7 @@ const ART_DIRECTION: Record<string, ArtDirection> = {
   certificado: {
     style: "Clássico e institucional. Estilo diploma universitário. Serifa para autoridade, sem serifas para modernidade.",
     colorPsychology: "Fundo off-white #F5EFE8 = tradição e seriedade. Moldura marrom-dourada = prestígio. Texto escuro = legibilidade e formalidade.",
-    typography: "Título 'CERTIFICADO' em Georgia 36-40px bold. Nome do aluno em Georgia 28-32px italic bold. Todo texto em letter-spacing 2-4px parâmetro.",
+    typography: "Título 'CERTIFICADO' + subtítulo 'DE PARTICIPAÇÃO' em Georgia 36-40px bold. Nome do aluno em Georgia 28-32px italic bold. Todo texto em letter-spacing 2-4px parâmetro.",
     layout: "842x595 (A4 landscape). Moldura dupla: externa 2px gradiente, interna 0.5px dourado. Margem interna mínima 40px. Centralizado simetricamente.",
     composition: "Simetria axial perfeita. Cabeçalho (25%), corpo central (50%), rodapé com assinaturas (25%). Selos e ornamentos equilibrados nos cantos.",
     marketingPrinciple: "O certificado é o objeto físico que valida a compra. Deve parecer que vale mais do que o curso. Acabamento premium = percepção de valor.",

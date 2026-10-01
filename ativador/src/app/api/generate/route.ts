@@ -244,7 +244,7 @@ QUALIDADE DE PORTFÓLIO: conversão com elegância — hierarquia de preço clar
 Retorne APENAS um JSON com as chaves: "Card Oferta SVG", "Indicado para", "Copy para Legenda".
 Não use emojis.`,
 
-  certificado: `Gere um template de certificado de conclusão profissional em SVG.
+  certificado: `Gere um template de Certificado de Participação profissional em SVG.
 
 DIREÇÃO DE ARTE (obrigatório):
 - Formato paisagem 842x595 (A4 landscape) com fundo na cor de fundo clara da PALETA OBRIGATÓRIA
@@ -252,7 +252,7 @@ DIREÇÃO DE ARTE (obrigatório):
 - Selo/monograma circular no topo centro: 72px, fundo primária em opacidade 0.12, anel de 2px da cor primária com um pequeno formato geométrico dentro (sem emoji)
 - TIPOGRAFIA (serifa clássica para autoridade — use a fonte indicada se houver, senão Georgia/serif):
   "CERTIFICADO" 42px weight 700 letter-spacing 8 na cor primária
-  "DE CONCLUSÃO" 16px uppercase letter-spacing 8 na cor secundária
+  "DE PARTICIPAÇÃO" 16px uppercase letter-spacing 8 na cor secundária
   filete de 180px na cor de destaque
 - Nome do aluno: 34px bold com filete de 220px abaixo na cor primária
 - Texto corrido 14px cor secundária; nome do curso 22px bold na cor primária; carga horária/data 12px opacidade 0.8

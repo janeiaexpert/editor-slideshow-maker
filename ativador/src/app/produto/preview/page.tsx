@@ -409,7 +409,7 @@ function PreviewInner() {
               {[
                 "Acesso vitalício ao conteúdo completo",
                 "Todas as atualizações futuras incluídas",
-                "Certificado de conclusão reconhecido",
+                "Certificado de Participação incluso",
                 "Suporte direto via grupo VIP",
                 "7 dias de garantia incondicional"
               ].map((item, i) => (
