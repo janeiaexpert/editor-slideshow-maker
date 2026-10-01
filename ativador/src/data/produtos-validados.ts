@@ -34,7 +34,7 @@ const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
   "claude-ecossistema": { paleta: "preto", fonte: "inter" },
   "vibe-coding": { paleta: "ciano", fonte: "oswald" },
   "skills-ia": { paleta: "azul", fonte: "raleway" },
-  "criar-gpts": { paleta: "verde", fonte: "montserrat" },
+  "criar-skills": { paleta: "verde", fonte: "montserrat" },
 }
 
 function comIdentidade(p: ProdutoValidado): ProdutoValidado {
@@ -74,7 +74,7 @@ const LUCIDE: Record<string, string> = {
   "claude-ecossistema": "",
   "vibe-coding": lucideIcon(`<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>`, "#D4B896", 2.5),
   "skills-ia": "",
-  "criar-gpts": lucideIcon(`<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/>`, "#D4B896", 2),
+  "criar-skills": lucideIcon(`<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/>`, "#D4B896", 2),
 }
 
 function coverSvg(p: ProdutoValidado): string {
@@ -117,7 +117,7 @@ const ICONES: Record<string, string> = {
   "claude-ecossistema": `<rect x="-16" y="-16" width="32" height="24" rx="5" fill="none" stroke="#D4B896" stroke-width="2.5"/><line x1="0" y1="-16" x2="0" y2="-22" stroke="#8B5E3C" stroke-width="2"/><circle cx="0" cy="-24" r="3" fill="#D4B896"/><circle cx="-7" cy="-6" r="3" fill="none" stroke="#8B5E3C" stroke-width="2"/><circle cx="7" cy="-6" r="3" fill="none" stroke="#8B5E3C" stroke-width="2"/><circle cx="-7" cy="-6" r="1.5" fill="#8B5E3C"/><circle cx="7" cy="-6" r="1.5" fill="#8B5E3C"/><line x1="-5" y1="2" x2="5" y2="2" stroke="#8B5E3C" stroke-width="2"/><rect x="-12" y="14" width="24" height="10" rx="3" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="-4" cy="19" r="1.5" fill="#8B5E3C"/><circle cx="0" cy="19" r="1.5" fill="#8B5E3C"/><circle cx="4" cy="19" r="1.5" fill="#8B5E3C"/>`,
   "vibe-coding": `<rect x="-25" y="-20" width="50" height="40" rx="4" fill="none" stroke="#D4B896" stroke-width="2.5"/><text x="-14" y="-2" font-family="monospace" font-size="12" fill="#8B5E3C" font-weight="bold">&lt;/&gt;</text><text x="4" y="10" font-family="monospace" font-size="10" fill="#D4B896">{'{ }'}</text><line x1="-15" y1="14" x2="15" y2="14" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/>`,
   "skills-ia": `<circle cx="0" cy="0" r="6" fill="#8B5E3C"/><circle cx="0" cy="-18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="0" cy="18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="-18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="-6" x2="0" y2="-14" stroke="#D4B896" stroke-width="2"/><line x1="6" y1="0" x2="14" y2="0" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="6" x2="0" y2="14" stroke="#D4B896" stroke-width="2"/><line x1="-6" y1="0" x2="-14" y2="0" stroke="#D4B896" stroke-width="2"/><circle cx="14" cy="-14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><circle cx="-14" cy="14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><line x1="4" y1="-4" x2="11" y2="-11" stroke="#D4B896" stroke-width="1.5"/><line x1="-4" y1="4" x2="-11" y2="11" stroke="#D4B896" stroke-width="1.5"/>`,
-  "criar-gpts": `<rect x="-22" y="-20" width="44" height="40" rx="6" fill="none" stroke="#D4B896" stroke-width="2.5"/><circle cx="0" cy="-4" r="10" fill="none" stroke="#8B5E3C" stroke-width="2"/><path d="M-5,-4 L-2,-1 L5,-8" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="-8" cy="12" r="2.5" fill="#D4B896"/><circle cx="0" cy="12" r="2.5" fill="#8B5E3C"/><circle cx="8" cy="12" r="2.5" fill="#D4B896"/>`,
+  "criar-skills": `<rect x="-22" y="-20" width="44" height="40" rx="6" fill="none" stroke="#D4B896" stroke-width="2.5"/><circle cx="0" cy="-4" r="10" fill="none" stroke="#8B5E3C" stroke-width="2"/><path d="M-5,-4 L-2,-1 L5,-8" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="-8" cy="12" r="2.5" fill="#D4B896"/><circle cx="0" cy="12" r="2.5" fill="#8B5E3C"/><circle cx="8" cy="12" r="2.5" fill="#D4B896"/>`,
 }
 
 export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
@@ -330,15 +330,15 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     atualizadoEm: "22/09/2026",
     ideia: "Quero criar um programa atualizado (2026) de habilidades práticas nas ferramentas de IA líderes — foco em USAR cada uma como profissional:\n\nSKILL CHATGPT: modelos atuais (texto, voz, imagens, análise de arquivos, GPTs customizados, Canvas). Copywriting, análise de dados, conteúdo e automação.\n\nSKILL CLAUDE: chat avançado e raciocínio profundo (documentos longos, contratos, estratégias) + Claude Code (programação, debug, scripts, automação).\n\nSKILL GEMINI: integração com Google Workspace (Docs, Sheets, Slides, Gmail), pesquisa com grounding, Gems customizados e análise de vídeo.\n\nSKILL CODEX: geração e automação de código por linguagem natural — sistemas, APIs, testes e deploys.\n\nSKILL MANUS: agente autônomo para tarefas complexas — pesquisa profunda, documentos, planilhas, workflows multietapas.\n\nSKILL COPILOT: produtividade no Microsoft 365 — relatórios no Word, análises no Excel, apresentações e e-mails.\n\nCada skill com projeto prático, atalhos, prompts testados e caso real. O aluno termina operando as 6 ferramentas profissionalmente.\n\nBÔNUS MONETIZAÇÃO: Como vender consultoria de IA para empresas — sugestão 2026: R$ 3.000-10.000 por projeto (auditoria + implementação). Treinamento corporativo por turma. Como empacotar cada skill como serviço (automação de relatórios, atendimento, conteúdo).\n\nBÔNUS PROSPECÇÃO: Como achar empresas afogadas em tarefas manuais repetitivas. Prospecção no LinkedIn (operações, financeiro, RH). Como gerar um diagnóstico gratuito com IA mostrando horas economizadas. Script: demo ao vivo com um processo real do prospect."  },
   {
-    id: "criar-gpts",
-    nome: "Aprenda a Criar GPTs",
+    id: "criar-skills",
+    nome: "Aprenda a Criar Skills do Básico ao Avançado",
     preco: 197,
-    tag: "PERSONALIZAÇÃO",
-    descricao: "Crie assistentes personalizados com os dados do seu negócio em 2026: GPTs, Gems e atendentes de WhatsApp com IA.",
+    tag: "CRIAÇÃO DE SKILLS",
+    descricao: "Crie skills de IA para Claude, ChatGPT e agentes — do básico ao avançado, com projetos práticos e sua própria biblioteca de skills.",
     publico: "Empreendedores e Criadores",
-    iconeSvg: ICONES["criar-gpts"],
-    atualizadoEm: "22/09/2026",
-    ideia: "Quero ensinar empreendedores a criar assistentes de IA com os dados do próprio negócio em 2026: GPTs personalizados (instruções, base de conhecimento com PDFs e planilhas, ações), Gems do Gemini para rotinas com Google Workspace, e atendentes de WhatsApp com IA para vendas e suporte. Casos: assistente de vendas com catálogo, suporte com base de conhecimento, treinamento de equipes, geradores de conteúdo por nicho e analisadores de documentos. Inclui testes, iteração e publicação.\n\nBÔNUS MONETIZAÇÃO: Como vender assistentes personalizados — sugestão 2026: R$ 800-3.000 por projeto + recorrência R$ 300-800/mês. Nichos: advocacia (contratos), clínicas (triagem), imobiliárias (qualificação), e-commerce (atendimento). Assistentes como lead magnet e pacotes por empresa.\n\nBÔNUS PROSPECÇÃO: Como achar empresas que usam IA genérica e precisam de dados próprios. Prospecção no LinkedIn (operações, inovação). Como gerar um demo funcional em minutos com perguntas reais do negócio. Script: demonstrar genérico vs personalizado lado a lado."
+    iconeSvg: ICONES["criar-skills"],
+    atualizadoEm: "30/09/2026",
+    ideia: "Quero ensinar pessoas a criar skills de IA do básico ao avançado em 2026: o que é uma skill, por que ela vale mais que um prompt solto, e como construir skills que deixam Claude, ChatGPT e agentes executando tarefas completas do seu jeito.\n\nBÁSICO: anatomia de uma skill (nome, objetivo, instruções passo a passo, exemplos e referências), sua primeira skill em 15 minutos, estrutura de pastas, escrita clara de instruções, testes simples e ajuste fino.\n\nINTERMEDIÁRIO: skills com scripts e ferramentas (ler planilhas, gerar relatórios, pesquisar na web), skills para vendas, atendimento e conteúdo, organização e nomes da sua biblioteca de skills, versionamento e atualização.\n\nAVANÇADO: skills que trabalham em conjunto (roteamento entre skills), skills para agentes autônomos, avaliação de qualidade e métricas, documentação profissional, distribuição e manutenção contínua.\n\nCada módulo com projeto prático: o aluno sai com uma biblioteca de skills pronta para usar no próprio negócio.\n\nBÔNUS MONETIZAÇÃO: Como vender criação de skills — sugestão 2026: R$ 500-2.500 por skill sob medida + manutenção R$ 200-500/mês. Pacote de skills para empresas do seu nicho. Skills como produto digital e lead magnet. Treinamento para equipes criarem as próprias skills.\n\nBÔNUS PROSPECÇÃO: Como achar profissionais repetindo sempre a mesma tarefa. Prospecção no LinkedIn e em negócios locais (WhatsApp). Como montar uma skill de demonstração em minutos com a operação real do prospect. Script: mostrar a mesma tarefa feita à mão vs feita pela skill."
   },
 ].map(comIdentidade)
 
