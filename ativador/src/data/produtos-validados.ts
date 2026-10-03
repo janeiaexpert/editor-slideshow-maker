@@ -8,6 +8,7 @@
   iconeSvg: string
   ideia: string
   atualizadoEm?: string
+  criadoEm?: string
   etiquetas?: Array<{ tipo: "NOVO" | "ATUALIZADO"; data?: string }>
   paleta?: { id: string; nome: string; cores: string[] }
   fonte?: { id: string; nome: string }
@@ -39,15 +40,40 @@ const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
   "gestao-financeira": { paleta: "azul", fonte: "playfair" },
 }
 
+const CRIADO_EM: Record<string, string> = {
+  "chatgpt-vendas": "23/07/2026",
+  "avatares-ia": "23/07/2026",
+  "carrosseis-virais": "23/07/2026",
+  "ia-iniciantes": "23/07/2026",
+  "copy-ia": "23/07/2026",
+  "video-ia": "23/07/2026",
+  "cursos-ia": "23/07/2026",
+  "automacao-marketing": "23/07/2026",
+  "design-ia": "23/07/2026",
+  "afiliados-ia": "23/07/2026",
+  "trafego-ia": "23/07/2026",
+  "musica-ia": "23/07/2026",
+  "chatbot-atendimento": "23/07/2026",
+  "ebook-ia": "23/07/2026",
+  "dados-ia": "23/07/2026",
+  "personas-ia": "23/07/2026",
+  "claude-ecossistema": "28/07/2026",
+  "vibe-coding": "28/07/2026",
+  "skills-ia": "28/07/2026",
+  "criar-skills": "30/09/2026",
+  "gestao-financeira": "02/10/2026",
+}
+
 function comIdentidade(p: ProdutoValidado): ProdutoValidado {
+  const base: ProdutoValidado = CRIADO_EM[p.id] ? { ...p, criadoEm: CRIADO_EM[p.id] } : p
   const i = IDENTIDADES[p.id]
-  if (!i) return p
+  if (!i) return base
   const pa = acharPaleta(i.paleta)
   const fo = acharFonte(i.fonte)
   return {
-    ...p,
-    paleta: pa ? { id: pa.id, nome: pa.nome, cores: pa.cores } : p.paleta,
-    fonte: fo ? { id: fo.id, nome: fo.nome } : p.fonte,
+    ...base,
+    paleta: pa ? { id: pa.id, nome: pa.nome, cores: pa.cores } : base.paleta,
+    fonte: fo ? { id: fo.id, nome: fo.nome } : base.fonte,
   }
 }
 

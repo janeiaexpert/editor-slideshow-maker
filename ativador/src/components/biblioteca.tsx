@@ -180,6 +180,11 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                 ))}
               </div>
             )}
+            {(!p.etiquetas || p.etiquetas.length === 0) && p.atualizadoEm && (
+              <span className="absolute bottom-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-[#5C5146] bg-white/85 shadow-sm">
+                Atualizado em {p.atualizadoEm}
+              </span>
+            )}
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center shadow-lg">
                 <span className="text-white text-[10px] font-bold">✓</span>
@@ -232,7 +237,11 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
               </div>
 
               <p className="text-xs text-[#5C5146] leading-relaxed">{produto.descricao}</p>
-              <p className="text-[10px] text-[#A67C52] font-semibold">Para: {produto.publico}{produto.atualizadoEm ? ` • Atualizado em ${produto.atualizadoEm}` : ""}</p>
+              <p className="text-[10px] text-[#A67C52] font-semibold">
+                Para: {produto.publico}
+                {produto.criadoEm ? ` • Criado em ${produto.criadoEm}` : ""}
+                {produto.atualizadoEm ? ` • Atualizado em ${produto.atualizadoEm}` : ""}
+              </p>
 
               {(produto.paleta || produto.fonte) && (
                 <div className="flex items-center gap-2 flex-wrap bg-[#F5EFE8] border border-[#D9CEC2] rounded-lg p-2.5">

@@ -194,6 +194,13 @@ export default function HomePage() {
                               {v.tag}
                             </Badge>
                             <span className="text-[10px] sm:text-xs font-semibold text-[#1A1A1A] block leading-tight">{v.nome}</span>
+                            {(!v.etiquetas || v.etiquetas.length === 0) && (v.criadoEm || v.atualizadoEm) && (
+                              <span className="text-[8px] text-[#A67C52] font-medium block mt-0.5 leading-tight">
+                                {v.criadoEm && v.atualizadoEm && v.criadoEm !== v.atualizadoEm
+                                  ? `Criado em ${v.criadoEm} • Atualizado em ${v.atualizadoEm}`
+                                  : `Atualizado em ${v.atualizadoEm || v.criadoEm}`}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -283,6 +290,13 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm text-[#5C5146] leading-relaxed">{selectedProduct.descricao}</p>
                 <p className="text-xs text-[#8B5E3C] font-medium">Público: {selectedProduct.publico}</p>
+                {(selectedProduct.criadoEm || selectedProduct.atualizadoEm) && (
+                  <p className="text-[11px] text-[#A67C52] font-medium">
+                    {selectedProduct.criadoEm && selectedProduct.atualizadoEm && selectedProduct.criadoEm !== selectedProduct.atualizadoEm
+                      ? `Criado em ${selectedProduct.criadoEm} • Atualizado em ${selectedProduct.atualizadoEm}`
+                      : `Atualizado em ${selectedProduct.atualizadoEm || selectedProduct.criadoEm}`}
+                  </p>
+                )}
                 <div className="bg-[#F5EFE8] border border-[#D9CEC2] rounded-lg px-3 py-2.5 space-y-2">
                   <div className="flex items-start gap-2 flex-wrap">
                     <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider pt-1">Cores</span>
