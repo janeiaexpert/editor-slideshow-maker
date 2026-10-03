@@ -179,11 +179,13 @@ export default function HomePage() {
                               {v.etiquetas.map(e => (
                                 <span
                                   key={e.tipo}
-                                  className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-white shadow-md ${
-                                    e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                                  className={`px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
+                                    e.tipo === "NOVO"
+                                      ? "bg-[#8B5E3C]/95 text-white"
+                                      : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
                                   }`}
                                 >
-                                  {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                                  {e.tipo}{e.data ? ` · ${e.data}` : ""}
                                 </span>
                               ))}
                             </div>
@@ -194,13 +196,6 @@ export default function HomePage() {
                               {v.tag}
                             </Badge>
                             <span className="text-[10px] sm:text-xs font-semibold text-[#1A1A1A] block leading-tight">{v.nome}</span>
-                            {(!v.etiquetas || v.etiquetas.length === 0) && (v.criadoEm || v.atualizadoEm) && (
-                              <span className="text-[8px] text-[#A67C52] font-medium block mt-0.5 leading-tight">
-                                {v.criadoEm && v.atualizadoEm && v.criadoEm !== v.atualizadoEm
-                                  ? `Criado em ${v.criadoEm} • Atualizado em ${v.atualizadoEm}`
-                                  : `Atualizado em ${v.atualizadoEm || v.criadoEm}`}
-                              </span>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -275,11 +270,13 @@ export default function HomePage() {
                     {selectedProduct.etiquetas.map(e => (
                       <span
                         key={e.tipo}
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white ${
-                          e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                          e.tipo === "NOVO"
+                            ? "bg-[#8B5E3C] text-white"
+                            : "bg-[#F5EFE8] text-[#6B4226] border border-[#D4B896]"
                         }`}
                       >
-                        {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                        {e.tipo}{e.data ? ` · ${e.data}` : ""}
                       </span>
                     ))}
                   </span>

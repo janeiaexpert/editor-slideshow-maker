@@ -171,19 +171,16 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                 {p.etiquetas.map(e => (
                   <span
                     key={e.tipo}
-                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-white shadow-md ${
-                      e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                    className={`px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
+                      e.tipo === "NOVO"
+                        ? "bg-[#8B5E3C]/95 text-white"
+                        : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
                     }`}
                   >
-                    {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                    {e.tipo}{e.data ? ` · ${e.data}` : ""}
                   </span>
                 ))}
               </div>
-            )}
-            {(!p.etiquetas || p.etiquetas.length === 0) && p.atualizadoEm && (
-              <span className="absolute bottom-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-[#5C5146] bg-white/85 shadow-sm">
-                Atualizado em {p.atualizadoEm}
-              </span>
             )}
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center shadow-lg">
@@ -218,11 +215,13 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                         {produto.etiquetas.map(e => (
                           <span
                             key={e.tipo}
-                            className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white ${
-                              e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                            className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-[0.12em] ${
+                              e.tipo === "NOVO"
+                                ? "bg-[#8B5E3C] text-white"
+                                : "bg-[#F5EFE8] text-[#6B4226] border border-[#D4B896]"
                             }`}
                           >
-                            {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                            {e.tipo}{e.data ? ` · ${e.data}` : ""}
                           </span>
                         ))}
                       </span>
