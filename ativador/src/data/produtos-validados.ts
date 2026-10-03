@@ -8,7 +8,7 @@
   iconeSvg: string
   ideia: string
   atualizadoEm?: string
-  etiqueta?: "NOVO" | "ATUALIZADO"
+  etiquetas?: Array<{ tipo: "NOVO" | "ATUALIZADO"; data?: string }>
   paleta?: { id: string; nome: string; cores: string[] }
   fonte?: { id: string; nome: string }
 }
@@ -353,7 +353,10 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = ([
     publico: "Famílias e Pessoas Práticas",
     iconeSvg: ICONES["gestao-financeira"],
     atualizadoEm: "02/10/2026",
-    etiqueta: "NOVO",
+    etiquetas: [
+      { tipo: "NOVO", data: "02/10/2026" },
+      { tipo: "ATUALIZADO", data: "02/10/2026" },
+    ],
     ideia: "Quero criar um treinamento prático, validado e atualizado (2026) sobre Gestão Financeira Doméstica: organizar os gastos da casa, montar um orçamento que mostra exatamente para onde cada real vai, controlar as despesas do mês, guardar e investir com segurança, montar reserva de emergência de 3 a 6 meses e planejar metas como casa própria e viagens. Público: pessoas e famílias frustradas com o fim de mês no vermelho — linguagem simples, sem enrolação e sem exigir horas de estudo; cada aula com tarefa prática para aplicar no mesmo dia.\n\nESTRUTURA (5 módulos práticos): 1) Orçamento Doméstico em Ação; 2) Controle de Despesas Mensais (identificar e cortar gastos que não trazem retorno); 3) Investimentos e Poupança Familiar de baixo risco; 4) Reserva de Emergência Inteligente (3 a 6 meses de despesas); 5) Planejamento de Metas Financeiras passo a passo. Entregáveis: vídeoaulas curtas com demonstração prática, exercícios guiados com correção, PDF de apoio com listas de verificação, comunidade para dúvidas e certificado de participação.\n\nBÔNUS EXCLUSIVOS: Guia Rápido de bolso, Checklist de Implementação (do zero ao primeiro resultado), Lista de Ferramentas e apps para organizar as finanças e Acesso Vitalício com todas as atualizações futuras.\n\nBÔNUS MONETIZAÇÃO: Como transformar o método em produto — sugestão 2026: curso R$ 97-297, organizadores e planilhas financeiras sob demanda (R$ 27-67), mentoria em grupo R$ 197-497/mês e conteúdo diário para Instagram e TikTok com a própria metodologia.\n\nBÔNUS PROSPECÇÃO: Como oferecer consultoria de organização financeira para famílias (R$ 300-800 por sessão), workshops para escolas e empresas e parcerias com contadores e planejadores financeiros. Script de abordagem no WhatsApp e proposta pronta em 3 modelos."
   },
 ] as ProdutoValidado[]).map(comIdentidade)
@@ -364,9 +367,11 @@ export function gerarCoverSvg(p: ProdutoValidado): string {
 
 // Produtos com etiqueta (NOVO / ATUALIZADO) aparecem primeiro na lista.
 export function ordenarComEtiqueta(lista: ProdutoValidado[]): ProdutoValidado[] {
+  const temNovo = (p: ProdutoValidado) => p.etiquetas?.some(e => e.tipo === "NOVO") ?? false
+  const temOutra = (p: ProdutoValidado) => (p.etiquetas?.length ?? 0) > 0
   return [
-    ...lista.filter(p => p.etiqueta === "NOVO"),
-    ...lista.filter(p => p.etiqueta === "ATUALIZADO"),
-    ...lista.filter(p => !p.etiqueta),
+    ...lista.filter(temNovo),
+    ...lista.filter(p => temOutra(p) && !temNovo(p)),
+    ...lista.filter(p => !temOutra(p)),
   ]
 }

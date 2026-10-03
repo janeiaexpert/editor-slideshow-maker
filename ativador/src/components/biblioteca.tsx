@@ -166,14 +166,19 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "rgba(255,255,255,0.3)" }}
           >
             <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
-            {p.etiqueta && (
-              <span
-                className={`absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white shadow-md ${
-                  p.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
-                }`}
-              >
-                {p.etiqueta}
-              </span>
+            {p.etiquetas && p.etiquetas.length > 0 && (
+              <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+                {p.etiquetas.map(e => (
+                  <span
+                    key={e.tipo}
+                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-white shadow-md ${
+                      e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                    }`}
+                  >
+                    {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                  </span>
+                ))}
+              </div>
             )}
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center shadow-lg">
@@ -203,13 +208,18 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                   <div>
                     <h3 className="text-sm font-bold text-[#1A1A1A]">{produto.nome}</h3>
                     <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{produto.tag}</span>
-                    {produto.etiqueta && (
-                      <span
-                        className={`inline-block ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white ${
-                          produto.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
-                        }`}
-                      >
-                        {produto.etiqueta}
+                    {produto.etiquetas && produto.etiquetas.length > 0 && (
+                      <span className="inline-flex gap-1.5 ml-1.5">
+                        {produto.etiquetas.map(e => (
+                          <span
+                            key={e.tipo}
+                            className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white ${
+                              e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                            }`}
+                          >
+                            {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                          </span>
+                        ))}
                       </span>
                     )}
                   </div>

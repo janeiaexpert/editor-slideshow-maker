@@ -174,14 +174,19 @@ export default function HomePage() {
                       >
                         <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
-                          {v.etiqueta && (
-                            <span
-                              className={`absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white shadow-md ${
-                                v.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
-                              }`}
-                            >
-                              {v.etiqueta}
-                            </span>
+                          {v.etiquetas && v.etiquetas.length > 0 && (
+                            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+                              {v.etiquetas.map(e => (
+                                <span
+                                  key={e.tipo}
+                                  className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider text-white shadow-md ${
+                                    e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                                  }`}
+                                >
+                                  {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                                </span>
+                              ))}
+                            </div>
                           )}
                           <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
                           <div className="p-2 text-center">
@@ -258,13 +263,18 @@ export default function HomePage() {
                 <Badge variant="outline" className="text-xs text-[#8B5E3C] border-[#8B5E3C]/50 bg-white/50">
                   {selectedProduct.tag}
                 </Badge>
-                {selectedProduct.etiqueta && (
-                  <span
-                    className={`inline-block ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white ${
-                      selectedProduct.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
-                    }`}
-                  >
-                    {selectedProduct.etiqueta}
+                {selectedProduct.etiquetas && selectedProduct.etiquetas.length > 0 && (
+                  <span className="inline-flex gap-1.5 ml-1.5 align-middle">
+                    {selectedProduct.etiquetas.map(e => (
+                      <span
+                        key={e.tipo}
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white ${
+                          e.tipo === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                        }`}
+                      >
+                        {e.tipo}{e.data ? ` em ${e.data}` : ""}
+                      </span>
+                    ))}
                   </span>
                 )}
                 <div className="flex items-baseline gap-2">
