@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
+import { PRODUTOS_VALIDADOS, gerarCoverSvg, ordenarComEtiqueta } from "@/data/produtos-validados"
 import { Sparkles, ArrowRight, X, Search } from "lucide-react"
 import { sanitizeSvg } from "@/lib/security"
 import { CrossSellPopup } from "@/components/cross-sell"
@@ -48,7 +48,7 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
   }, [])
 
   const filteredProducts = useMemo(() => {
-    let result = PRODUTOS_VALIDADOS
+    let result = ordenarComEtiqueta(PRODUTOS_VALIDADOS)
 
     if (activeGroup !== "Todos") {
       const allowedTags = TAG_GROUPS[activeGroup] || []
@@ -166,6 +166,15 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "rgba(255,255,255,0.3)" }}
           >
             <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
+            {p.etiqueta && (
+              <span
+                className={`absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white shadow-md ${
+                  p.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                }`}
+              >
+                {p.etiqueta}
+              </span>
+            )}
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center shadow-lg">
                 <span className="text-white text-[10px] font-bold">✓</span>
@@ -194,6 +203,15 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
                   <div>
                     <h3 className="text-sm font-bold text-[#1A1A1A]">{produto.nome}</h3>
                     <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{produto.tag}</span>
+                    {produto.etiqueta && (
+                      <span
+                        className={`inline-block ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white ${
+                          produto.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                        }`}
+                      >
+                        {produto.etiqueta}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {!gerando && (

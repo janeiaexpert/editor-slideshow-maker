@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Store, Zap, PenTool, CheckCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { PRODUTOS_VALIDADOS, gerarCoverSvg } from "@/data/produtos-validados"
+import { PRODUTOS_VALIDADOS, gerarCoverSvg, ordenarComEtiqueta } from "@/data/produtos-validados"
 import { PALETTES, FONTS } from "@/data/identidade"
 import { sanitizeSvg } from "@/lib/security"
 
-const VITRINE = PRODUTOS_VALIDADOS
+const VITRINE = ordenarComEtiqueta(PRODUTOS_VALIDADOS)
 
 export default function HomePage() {
   const router = useRouter()
@@ -174,6 +174,15 @@ export default function HomePage() {
                       >
                         <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
+                          {v.etiqueta && (
+                            <span
+                              className={`absolute top-2 left-2 z-10 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white shadow-md ${
+                                v.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                              }`}
+                            >
+                              {v.etiqueta}
+                            </span>
+                          )}
                           <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
                           <div className="p-2 text-center">
                             <Badge variant="outline" className="text-[9px] text-[#8B5E3C] border-[#8B5E3C]/50 mb-1 bg-white/50">
@@ -249,6 +258,15 @@ export default function HomePage() {
                 <Badge variant="outline" className="text-xs text-[#8B5E3C] border-[#8B5E3C]/50 bg-white/50">
                   {selectedProduct.tag}
                 </Badge>
+                {selectedProduct.etiqueta && (
+                  <span
+                    className={`inline-block ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white ${
+                      selectedProduct.etiqueta === "NOVO" ? "bg-[#16A34A]" : "bg-[#2563EB]"
+                    }`}
+                  >
+                    {selectedProduct.etiqueta}
+                  </span>
+                )}
                 <div className="flex items-baseline gap-2">
                   <h3 className="text-lg font-bold text-[#1A1A1A]">{selectedProduct.nome}</h3>
                   <span className="text-sm font-bold text-[#8B5E3C]">R$ {selectedProduct.preco.toLocaleString("pt-BR")}</span>
