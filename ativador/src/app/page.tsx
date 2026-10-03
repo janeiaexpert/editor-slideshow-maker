@@ -175,20 +175,15 @@ export default function HomePage() {
                         <div className="absolute -inset-0.5 bg-gradient-to-br from-[#D4B896]/40 to-[#8B5E3C]/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative backdrop-blur-md bg-white/50 border border-white/40 rounded-xl overflow-hidden hover:bg-white/70 hover:border-[#8B5E3C]/40 transition-all active:scale-[0.98]">
                           {v.etiquetas && v.etiquetas.length > 0 && (
-                            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
-                              {v.etiquetas.map(e => (
-                                <span
-                                  key={e.tipo}
-                                  className={`px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
-                                    e.tipo === "NOVO"
-                                      ? "bg-[#8B5E3C]/95 text-white"
-                                      : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
-                                  }`}
-                                >
-                                  {e.tipo}{e.data ? ` · ${e.data}` : ""}
-                                </span>
-                              ))}
-                            </div>
+                            <span
+                              className={`absolute top-2 left-2 z-10 px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
+                                v.etiquetas[0].tipo === "NOVO"
+                                  ? "bg-[#8B5E3C]/95 text-white"
+                                  : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
+                              }`}
+                            >
+                              {v.etiquetas[0].tipo}
+                            </span>
                           )}
                           <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
                           <div className="p-2 text-center">

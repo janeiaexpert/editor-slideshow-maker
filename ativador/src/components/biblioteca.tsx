@@ -167,20 +167,15 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
           >
             <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
             {p.etiquetas && p.etiquetas.length > 0 && (
-              <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
-                {p.etiquetas.map(e => (
-                  <span
-                    key={e.tipo}
-                    className={`px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
-                      e.tipo === "NOVO"
-                        ? "bg-[#8B5E3C]/95 text-white"
-                        : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
-                    }`}
-                  >
-                    {e.tipo}{e.data ? ` · ${e.data}` : ""}
-                  </span>
-                ))}
-              </div>
+              <span
+                className={`absolute top-2 left-2 z-10 px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
+                  p.etiquetas[0].tipo === "NOVO"
+                    ? "bg-[#8B5E3C]/95 text-white"
+                    : "bg-white/80 text-[#6B4226] border border-[#D4B896]/70"
+                }`}
+              >
+                {p.etiquetas[0].tipo}
+              </span>
             )}
             {selected === p.id && (
               <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#8B5E3C] flex items-center justify-center shadow-lg">
