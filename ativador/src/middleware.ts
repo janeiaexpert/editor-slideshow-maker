@@ -8,6 +8,10 @@ export async function middleware(req: NextRequest) {
   const ok = await verifyGateToken(req.cookies.get(GATE_COOKIE)?.value)
   if (ok) return NextResponse.next()
 
+  // Leitura da página publicada é pública (é a página de vendas que a
+  // usuária compartilha com clientes). Escrita continua protegida.
+  const leituraPublica = req.method === "GET" && pathname === "/api/publish"
+  if (leituraPublica) return NextResponse.next()
   if (PROTECTED_API.some(p => pathname === p || pathname.startsWith(p + "/"))) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 })
   }

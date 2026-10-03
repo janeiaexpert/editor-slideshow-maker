@@ -35,6 +35,7 @@ const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
   "vibe-coding": { paleta: "ciano", fonte: "oswald" },
   "skills-ia": { paleta: "azul", fonte: "raleway" },
   "criar-skills": { paleta: "verde", fonte: "montserrat" },
+  "livro-interativo": { paleta: "verde", fonte: "poppins" },
 }
 
 function comIdentidade(p: ProdutoValidado): ProdutoValidado {
@@ -75,6 +76,7 @@ const LUCIDE: Record<string, string> = {
   "vibe-coding": lucideIcon(`<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>`, "#D4B896", 2.5),
   "skills-ia": "",
   "criar-skills": lucideIcon(`<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/>`, "#D4B896", 2),
+  "livro-interativo": lucideIcon(`<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m9 9 2 2 4-4"/>`, "#D4B896", 2),
 }
 
 function coverSvg(p: ProdutoValidado): string {
@@ -118,6 +120,7 @@ const ICONES: Record<string, string> = {
   "vibe-coding": `<rect x="-25" y="-20" width="50" height="40" rx="4" fill="none" stroke="#D4B896" stroke-width="2.5"/><text x="-14" y="-2" font-family="monospace" font-size="12" fill="#8B5E3C" font-weight="bold">&lt;/&gt;</text><text x="4" y="10" font-family="monospace" font-size="10" fill="#D4B896">{'{ }'}</text><line x1="-15" y1="14" x2="15" y2="14" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/>`,
   "skills-ia": `<circle cx="0" cy="0" r="6" fill="#8B5E3C"/><circle cx="0" cy="-18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="0" cy="18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="-18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="-6" x2="0" y2="-14" stroke="#D4B896" stroke-width="2"/><line x1="6" y1="0" x2="14" y2="0" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="6" x2="0" y2="14" stroke="#D4B896" stroke-width="2"/><line x1="-6" y1="0" x2="-14" y2="0" stroke="#D4B896" stroke-width="2"/><circle cx="14" cy="-14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><circle cx="-14" cy="14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><line x1="4" y1="-4" x2="11" y2="-11" stroke="#D4B896" stroke-width="1.5"/><line x1="-4" y1="4" x2="-11" y2="11" stroke="#D4B896" stroke-width="1.5"/>`,
   "criar-skills": `<rect x="-22" y="-20" width="44" height="40" rx="6" fill="none" stroke="#D4B896" stroke-width="2.5"/><circle cx="0" cy="-4" r="10" fill="none" stroke="#8B5E3C" stroke-width="2"/><path d="M-5,-4 L-2,-1 L5,-8" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="-8" cy="12" r="2.5" fill="#D4B896"/><circle cx="0" cy="12" r="2.5" fill="#8B5E3C"/><circle cx="8" cy="12" r="2.5" fill="#D4B896"/>`,
+  "livro-interativo": `<path d="M-20,-22 L0,-22 Q4,-22 4,-18 L4,18 Q4,22 0,22 L-20,22 Q-24,22 -24,18 L-24,-18 Q-24,-22 -20,-22 Z" fill="none" stroke="#D4B896" stroke-width="2.5" stroke-linejoin="round"/><line x1="-18" y1="-12" x2="-2" y2="-12" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/><line x1="-18" y1="-4" x2="-6" y2="-4" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/><path d="M-17,5 L-14,8 L-8,0" fill="none" stroke="#8B5E3C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12,0 L16,4 L24,-8" fill="none" stroke="#D4B896" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
 }
 
 export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
@@ -339,6 +342,17 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = [
     iconeSvg: ICONES["criar-skills"],
     atualizadoEm: "30/09/2026",
     ideia: "Quero ensinar pessoas a criar skills de IA do básico ao avançado em 2026: o que é uma skill, por que ela vale mais que um prompt solto, e como construir skills que deixam Claude, ChatGPT e agentes executando tarefas completas do seu jeito.\n\nBÁSICO: anatomia de uma skill (nome, objetivo, instruções passo a passo, exemplos e referências), sua primeira skill em 15 minutos, estrutura de pastas, escrita clara de instruções, testes simples e ajuste fino.\n\nINTERMEDIÁRIO: skills com scripts e ferramentas (ler planilhas, gerar relatórios, pesquisar na web), skills para vendas, atendimento e conteúdo, organização e nomes da sua biblioteca de skills, versionamento e atualização.\n\nAVANÇADO: skills que trabalham em conjunto (roteamento entre skills), skills para agentes autônomos, avaliação de qualidade e métricas, documentação profissional, distribuição e manutenção contínua.\n\nCada módulo com projeto prático: o aluno sai com uma biblioteca de skills pronta para usar no próprio negócio.\n\nBÔNUS MONETIZAÇÃO: Como vender criação de skills — sugestão 2026: R$ 500-2.500 por skill sob medida + manutenção R$ 200-500/mês. Pacote de skills para empresas do seu nicho. Skills como produto digital e lead magnet. Treinamento para equipes criarem as próprias skills.\n\nBÔNUS PROSPECÇÃO: Como achar profissionais repetindo sempre a mesma tarefa. Prospecção no LinkedIn e em negócios locais (WhatsApp). Como montar uma skill de demonstração em minutos com a operação real do prospect. Script: mostrar a mesma tarefa feita à mão vs feita pela skill."
+  },
+  {
+    id: "livro-interativo",
+    nome: "Livro de Controle Interativo",
+    preco: 197,
+    tag: "CRIAÇÃO",
+    descricao: "Método prático e validado para criar seu livro de controle interativo do zero — com programa de montagem incluso para personalizar e usar no mesmo dia.",
+    publico: "Empreendedores e Criadores",
+    iconeSvg: ICONES["livro-interativo"],
+    atualizadoEm: "03/10/2026",
+    ideia: "Quero criar um treinamento prático e validado (2026) sobre como criar um livro de controle interativo — um caderno/planner digital interativo em PDF que a pessoa monta do zero e já usa no mesmo dia para controlar finanças domésticas, metas, hábitos, estudos ou rotina. Método direto, sem enrolação, pensado para a pessoa entender de primeira e botar em prática no mesmo dia: escolha do tipo de controle, estrutura das páginas (capa, índice clicável, painel do mês, páginas de registro, checklists, revisão), montagem no Canva, PowerPoint ou Google Docs, links internos e caixas de marcação, exportação para PDF interativo que funciona no celular, no computador e impresso, e teste de usabilidade com 5 páginas reais.\n\nPROGRAMA DE MONTAGEM INCLUSO: programa pronto de montagem — arquivo-modelo com blocos prontos (painéis, tabelas, checklists, ícones e capas) para a pessoa personalizar cores, nome e período e gerar o próprio livro de controle interativo em poucos cliques, além de galeria com 10 modelos prontos (finanças, hábitos, estudos, rotina semanal, controle de clínica) para adaptar. O aluno termina com seu livro interativo pronto para usar ou vender.\n\nBÔNUS MONETIZAÇÃO: Como vender livros interativos — sugestão 2026: R$ 27-97 por livro no Etsy, Hotmart, Kiwify e Instagram. Pacotes temáticos e livros sob encomenda para escolas, clínicas e profissionais (nutricionistas, personal trainers, professores). Livros personalizados com marca do cliente (R$ 150-400) e assinatura de modelos novos todo mês.\n\nBÔNUS PROSPECÇÃO: Como achar profissionais que ainda usam ficha de papel (Google Maps e Instagram). Como mostrar o antes e depois: papel vs livro interativo no celular. Como enviar uma página-demo personalizada em minutos. Script de abordagem por WhatsApp e 3 modelos de proposta pronta."
   },
 ].map(comIdentidade)
 
