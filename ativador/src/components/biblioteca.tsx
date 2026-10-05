@@ -14,7 +14,6 @@ const TAG_GROUPS: Record<string, string[]> = {
   "Automação & Vendas": ["AUTOMAÇÃO", "AFILIADOS", "ANÚNCIOS", "ATENDIMENTO"],
   "Criação & Conteúdo": ["CRIAÇÃO", "CONTEÚDO", "PRODUÇÃO", "ÁUDIO"],
   "Marketing & Estratégia": ["MARKETING", "DADOS"],
-  "Finanças & Organização": ["FINANÇAS"],
   "Ferramentas IA": ["ECOSSISTEMA IA", "DESENVOLVIMENTO", "HABILIDADES IA", "PERSONALIZAÇÃO", "TECNOLOGIA", "INFOPRODUTO", "DESIGN"],
 }
 

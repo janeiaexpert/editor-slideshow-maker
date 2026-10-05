@@ -37,7 +37,6 @@ const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
   "vibe-coding": { paleta: "ciano", fonte: "oswald" },
   "skills-ia": { paleta: "azul", fonte: "raleway" },
   "criar-skills": { paleta: "verde", fonte: "montserrat" },
-  "gestao-financeira": { paleta: "azul", fonte: "playfair" },
 }
 
 const CRIADO_EM: Record<string, string> = {
@@ -61,7 +60,6 @@ const CRIADO_EM: Record<string, string> = {
   "vibe-coding": "28/07/2026",
   "skills-ia": "28/07/2026",
   "criar-skills": "30/09/2026",
-  "gestao-financeira": "02/10/2026",
 }
 
 function comIdentidade(p: ProdutoValidado): ProdutoValidado {
@@ -103,7 +101,6 @@ const LUCIDE: Record<string, string> = {
   "vibe-coding": lucideIcon(`<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>`, "#D4B896", 2.5),
   "skills-ia": "",
   "criar-skills": lucideIcon(`<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/>`, "#D4B896", 2),
-  "gestao-financeira": lucideIcon(`<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01"/><path d="M18 12h.01"/>`, "#D4B896", 2),
 }
 
 function coverSvg(p: ProdutoValidado): string {
@@ -147,7 +144,6 @@ const ICONES: Record<string, string> = {
   "vibe-coding": `<rect x="-25" y="-20" width="50" height="40" rx="4" fill="none" stroke="#D4B896" stroke-width="2.5"/><text x="-14" y="-2" font-family="monospace" font-size="12" fill="#8B5E3C" font-weight="bold">&lt;/&gt;</text><text x="4" y="10" font-family="monospace" font-size="10" fill="#D4B896">{'{ }'}</text><line x1="-15" y1="14" x2="15" y2="14" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/>`,
   "skills-ia": `<circle cx="0" cy="0" r="6" fill="#8B5E3C"/><circle cx="0" cy="-18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="0" cy="18" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><circle cx="-18" cy="0" r="4" fill="none" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="-6" x2="0" y2="-14" stroke="#D4B896" stroke-width="2"/><line x1="6" y1="0" x2="14" y2="0" stroke="#D4B896" stroke-width="2"/><line x1="0" y1="6" x2="0" y2="14" stroke="#D4B896" stroke-width="2"/><line x1="-6" y1="0" x2="-14" y2="0" stroke="#D4B896" stroke-width="2"/><circle cx="14" cy="-14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><circle cx="-14" cy="14" r="3" fill="none" stroke="#8B5E3C" stroke-width="1.5"/><line x1="4" y1="-4" x2="11" y2="-11" stroke="#D4B896" stroke-width="1.5"/><line x1="-4" y1="4" x2="-11" y2="11" stroke="#D4B896" stroke-width="1.5"/>`,
   "criar-skills": `<rect x="-22" y="-20" width="44" height="40" rx="6" fill="none" stroke="#D4B896" stroke-width="2.5"/><circle cx="0" cy="-4" r="10" fill="none" stroke="#8B5E3C" stroke-width="2"/><path d="M-5,-4 L-2,-1 L5,-8" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="-8" cy="12" r="2.5" fill="#D4B896"/><circle cx="0" cy="12" r="2.5" fill="#8B5E3C"/><circle cx="8" cy="12" r="2.5" fill="#D4B896"/>`,
-  "gestao-financeira": `<rect x="-25" y="-15" width="50" height="30" rx="4" fill="none" stroke="#D4B896" stroke-width="2.5"/><circle cx="0" cy="0" r="7" fill="none" stroke="#8B5E3C" stroke-width="2"/><circle cx="-14" cy="0" r="2" fill="#D4B896"/><circle cx="14" cy="0" r="2" fill="#D4B896"/><line x1="-18" y1="-15" x2="-18" y2="-21" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="15" x2="18" y2="21" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/>`,
 }
 
 export const PRODUTOS_VALIDADOS: ProdutoValidado[] = ([
@@ -369,21 +365,6 @@ export const PRODUTOS_VALIDADOS: ProdutoValidado[] = ([
     iconeSvg: ICONES["criar-skills"],
     atualizadoEm: "30/09/2026",
     ideia: "Quero ensinar pessoas a criar skills de IA do básico ao avançado em 2026: o que é uma skill, por que ela vale mais que um prompt solto, e como construir skills que deixam Claude, ChatGPT e agentes executando tarefas completas do seu jeito.\n\nBÁSICO: anatomia de uma skill (nome, objetivo, instruções passo a passo, exemplos e referências), sua primeira skill em 15 minutos, estrutura de pastas, escrita clara de instruções, testes simples e ajuste fino.\n\nINTERMEDIÁRIO: skills com scripts e ferramentas (ler planilhas, gerar relatórios, pesquisar na web), skills para vendas, atendimento e conteúdo, organização e nomes da sua biblioteca de skills, versionamento e atualização.\n\nAVANÇADO: skills que trabalham em conjunto (roteamento entre skills), skills para agentes autônomos, avaliação de qualidade e métricas, documentação profissional, distribuição e manutenção contínua.\n\nCada módulo com projeto prático: o aluno sai com uma biblioteca de skills pronta para usar no próprio negócio.\n\nBÔNUS MONETIZAÇÃO: Como vender criação de skills — sugestão 2026: R$ 500-2.500 por skill sob medida + manutenção R$ 200-500/mês. Pacote de skills para empresas do seu nicho. Skills como produto digital e lead magnet. Treinamento para equipes criarem as próprias skills.\n\nBÔNUS PROSPECÇÃO: Como achar profissionais repetindo sempre a mesma tarefa. Prospecção no LinkedIn e em negócios locais (WhatsApp). Como montar uma skill de demonstração em minutos com a operação real do prospect. Script: mostrar a mesma tarefa feita à mão vs feita pela skill."
-  },
-  {
-    id: "gestao-financeira",
-    nome: "Gestão Financeira Doméstica",
-    preco: 97,
-    tag: "FINANÇAS",
-    descricao: "Organize os gastos da casa do zero: orçamento, controle de despesas, reserva de emergência e metas — guia prático, validado e atualizado, com 5 módulos e aplicação no mesmo dia.",
-    publico: "Famílias e Pessoas Práticas",
-    iconeSvg: ICONES["gestao-financeira"],
-    atualizadoEm: "02/10/2026",
-    etiquetas: [
-      { tipo: "NOVO", data: "02/10/2026" },
-      { tipo: "ATUALIZADO", data: "02/10/2026" },
-    ],
-    ideia: "Quero criar um treinamento prático, validado e atualizado (2026) sobre Gestão Financeira Doméstica: organizar os gastos da casa, montar um orçamento que mostra exatamente para onde cada real vai, controlar as despesas do mês, guardar e investir com segurança, montar reserva de emergência de 3 a 6 meses e planejar metas como casa própria e viagens. Público: pessoas e famílias frustradas com o fim de mês no vermelho — linguagem simples, sem enrolação e sem exigir horas de estudo; cada aula com tarefa prática para aplicar no mesmo dia.\n\nESTRUTURA (5 módulos práticos): 1) Orçamento Doméstico em Ação; 2) Controle de Despesas Mensais (identificar e cortar gastos que não trazem retorno); 3) Investimentos e Poupança Familiar de baixo risco; 4) Reserva de Emergência Inteligente (3 a 6 meses de despesas); 5) Planejamento de Metas Financeiras passo a passo. Entregáveis: vídeoaulas curtas com demonstração prática, exercícios guiados com correção, PDF de apoio com listas de verificação, comunidade para dúvidas e certificado de participação.\n\nBÔNUS EXCLUSIVOS: Guia Rápido de bolso, Checklist de Implementação (do zero ao primeiro resultado), Lista de Ferramentas e apps para organizar as finanças e Acesso Vitalício com todas as atualizações futuras.\n\nBÔNUS MONETIZAÇÃO: Como transformar o método em produto — sugestão 2026: curso R$ 97-297, organizadores e planilhas financeiras sob demanda (R$ 27-67), mentoria em grupo R$ 197-497/mês e conteúdo diário para Instagram e TikTok com a própria metodologia.\n\nBÔNUS PROSPECÇÃO: Como oferecer consultoria de organização financeira para famílias (R$ 300-800 por sessão), workshops para escolas e empresas e parcerias com contadores e planejadores financeiros. Script de abordagem no WhatsApp e proposta pronta em 3 modelos."
   },
 ] as ProdutoValidado[]).map(comIdentidade)
 
