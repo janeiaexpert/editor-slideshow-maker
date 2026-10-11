@@ -141,6 +141,48 @@ function getPaletteColors(p?: { id: string; nome: string; cores: string[] } | nu
   return { primary: p.cores[0], secondary: p.cores[1], light: p.cores[2], bg: p.cores[3], dark: p.cores[4] }
 }
 
+const PASSOS_COM_FONTE = ["logo", "capa", "card_oferta", "certificado", "landing"]
+
+const FONT_STACKS: Record<string, string> = {
+  inter: "'Inter',Arial,sans-serif",
+  playfair: "'Playfair Display',Georgia,serif",
+  raleway: "'Raleway','Helvetica Neue',Arial,sans-serif",
+  montserrat: "'Montserrat','Helvetica Neue',Arial,sans-serif",
+  roboto: "'Roboto',Arial,sans-serif",
+  oswald: "'Oswald','Arial Narrow',sans-serif",
+  poppins: "'Poppins','Helvetica Neue',Arial,sans-serif",
+  lora: "'Lora',Georgia,serif",
+  bebas: "'Bebas Neue','Arial Narrow',sans-serif",
+}
+
+function stackDaFonte(fonte?: { id?: string; nome?: string } | null): string | null {
+  if (!fonte) return null
+  if (fonte.id && FONT_STACKS[fonte.id]) return FONT_STACKS[fonte.id]
+  const nome = (fonte.nome || "").trim()
+  if (!nome) return null
+  return `'${nome}',Arial,sans-serif`
+}
+
+// Aplica a fonte escolhida nos templates locais (modelo padrão): troca as pilhas
+// genéricas (Helvetica/Arial/Inter) pela pilha da fonte e estende o link do
+// Google Fonts na landing. Roda em passada única (sem re-ler o que inseriu).
+function aplicarFonteNoConteudo(c: Record<string, string>, stepId: string, fonte?: { id?: string; nome?: string } | null): Record<string, string> {
+  if (!PASSOS_COM_FONTE.includes(stepId)) return c
+  const stack = stackDaFonte(fonte)
+  if (!stack) return c
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(c)) {
+    if (typeof v !== "string") { out[k] = v; continue }
+    let t = v.replace(/'Helvetica Neue',Arial,sans-serif|Arial,sans-serif|'Inter',sans-serif/g, stack)
+    if (/fonts\.googleapis\.com/.test(t) && fonte?.nome && !/^(inter|playfair display)$/i.test(fonte.nome.trim())) {
+      const fam = fonte.nome.trim().replace(/\s+/g, "+")
+      t = t.replace("&display=swap", `&family=${fam}:wght@400;600;700;800&display=swap`)
+    }
+    out[k] = t
+  }
+  return out
+}
+
 function stripEmojis(text: string): string {
   return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}]/gu, "").replace(/\s{2,}/g, " ").trim()
 }
@@ -654,7 +696,7 @@ function DashboardInner() {
     // Paleta efetiva: a escolha atual do usuário vence a paleta original do produto
     const paletaEfetiva = selectedPalette || produtoInfo?.paleta || resolvedProduto?.paleta || null
     const produtoBase = resolvedProduto || { nome: "", tag: "", descricao: "", publico: "" }
-    const produtoFallback: ProdutoInfo = { ...produtoBase, paleta: paletaEfetiva || resolvedProduto?.paleta }
+    const produtoFallback: ProdutoInfo = { ...produtoBase, paleta: paletaEfetiva || resolvedProduto?.paleta, fonte: selectedFont || resolvedProduto?.fonte }
 
     try {
       const res = await fetch("/api/generate", {
@@ -671,7 +713,7 @@ function DashboardInner() {
       if (content && !artefatoOk(stepId, content)) content = null
       if (!content) {
         const fallback = FALLBACKS[stepId]
-        content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        content = fallback ? aplicarFonteNoConteudo(fallback(ideaText, precoFinal, produtoFallback), stepId, produtoFallback.fonte) : { "Conteúdo": "Conteúdo gerado automaticamente" }
         if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
           toast("A IA falhou neste artefato e usei o modelo padrão. Clique em Regenerar para tentar de novo.")
         }
@@ -680,7 +722,7 @@ function DashboardInner() {
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
-      const content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado (offline)" }
+      const content = fallback ? aplicarFonteNoConteudo(fallback(ideaText, precoFinal, produtoFallback), stepId, produtoFallback.fonte) : { "Conteúdo": "Conteúdo gerado (offline)" }
       if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
         toast("Sem conexão com a IA neste artefato — usei o modelo padrão. Tente Regenerar.")
       }
