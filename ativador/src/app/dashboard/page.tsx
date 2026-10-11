@@ -145,12 +145,16 @@ function stripEmojis(text: string): string {
   return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}]/gu, "").replace(/\s{2,}/g, " ").trim()
 }
 
-function fillVars(text: string, ideia: string, tom: string, lucro: number): string {
-  const cleaned = ideia.replace(/\b(com|para|de|do|da|dos|das|e|em|no|na)\b/gi, "").replace(/\s+/g, " ").trim()
-  const words = cleaned.split(" ").filter(w => w.length > 2)
-  const nome = words.slice(0, 2).join(" ") || "Seu Produto"
-  const headline = words.slice(0, 3).join(" ").toUpperCase() || "TRANSFORME SUA VIDA"
-  const destaque = words[0] || "Método"
+function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeFixo?: string): string {
+  // Remove conectivos E verbos de intenção ("quero criar", "aprender"...) para que o
+  // nome derivado venha do TEMA ("Método Atualizado") e nunca do começo da frase.
+  const cleaned = ideia.replace(/\b(com|para|de|do|da|dos|das|e|em|no|na|o|a|os|as|um|uma|que|se|por|mais|muito|como|quero|quer|criar|crio|cria|criam|fazer|faco|faço|faz|fazem|ter|tenho|tem|têm|aprender|aprenda|aprendem|ensinar|ensine|dominar|domine|usar|use|produzir|produza|gerar|gere|vender|venda|ganhar|ganhe|conquistar|alcancar|alcançar|alcance|transformar|transforme|descobrir|descubra|entender|entenda|montar|monte|organizar|organize|controlar|controle|sobre|este|esta|esse|essa|isto|isso|meu|minha|seu|sua|nosso|nossa|sem|entre|atraves|através|antes|depois|onde|quando)\b/gi, "").replace(/\s+/g, " ").trim()
+  const words = cleaned.split(" ").filter(w => w.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, "").length > 2)
+  const titulo = (s: string) => s.replace(/(^|\s)(\S)/g, (_m: string, sp: string, c: string) => sp + c.toUpperCase())
+  const fixo = (nomeFixo || "").trim()
+  const nome = fixo || titulo(words.slice(0, 2).join(" ") || "Seu Produto")
+  const headline = fixo ? fixo.toUpperCase() : (words.slice(0, 3).join(" ").toUpperCase() || "TRANSFORME SUA VIDA")
+  const destaque = fixo ? fixo.split(" ")[0] : (words[0] || "Método")
   const tag = (words[words.length - 1] || words[0] || "").toUpperCase()
   const fmt = (v: number) => v.toLocaleString("pt-BR")
   const oferta = lucro > 0 ? `R$ ${fmt(lucro)}` : "[VALOR]"
@@ -215,6 +219,22 @@ function extractTheme(idea: string, maxWords = 3): string {
   const cleaned = idea.replace(/[.,;!?:]/g, "")
   const words = cleaned.split(/\s+/).filter(w => w.length > 2 && !STOP_WORDS.test(w))
   return words.slice(0, maxWords).join(" ") || "este método"
+}
+
+// Acha o produto da vitrine/biblioteca correspondente à ideia (para usar o nome real
+// nos placeholders em vez de derivar da frase).
+function acharProdutoValidado(ideaText: string) {
+  const t = (ideaText || "").toLowerCase()
+  const primeira = t.split(" ")[0] || ""
+  return PRODUTOS_VALIDADOS.find(p => p.ideia === ideaText) ||
+    (t && primeira.length > 2 ? PRODUTOS_VALIDADOS.find(p =>
+      (p.nome && t.includes(p.nome.toLowerCase())) ||
+      (p.nome && p.nome.toLowerCase().includes(primeira))
+    ) : undefined)
+}
+
+function nomeDoProduto(ideaText: string): string {
+  return acharProdutoValidado(ideaText)?.nome || ""
 }
 
 interface ProdutoInfo {
@@ -479,12 +499,28 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
   }),
 }
 
-// Um artefato (SVG/HTML) só é aproveitável se vier COMPLETO.
-// Se a IA cortou no limite de tokens, o card viraria um bloco de texto/código solto.
+// Um artefato (SVG/HTML) só é aproveitável se vier COMPLETO E COM CONTEÚDO.
+// Se a IA cortou no limite de tokens ou devolveu rascunho vazio, o card viraria
+// um bloco de texto/código solto — então cai no template local (mesmos mínimos do servidor).
+function contarTextosSvgDash(svg: string): number {
+  const m = svg.match(/<text[\s>]/gi)
+  return m ? m.length : 0
+}
+
+const MINIMOS_ARTEFATO_DASH: Record<string, { tamanho: number; textos: number }> = {
+  logo: { tamanho: 500, textos: 2 },
+  capa: { tamanho: 900, textos: 3 },
+  card_oferta: { tamanho: 900, textos: 3 },
+  certificado: { tamanho: 1000, textos: 4 },
+}
+
 function artefatoOk(stepId: string, c: Record<string, string>): boolean {
   const vals = Object.values(c).filter((v): v is string => typeof v === "string")
-  if (stepId === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
-  if (["logo", "capa", "card_oferta", "certificado"].includes(stepId)) return vals.some(v => v.includes("</svg>"))
+  if (stepId === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v) && v.length >= 2500 && /<\/body>/i.test(v))
+  if (["logo", "capa", "card_oferta", "certificado"].includes(stepId)) {
+    const min = MINIMOS_ARTEFATO_DASH[stepId]
+    return vals.some(v => v.includes("</svg>") && v.length >= min.tamanho && contarTextosSvgDash(v) >= min.textos)
+  }
   return true
 }
 
@@ -608,11 +644,7 @@ function DashboardInner() {
     const enrichedIdea = [ideaText, nicho ? `Nicho: ${nicho}` : "", publicoAlvo ? `Público-alvo: ${publicoAlvo}` : "", transformacao ? `Transformação desejada: ${transformacao}` : ""].filter(Boolean).join(". ")
 
     const resolvedProduto = produtoInfo || (() => {
-      const matched = PRODUTOS_VALIDADOS.find(p => p.ideia === ideaText) ||
-        PRODUTOS_VALIDADOS.find(p =>
-          ideaText.toLowerCase().includes(p.nome.toLowerCase()) ||
-          p.nome.toLowerCase().includes(ideaText.toLowerCase().split(" ")[0] || "")
-        )
+      const matched = acharProdutoValidado(ideaText)
       return matched ? { nome: matched.nome, tag: matched.tag, descricao: matched.descricao, publico: matched.publico, preco: matched.preco, paleta: matched.paleta, fonte: matched.fonte } : undefined
     })()
 
@@ -640,12 +672,18 @@ function DashboardInner() {
       if (!content) {
         const fallback = FALLBACKS[stepId]
         content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
+          toast("A IA falhou neste artefato e usei o modelo padrão. Clique em Regenerar para tentar de novo.")
+        }
       }
       updateStepContent(stepId, content)
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
       const content = fallback ? fallback(ideaText, precoFinal, produtoFallback) : { "Conteúdo": "Conteúdo gerado (offline)" }
+      if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
+        toast("Sem conexão com a IA neste artefato — usei o modelo padrão. Tente Regenerar.")
+      }
       updateStepContent(stepId, content)
       return content
     }
@@ -822,7 +860,7 @@ function DashboardInner() {
   const handleExportCapaPNG = (step: StepData) => {
     const filled: Record<string, string> = {}
     for (const [k, v] of Object.entries(step.content)) {
-      let svg = fillVars(v, stepIdeia || idea, tom, lucro)
+      let svg = fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea))
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && svg.includes("<svg")) {
         const h = k.includes("Reels") ? 1920 : 1350
@@ -889,7 +927,7 @@ function DashboardInner() {
     let count = 0
     for (const [k, v] of Object.entries(step.content)) {
       if (typeof v !== "string") continue
-      let svg = fillVars(v, stepIdeia || idea, tom, lucro)
+      let svg = fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea))
       if (!svg.trim().startsWith("<svg")) continue
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && step.id === "capa") {
@@ -907,7 +945,7 @@ function DashboardInner() {
     let count = 0
     for (const [k, v] of Object.entries(step.content)) {
       if (typeof v !== "string" || !conteudoHTML(v)) continue
-      downloadFile(`${slugify(step.title)}-${slugify(k)}.html`, fillVars(v, stepIdeia || idea, tom, lucro), "text/html;charset=utf-8")
+      downloadFile(`${slugify(step.title)}-${slugify(k)}.html`, fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)), "text/html;charset=utf-8")
       count++
     }
     toast(count > 0 ? `${count} arquivo(s) HTML baixado(s)!` : "Nenhum HTML neste card")
@@ -1444,7 +1482,7 @@ function DashboardInner() {
                           <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
-                              const filled = sanitizeText(fillVars(value, stepIdeia || idea, tom, lucro))
+                              const filled = sanitizeText(fillVars(value, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
                               const isSVG = filled.startsWith("<svg")
                               const isHTML = filled.includes("<!DOCTYPE") || filled.includes("<html") || (filled.includes("<style") && filled.includes("<body")) || (filled.includes("<div") && filled.includes("font-family") && filled.includes("padding"))
                               let svgContent = filled

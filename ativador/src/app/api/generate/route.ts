@@ -408,6 +408,8 @@ SUBSTITUA TODOS OS PLACEHOLDERS por conteúdo REAL baseado na IDEIA do produto:
 - [PERGUNTA FAQ 1-8] → perguntas baseadas em objeções reais do nicho
 - [RESPOSTA FAQ 1-8] → respostas que vendem, não apenas informam
 
+NOME REAL DO PRODUTO (obrigatório): crie um nome CURTO de no máximo 5 palavras a partir do TEMA da ideia (nunca comece com "Quero", "Criar", "Aprenda", "Como" ou "Guia" genérico — use o tema; ex.: ideia sobre carrosséis virais → "Método Carrosséis Virais"). Use esse nome em TODA a página. NUNCA cole a ideia inteira como headline, título ou parágrafo — escreva copy própria e enxuta para cada seção.
+
 TAMANHO DO ARQUIVO (obrigatório): o HTML inteiro deve ficar entre 9.000 e 15.000 caracteres — CSS compacto (sem comentários longos e sem repetir regras), animações essenciais apenas. O arquivo DEVE terminar com </body></html>; NUNCA corte o HTML no meio.
 
 VARIAÇÃO DE LAYOUT (gere layout DIFERENTE a cada vez):
@@ -453,12 +455,35 @@ const CORES_SUBSTITUIVEIS: Array<[string, number]> = [
   ["#A67C52", 2], ["#D4A574", 2], ["#D9CEC2", 2],
 ]
 
-// Um artefato só vale se vier COMPLETO — se a IA estourou o limite de tokens e
-// cortou no meio, devolvemos erro para o dashboard usar o template local.
+// Um artefato só vale se vier COMPLETO E COM CONTEÚDO — se a IA estourou o limite
+// de tokens e cortou no meio, ou devolveu um rascunho vazio/preguiçoso (fundo liso
+// com 1 texto solto), devolvemos erro para o dashboard usar o template local.
+function contarTextosSvg(svg: string): number {
+  const m = svg.match(/<text[\s>]/gi)
+  return m ? m.length : 0
+}
+
+const MINIMOS_ARTEFATO: Record<string, { tamanho: number; textos: number }> = {
+  logo: { tamanho: 500, textos: 2 },
+  capa: { tamanho: 900, textos: 3 },
+  card_oferta: { tamanho: 900, textos: 3 },
+  certificado: { tamanho: 1000, textos: 4 },
+}
+
+function svgAproveitavel(step: string, svg: string): boolean {
+  const min = MINIMOS_ARTEFATO[step]
+  if (!min) return svg.includes("</svg>")
+  return svg.includes("</svg>") && svg.length >= min.tamanho && contarTextosSvg(svg) >= min.textos
+}
+
+function htmlAproveitavel(html: string): boolean {
+  return /<!DOCTYPE[\s\S]*<\/html>/i.test(html) && html.length >= 2500 && /<\/body>/i.test(html)
+}
+
 function artefatoCompleto(step: string, obj: Record<string, unknown>): boolean {
   const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
-  if (step === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
-  if (["logo", "capa", "card_oferta", "certificado"].includes(step)) return vals.some(v => v.includes("</svg>"))
+  if (step === "landing") return vals.some(htmlAproveitavel)
+  if (["logo", "capa", "card_oferta", "certificado"].includes(step)) return vals.some(v => svgAproveitavel(step, v))
   return true
 }
 
@@ -687,7 +712,7 @@ REGRAS OBRIGATÓRIAS:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.8,
+        temperature: ehArtefato ? 0.55 : 0.8,
         maxTokens: maxTokensArtefato,
       })
 
@@ -751,13 +776,13 @@ REGRAS OBRIGATÓRIAS:
         const content = result.content
         if (step === "landing") {
           const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
-          if (htmlMatch) {
+          if (htmlMatch && htmlAproveitavel(htmlMatch[0])) {
             return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], coresAplicadas), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
           }
         }
         if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
-          const svgMatches = content.match(/<svg[\s\S]*?<\/svg>/gi)
-          if (svgMatches && svgMatches.length > 0) {
+          const svgMatches = (content.match(/<svg[\s\S]*?<\/svg>/gi) || []).filter(s => svgAproveitavel(step, s))
+          if (svgMatches.length > 0) {
             const svgResult: Record<string, string> = {}
             const svgKeys = step === "logo" ? ["Logo Principal SVG", "Logo Alternativo SVG"]
               : step === "capa" ? ["Feed SVG", "Reels SVG"]
@@ -796,7 +821,8 @@ REGRAS OBRIGATÓRIAS:
 
       // IA indisponível (sem chave API) -> usar templates locais do dashboard
       // Construir resposta básica modo texto
-      const nome = ideia.split(".")[0] || "Produto"
+      const nome = (ideia.split(".")[0] || "Produto").slice(0, 60)
+      const ideiaCurta = ideia.length > 200 ? ideia.slice(0, 200) + "…" : ideia
       const lucroVal = lucro || 497
       const fv = lucroVal.toLocaleString("pt-BR")
       const parcela = Math.round(lucroVal / 12)
@@ -805,7 +831,7 @@ REGRAS OBRIGATÓRIAS:
       const fCheio = valorCheio.toLocaleString("pt-BR")
 
       const modoTexto = {
-        "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${nome}</title></head><body style="font-family:Arial; padding:40px; text-align:center;"><h1 style="color:#8B5E3C;">${nome}</h1><p style="color:#5C5146;">${ideia}</p><p style="color:#D4A574; font-size:24px; margin:20px 0;">R$ ${fv}</p><p style="color:#5C5146;">12x de R$ ${fParcela}</p><a style="background:#8B5E3C; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Quero Meu Acesso Agora</a><p style="color:#5C5146; font-size:12px;">Substitua os valores e adicione suas imagens.</p></body></html>`,
+        "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${nome}</title></head><body style="font-family:Arial; padding:40px; text-align:center;"><h1 style="color:#8B5E3C;">${nome}</h1><p style="color:#5C5146;">${ideiaCurta}</p><p style="color:#D4A574; font-size:24px; margin:20px 0;">R$ ${fv}</p><p style="color:#5C5146;">12x de R$ ${fParcela}</p><a style="background:#8B5E3C; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Quero Meu Acesso Agora</a><p style="color:#5C5146; font-size:12px;">Substitua os valores e adicione suas imagens.</p></body></html>`,
         "Como Usar": "Modo texto ativo. APIs de IA não configuradas. Copie o HTML acima, adicione suas imagens e altere os valores. Salve como .html e abra no navegador.",
         "Personalização": "Substitua R$ ${fv} pelo preço real. Adicione imagens do produto. Troque o texto pela sua ideia completa.",
         "Layout Usado": "Modo Texto (sem IA)"
