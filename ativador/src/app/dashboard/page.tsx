@@ -38,6 +38,8 @@ type StepData = {
   content: Record<string, string>
   generated: boolean
   prompt?: string
+  coresUsadas?: string[]
+  fonteUsada?: string
 }
 
 const INITIAL_STEPS: StepData[] = [
@@ -181,6 +183,42 @@ function aplicarFonteNoConteudo(c: Record<string, string>, stepId: string, fonte
     out[k] = t
   }
   return out
+}
+
+function escaparRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+// A IA às vezes força textLength/lengthAdjust no <text> do SVG, o que ESTICA as
+// letras. Texto SVG rende melhor no tamanho natural.
+function semDistorcao(svg: string): string {
+  return svg.replace(/\s+textLength="[^"]*"/gi, "").replace(/\s+lengthAdjust="[^"]*"/gi, "")
+}
+
+// Troca as cores da identidade antiga pelas novas dentro de um artefato já gerado
+// (mapeamento por posição na paleta: primária→primária, secundária→secundária...).
+function trocarCoresEmTexto(texto: string, de: string[], para: string[]): string {
+  let t = texto
+  de.forEach((hex, i) => {
+    const novo = para[i]
+    if (!hex || !novo || hex.toLowerCase() === novo.toLowerCase()) return
+    t = t.replace(new RegExp(escaparRegex(hex), "gi"), novo)
+  })
+  return t
+}
+
+// Troca o nome da fonte antiga pela nova (com fronteiras para não mexer no texto
+// corrido). Cobre "Nome Com Espaço" e a forma "Nome+Com+Espaço" das URLs do Google Fonts.
+function trocarFonteEmTexto(texto: string, de: string, para: string): string {
+  if (!de || !para || de === para) return texto
+  let t = texto
+  const dePlus = de.split(" ").join("+")
+  const paraPlus = para.split(" ").join("+")
+  if (dePlus !== de) t = t.split(dePlus).join(paraPlus)
+  const nomeRx = escaparRegex(de).replace(/ /g, "\\s+")
+  const rx = new RegExp(`(?<![A-Za-zÀ-ÖØ-öø-ÿ0-9])${nomeRx}(?![A-Za-zÀ-ÖØ-öø-ÿ0-9])`, "gi")
+  t = t.replace(rx, para)
+  return t
 }
 
 function stripEmojis(text: string): string {
@@ -491,8 +529,8 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
   logo: (_, __, p) => {
     const c = getPaletteColors(p?.paleta)
     return {
-      "Logo Principal SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 180" style="max-width:100%;width:100%;height:auto;display:block;aspect-ratio:6/1"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c.primary}"/><stop offset="100%" stop-color="${c.secondary}"/></linearGradient></defs><rect width="1080" height="180" fill="${c.bg}" rx="12"/><rect x="20" y="20" width="140" height="140" rx="24" fill="url(#lg)"/><text x="90" y="100" font-family="Georgia,serif" font-size="56" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><rect x="175" y="40" width="4" height="40" rx="2" fill="${c.light}"/><text x="195" y="80" font-family="'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="800" fill="${c.dark}" textLength="780" lengthAdjust="spacingAndGlyphs">[NOME]</text><rect x="195" y="95" width="60" height="3" rx="1.5" fill="${c.primary}"/><text x="195" y="130" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="${c.primary}" letter-spacing="3" textLength="500" lengthAdjust="spacingAndGlyphs">[SUBTÍTULO]</text></svg>`,
-      "Logo Alternativo SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 180" style="max-width:100%;width:100%;height:auto;display:block;aspect-ratio:6/1"><rect width="1080" height="180" fill="${c.dark}" rx="12"/><circle cx="90" cy="90" r="50" fill="none" stroke="${c.primary}" stroke-width="3"/><circle cx="90" cy="90" r="25" fill="${c.primary}"/><text x="90" y="98" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><text x="170" y="80" font-family="'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="700" fill="#FFFFFF" textLength="800" lengthAdjust="spacingAndGlyphs">[NOME]</text><text x="170" y="115" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="500" fill="${c.light}" letter-spacing="3">[SUBTÍTULO]</text></svg>`,
+      "Logo Principal SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 180" style="max-width:100%;width:100%;height:auto;display:block;aspect-ratio:6/1"><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c.primary}"/><stop offset="100%" stop-color="${c.secondary}"/></linearGradient></defs><rect width="1080" height="180" fill="${c.bg}" rx="12"/><rect x="20" y="20" width="140" height="140" rx="24" fill="url(#lg)"/><text x="90" y="100" font-family="Georgia,serif" font-size="56" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><rect x="175" y="40" width="4" height="40" rx="2" fill="${c.light}"/><text x="195" y="80" font-family="'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="800" fill="${c.dark}">[NOME]</text><rect x="195" y="95" width="60" height="3" rx="1.5" fill="${c.primary}"/><text x="195" y="130" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="${c.primary}" letter-spacing="3">[SUBTÍTULO]</text></svg>`,
+      "Logo Alternativo SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 180" style="max-width:100%;width:100%;height:auto;display:block;aspect-ratio:6/1"><rect width="1080" height="180" fill="${c.dark}" rx="12"/><circle cx="90" cy="90" r="50" fill="none" stroke="${c.primary}" stroke-width="3"/><circle cx="90" cy="90" r="25" fill="${c.primary}"/><text x="90" y="98" font-family="Georgia,serif" font-size="30" font-weight="bold" fill="#FFFFFF" text-anchor="middle">V</text><text x="170" y="80" font-family="'Helvetica Neue',Arial,sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">[NOME]</text><text x="170" y="115" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="500" fill="${c.light}" letter-spacing="3">[SUBTÍTULO]</text></svg>`,
       "Cores da Marca": `Primária: ${c.primary} | Secundária: ${c.secondary} | Fundo: ${c.bg} | Texto: ${c.dark} | Detalhe: ${c.light}`,
       "Usos do Logo": "Versão Principal: fundo claro, uso geral. Versão Alternativa: fundo escuro, ideal para vídeos e stories.",
     }
@@ -602,8 +640,8 @@ function DashboardInner() {
     return () => el.removeEventListener("keydown", handler, true)
   }, [])
   const [steps, setSteps] = useState<StepData[]>(() => {
-    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string }>>("stepsData", {})
-    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt } : s)
+    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }>>("stepsData", {})
+    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt, coresUsadas: saved[s.id].coresUsadas, fonteUsada: saved[s.id].fonteUsada } : s)
   })
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); const n = typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0; return n > 50000 ? 497 : n })
@@ -661,8 +699,8 @@ function DashboardInner() {
   }
 
   useEffect(() => {
-    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string }> = {}
-    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt } })
+    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }> = {}
+    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt, coresUsadas: s.coresUsadas, fonteUsada: s.fonteUsada } })
     saveState("stepsData", data)
   }, [steps])
   useEffect(() => { saveState("tom", tom) }, [tom])
@@ -678,8 +716,45 @@ function DashboardInner() {
   useEffect(() => { saveState("metricas", metricas) }, [metricas])
   useEffect(() => { saveState("showIdeiaForm", showIdeiaForm) }, [showIdeiaForm])
 
-  const updateStepContent = useCallback((id: string, content: Record<string, string>) => {
-    setSteps(prev => prev.map(s => s.id === id ? { ...s, content, generated: true } : s))
+  const updateStepContent = useCallback((id: string, content: Record<string, string>, meta?: { cores?: string[]; fonte?: string }) => {
+    setSteps(prev => prev.map(s => s.id === id ? {
+      ...s, content, generated: true,
+      ...(meta?.cores && meta.cores.length === 5 ? { coresUsadas: meta.cores } : {}),
+      ...(meta?.fonte ? { fonteUsada: meta.fonte } : {}),
+    } : s))
+  }, [])
+
+  // Troca de cor/fonte AUTOMÁTICA: reescreve os artefatos já gerados com a nova
+  // identidade (cor antiga→nova por posição na paleta + troca do nome da fonte),
+  // sem precisar Regenerar nem gastar IA.
+  const reaplicarIdentidade = useCallback((
+    coresNovas: string[] | null,
+    fonteNova: string | null,
+    coresAntigas?: string[] | null,
+    fonteAntiga?: string | null,
+  ) => {
+    setSteps(prev => prev.map(s => {
+      if (!s.generated || !PASSOS_COM_FONTE.includes(s.id)) return s
+      const base = (s.coresUsadas && s.coresUsadas.length === 5 ? s.coresUsadas : coresAntigas) || null
+      const fAntiga = s.fonteUsada || fonteAntiga || null
+      const novoConteudo: Record<string, string> = {}
+      let mudou = false
+      for (const [k, v] of Object.entries(s.content)) {
+        if (typeof v !== "string") { novoConteudo[k] = v; continue }
+        let t = v
+        if (base && base.length === 5 && coresNovas && coresNovas.length === 5) t = trocarCoresEmTexto(t, base, coresNovas)
+        if (fAntiga && fonteNova) t = trocarFonteEmTexto(t, fAntiga, fonteNova)
+        if (t !== v) mudou = true
+        novoConteudo[k] = t
+      }
+      if (!mudou) return s
+      return {
+        ...s,
+        content: novoConteudo,
+        ...(coresNovas && coresNovas.length === 5 ? { coresUsadas: coresNovas } : {}),
+        ...(fonteNova ? { fonteUsada: fonteNova } : {}),
+      }
+    }))
   }, [])
 
   const doGenerate = useCallback(async (stepId: string, ideaText: string, tomText: string, lucroVal: number, produtoInfo?: ProdutoInfo, customPrompt?: string) => {
@@ -718,7 +793,7 @@ function DashboardInner() {
           toast("A IA falhou neste artefato e usei o modelo padrão. Clique em Regenerar para tentar de novo.")
         }
       }
-      updateStepContent(stepId, content)
+      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome })
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
@@ -726,7 +801,7 @@ function DashboardInner() {
       if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
         toast("Sem conexão com a IA neste artefato — usei o modelo padrão. Tente Regenerar.")
       }
-      updateStepContent(stepId, content)
+      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome || produtoFallback.fonte?.nome })
       return content
     }
   }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette, selectedFont])
@@ -739,7 +814,7 @@ function DashboardInner() {
     setLucro(precoFinal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
     setExpandedSteps([])
     const matchProduto = PRODUTOS_VALIDADOS.find(p => p.ideia === ideia) ||
       PRODUTOS_VALIDADOS.find(p =>
@@ -865,7 +940,7 @@ function DashboardInner() {
     setActiveTab("produto")
     setShowIdeiaForm(true)
     setExpandedSteps([])
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
     toast("Pronto! Comece um novo produto.")
   }, [])
 
@@ -902,7 +977,7 @@ function DashboardInner() {
   const handleExportCapaPNG = (step: StepData) => {
     const filled: Record<string, string> = {}
     for (const [k, v] of Object.entries(step.content)) {
-      let svg = fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea))
+      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && svg.includes("<svg")) {
         const h = k.includes("Reels") ? 1920 : 1350
@@ -969,7 +1044,7 @@ function DashboardInner() {
     let count = 0
     for (const [k, v] of Object.entries(step.content)) {
       if (typeof v !== "string") continue
-      let svg = fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea))
+      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
       if (!svg.trim().startsWith("<svg")) continue
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && step.id === "capa") {
@@ -1275,7 +1350,7 @@ function DashboardInner() {
                     setTransformacao("")
                     setTom("")
                     setLucro(0)
-                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false })))
+                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
                     setExpandedSteps([])
                     localStorage.removeItem(LS_KEY)
                     toast("Ideia apagada.")
@@ -1387,15 +1462,29 @@ function DashboardInner() {
                         onPaleta={id => {
                           const p = acharPaleta(id)
                           if (p) {
+                            const antigas = selectedPalette?.cores || null
                             setSelectedPalette({ id: p.id, nome: p.nome, cores: p.cores })
-                            if (steps.some(s => s.generated)) toast("Cor atualizada. Clique em Gerar ou Regenerar nos passos para aplicar as novas cores.")
+                            const n = steps.filter(s => s.generated && PASSOS_COM_FONTE.includes(s.id)).length
+                            if (n > 0) {
+                              reaplicarIdentidade(p.cores, null, antigas, null)
+                              toast(`Cores aplicadas automaticamente em ${n} artefato(s)!`)
+                            } else {
+                              toast("Cor atualizada. Ela entra nos próximos passos que você gerar.")
+                            }
                           }
                         }}
                         onFonte={id => {
                           const f = acharFonte(id)
                           if (f) {
+                            const antiga = selectedFont?.nome || null
                             setSelectedFont({ id: f.id, nome: f.nome })
-                            if (steps.some(s => s.generated)) toast("Fonte atualizada. Regenere os passos para aplicar.")
+                            const n = steps.filter(s => s.generated && PASSOS_COM_FONTE.includes(s.id)).length
+                            if (n > 0) {
+                              reaplicarIdentidade(null, f.nome, null, antiga)
+                              toast(`Fonte aplicada automaticamente em ${n} artefato(s)!`)
+                            } else {
+                              toast("Fonte atualizada para os próximos passos.")
+                            }
                           }
                         }}
                         nomeExibicao={(() => {
@@ -1404,7 +1493,7 @@ function DashboardInner() {
                           return m?.nome || (ideiaAtual ? ideiaAtual.split(/[.,]/)[0].slice(0, 40) : "")
                         })()}
                       />
-                      <p className="text-[10px] text-[#A67C52] mt-3">Troque a cor ou a fonte e clique em Gerar ou Regenerar nos passos para aplicar.</p>
+                      <p className="text-[10px] text-[#A67C52] mt-3">Troque a cor ou a fonte e os artefatos já gerados atualizam sozinhos.</p>
                     </div>
                   )}
                 </div>
@@ -1534,7 +1623,7 @@ function DashboardInner() {
                                 const imgTag = `<image href="${photo}" x="0" y="0" width="1080" height="${h}" preserveAspectRatio="xMidYMid slice" opacity="0.35"/><rect width="1080" height="${h}" fill="#1A1A1A" opacity="0.45"/>`
                                 svgContent = svgContent.replace(/<svg([^>]*)>/, `<svg$1>${imgTag}`)
                               }
-                              const safeSvg = isSVG ? sanitizeSvg(svgContent) : svgContent
+                              const safeSvg = isSVG ? sanitizeSvg(semDistorcao(svgContent)) : svgContent
                               const isEditing = editingField?.stepId === step.id && editingField?.key === key
                               return (
                               <div key={key} className="bg-[#EDE6DC] border border-[#D9CEC2] rounded-lg p-3">

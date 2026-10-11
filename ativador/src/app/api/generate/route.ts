@@ -480,6 +480,12 @@ function htmlAproveitavel(html: string): boolean {
   return /<!DOCTYPE[\s\S]*<\/html>/i.test(html) && html.length >= 2500 && /<\/body>/i.test(html)
 }
 
+// A IA às vezes força textLength/lengthAdjust no <text> do SVG, o que ESTICA as
+// letras. Texto SVG rende melhor no tamanho natural.
+function semDistorcaoSvg(svg: string): string {
+  return svg.replace(/\s+textLength="[^"]*"/gi, "").replace(/\s+lengthAdjust="[^"]*"/gi, "")
+}
+
 function artefatoCompleto(step: string, obj: Record<string, unknown>): boolean {
   const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
   if (step === "landing") return vals.some(htmlAproveitavel)
@@ -746,7 +752,7 @@ REGRAS OBRIGATÓRIAS:
             cleaned = Object.fromEntries(
               Object.entries(cleaned).map(([k, v]) => [
                 k,
-                typeof v === "string" ? enforcePaletteColors(v, coresAplicadas) : v,
+                typeof v === "string" ? semDistorcaoSvg(enforcePaletteColors(v, coresAplicadas)) : v,
               ])
             )
           }
@@ -790,7 +796,7 @@ REGRAS OBRIGATÓRIAS:
               : ["Certificado SVG"]
             svgMatches.forEach((svg: string, i: number) => {
               const key = svgKeys[i] || `SVG ${i + 1}`
-              svgResult[key] = enforcePaletteColors(svg, coresAplicadas)
+              svgResult[key] = semDistorcaoSvg(enforcePaletteColors(svg, coresAplicadas))
             })
             if (step === "logo") {
               const c = coresAplicadas || DEFAULT_CORES
