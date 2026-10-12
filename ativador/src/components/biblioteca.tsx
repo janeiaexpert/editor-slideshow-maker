@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg, ordenarComEtiqueta } from "@/data/produtos-validados"
+import { CarrosselProdutos } from "@/components/carrossel-produtos"
 import { Sparkles, ArrowRight, X, Search } from "lucide-react"
 import { sanitizeSvg } from "@/lib/security"
 import { CrossSellPopup } from "@/components/cross-sell"
@@ -156,12 +157,14 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
         {filteredProducts.length} produto{filteredProducts.length !== 1 ? "s" : ""} encontrado{filteredProducts.length !== 1 ? "s" : ""}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {filteredProducts.map(p => (
+      <CarrosselProdutos
+        produtos={filteredProducts}
+        titulo="Produtos validados"
+        itemClassName="w-[46%] sm:w-[31%] lg:w-[23%] xl:w-[18%] shrink-0"
+        renderCard={p => (
           <button
-            key={p.id}
             onClick={() => { setSelected(p.id); setLucro(p.preco) }}
-            className="vitrine-card relative border-2 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5] bg-white/40"
+            className={`vitrine-card relative border-2 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5] bg-white/40 w-full ${selected === p.id ? "ring-2 ring-[#8B5E3C] ring-offset-2 ring-offset-[#F5EFE8]" : ""}`}
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "rgba(255,255,255,0.3)" }}
           >
             {p.capa ? (
@@ -186,8 +189,8 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
               </div>
             )}
           </button>
-        ))}
-      </div>
+        )}
+      />
 
       {filteredProducts.length === 0 && (
         <div className="text-center py-8">

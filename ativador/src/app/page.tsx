@@ -7,6 +7,7 @@ import { ArrowRight, Store, Zap, PenTool, CheckCircle, ChevronDown, ChevronUp } 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { PRODUTOS_VALIDADOS, gerarCoverSvg, ordenarComEtiqueta } from "@/data/produtos-validados"
+import { CarrosselProdutos } from "@/components/carrossel-produtos"
 import { PALETTES, FONTS } from "@/data/identidade"
 import { sanitizeSvg } from "@/lib/security"
 
@@ -18,9 +19,6 @@ export default function HomePage() {
   const [paletaEscolhida, setPaletaEscolhida] = useState("espresso")
   const [fonteEscolhida, setFonteEscolhida] = useState("playfair")
   const [vitrineAberta, setVitrineAberta] = useState(true)
-  const [vitrineExpandida, setVitrineExpandida] = useState(false)
-  const VITRINE_INICIAL = 8
-  const vitrineVisivel = vitrineExpandida ? VITRINE : VITRINE.slice(0, VITRINE_INICIAL)
 
   const abrirProduto = (p: typeof PRODUTOS_VALIDADOS[0]) => {
     setSelectedProduct(p)
@@ -83,7 +81,6 @@ export default function HomePage() {
                 <button
                   onClick={() => {
                     setVitrineAberta(true)
-                    setVitrineExpandida(false)
                     setTimeout(() => document.getElementById("vitrine-section")?.scrollIntoView({ behavior: "smooth" }), 50)
                   }}
                   className="flex items-start gap-3 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] rounded-xl p-4 text-left transition-all group"
@@ -165,10 +162,12 @@ export default function HomePage() {
               {vitrineAberta && (
                 <>
                   <p className="text-[#5C5146] text-xs mb-3">Clique em um produto para gerar toda a estrutura automaticamente.</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                    {vitrineVisivel.map(v => (
+                  <CarrosselProdutos
+                    produtos={VITRINE}
+                    titulo="Vitrine de produtos"
+                    itemClassName="w-[64%] sm:w-[31%] lg:w-[23%] xl:w-[18.5%] shrink-0"
+                    renderCard={v => (
                       <div
-                        key={v.id}
                         className="relative group cursor-pointer"
                         onClick={() => abrirProduto(v)}
                       >
@@ -200,26 +199,8 @@ export default function HomePage() {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => { setVitrineExpandida(!vitrineExpandida); focarVitrine() }}
-                    className="mt-3 w-full flex items-center justify-center gap-2 bg-white border-2 border-[#D9CEC2] hover:border-[#8B5E3C] hover:bg-[#F5EFE8] rounded-xl py-2.5 text-xs font-bold text-[#8B5E3C] transition-all"
-                  >
-                    {vitrineExpandida ? (
-                      <>
-                        <ChevronUp className="w-4 h-4" />
-                        Recolher lista
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-4 h-4" />
-                        Ver todos ({VITRINE.length} produtos)
-                      </>
                     )}
-                  </button>
+                  />
                 </>
               )}
             </div>
