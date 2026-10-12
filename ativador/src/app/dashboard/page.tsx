@@ -598,28 +598,12 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
   }),
 }
 
-// Um artefato (SVG/HTML) só é aproveitável se vier COMPLETO E COM CONTEÚDO.
-// Se a IA cortou no limite de tokens ou devolveu rascunho vazio, o card viraria
-// um bloco de texto/código solto — então cai no template local (mesmos mínimos do servidor).
-function contarTextosSvgDash(svg: string): number {
-  const m = svg.match(/<text[\s>]/gi)
-  return m ? m.length : 0
-}
-
-const MINIMOS_ARTEFATO_DASH: Record<string, { tamanho: number; textos: number }> = {
-  logo: { tamanho: 500, textos: 2 },
-  capa: { tamanho: 900, textos: 3 },
-  card_oferta: { tamanho: 900, textos: 3 },
-  certificado: { tamanho: 1000, textos: 4 },
-}
-
+// Um artefato (SVG/HTML) só é aproveitável se vier COMPLETO.
+// Se a IA cortou no limite de tokens, tenta de novo em vez de exibir quebrado.
 function artefatoOk(stepId: string, c: Record<string, string>): boolean {
   const vals = Object.values(c).filter((v): v is string => typeof v === "string")
-  if (stepId === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v) && v.length >= 2500 && /<\/body>/i.test(v))
-  if (["logo", "capa", "card_oferta", "certificado"].includes(stepId)) {
-    const min = MINIMOS_ARTEFATO_DASH[stepId]
-    return vals.some(v => v.includes("</svg>") && v.length >= min.tamanho && contarTextosSvgDash(v) >= min.textos)
-  }
+  if (stepId === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
+  if (["logo", "capa", "card_oferta", "certificado"].includes(stepId)) return vals.some(v => v.includes("</svg>"))
   return true
 }
 
@@ -887,8 +871,6 @@ function DashboardInner() {
 
     let current = 0
     let gerados = 0
-    let falhasSeguidas = 0
-    let abortado = false
     for (const tab of allTabs) {
       const tabSteps = steps.filter(s => s.tab === tab)
       setAutoProgress({ current, total: totalSteps, tab })
@@ -897,17 +879,11 @@ function DashboardInner() {
         setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
         const r = await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo, step.prompt)
-        if (r) { gerados++; falhasSeguidas = 0 }
-        else {
-          falhasSeguidas++
-          if (falhasSeguidas >= 3) { abortado = true; break }
-        }
+        if (r) gerados++
       }
-      if (abortado) break
     }
     setAutoGenerating(false)
     if (gerados === totalSteps) toast("Produto completo gerado com sucesso!")
-    else if (abortado) toast("A IA está indisponível no momento. Tente de novo em instantes.")
     else toast(`${gerados} de ${totalSteps} passos gerados. Clique em Gerar nos restantes.`)
   }, [steps, tom, doGenerate])
 
@@ -1142,19 +1118,11 @@ function DashboardInner() {
     if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return }
 
     let ok = 0
-    let falhasSeguidas = 0
-    let abortado = false
     for (const step of tabSteps) {
       const r = await generateStep(step, false)
-      if (r) { ok++; falhasSeguidas = 0 }
-      else {
-        falhasSeguidas++
-        if (falhasSeguidas >= 3) { abortado = true; break }
-      }
+      if (r) ok++
     }
-    if (abortado) {
-      toast("A IA está indisponível no momento. Tente de novo em instantes.")
-    } else if (ok === tabSteps.length) {
+    if (ok === tabSteps.length) {
       toast(`Todos os passos de ${tab} foram gerados!`)
     } else if (ok > 0) {
       toast(`${ok} de ${tabSteps.length} passos gerados. Clique em Gerar nos restantes.`)

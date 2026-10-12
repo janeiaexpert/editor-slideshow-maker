@@ -455,30 +455,8 @@ const CORES_SUBSTITUIVEIS: Array<[string, number]> = [
   ["#A67C52", 2], ["#D4A574", 2], ["#D9CEC2", 2],
 ]
 
-// Um artefato só vale se vier COMPLETO E COM CONTEÚDO — se a IA estourou o limite
-// de tokens e cortou no meio, ou devolveu um rascunho vazio/preguiçoso (fundo liso
-// com 1 texto solto), devolvemos erro para o dashboard usar o template local.
-function contarTextosSvg(svg: string): number {
-  const m = svg.match(/<text[\s>]/gi)
-  return m ? m.length : 0
-}
-
-const MINIMOS_ARTEFATO: Record<string, { tamanho: number; textos: number }> = {
-  logo: { tamanho: 500, textos: 2 },
-  capa: { tamanho: 900, textos: 3 },
-  card_oferta: { tamanho: 900, textos: 3 },
-  certificado: { tamanho: 1000, textos: 4 },
-}
-
-function svgAproveitavel(step: string, svg: string): boolean {
-  const min = MINIMOS_ARTEFATO[step]
-  if (!min) return svg.includes("</svg>")
-  return svg.includes("</svg>") && svg.length >= min.tamanho && contarTextosSvg(svg) >= min.textos
-}
-
-function htmlAproveitavel(html: string): boolean {
-  return /<!DOCTYPE[\s\S]*<\/html>/i.test(html) && html.length >= 2500 && /<\/body>/i.test(html)
-}
+// Um artefato só vale se vier COMPLETO — se a IA estourou o limite de tokens e
+// cortou no meio, devolvemos erro para tentar de novo.
 
 // A IA às vezes força textLength/lengthAdjust no <text> do SVG, o que ESTICA as
 // letras. Texto SVG rende melhor no tamanho natural.
@@ -488,8 +466,8 @@ function semDistorcaoSvg(svg: string): string {
 
 function artefatoCompleto(step: string, obj: Record<string, unknown>): boolean {
   const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
-  if (step === "landing") return vals.some(htmlAproveitavel)
-  if (["logo", "capa", "card_oferta", "certificado"].includes(step)) return vals.some(v => svgAproveitavel(step, v))
+  if (step === "landing") return vals.some(v => /<!DOCTYPE[\s\S]*<\/html>/i.test(v))
+  if (["logo", "capa", "card_oferta", "certificado"].includes(step)) return vals.some(v => v.includes("</svg>"))
   return true
 }
 
@@ -729,7 +707,7 @@ REGRAS OBRIGATÓRIAS:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: ehArtefato ? 0.55 : 0.8,
+        temperature: 0.8,
         maxTokens: maxTokensArtefato,
       })
 
@@ -793,13 +771,13 @@ REGRAS OBRIGATÓRIAS:
         const content = result.content
         if (step === "landing") {
           const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
-          if (htmlMatch && htmlAproveitavel(htmlMatch[0])) {
+          if (htmlMatch) {
             return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], coresAplicadas), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
           }
         }
         if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
-          const svgMatches = (content.match(/<svg[\s\S]*?<\/svg>/gi) || []).filter(s => svgAproveitavel(step, s))
-          if (svgMatches.length > 0) {
+          const svgMatches = content.match(/<svg[\s\S]*?<\/svg>/gi)
+          if (svgMatches && svgMatches.length > 0) {
             const svgResult: Record<string, string> = {}
             const svgKeys = step === "logo" ? ["Logo Principal SVG", "Logo Alternativo SVG"]
               : step === "capa" ? ["Feed SVG", "Reels SVG"]
