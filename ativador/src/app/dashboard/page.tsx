@@ -138,7 +138,7 @@ function setNewProducts(ids: string[]) {
 
 
 function getPaletteColors(p?: { id: string; nome: string; cores: string[] } | null) {
-  const defaults = { primary: "#8B5E3C", secondary: "#6B4226", light: "#D4B896", bg: "#F5EFE8", dark: "#1A1A1A" }
+  const defaults = { primary: "#9A6B1F", secondary: "#5E3E17", light: "#E7CD9A", bg: "#F7F1E5", dark: "#140C04" }
   if (!p?.cores || p.cores.length < 5) return defaults
   return { primary: p.cores[0], secondary: p.cores[1], light: p.cores[2], bg: p.cores[3], dark: p.cores[4] }
 }
@@ -556,7 +556,7 @@ const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: Produto
     return {
       "Certificado SVG": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" width="842" height="595"><defs><linearGradient id="cborder" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c.primary}"/><stop offset="100%" stop-color="${c.light}"/></linearGradient></defs><rect width="842" height="595" fill="${c.bg}"/><rect x="15" y="15" width="812" height="565" fill="none" stroke="url(#cborder)" stroke-width="2" rx="8"/><rect x="25" y="25" width="792" height="545" fill="none" stroke="${c.light}" stroke-width="0.5" rx="6"/><circle cx="421" cy="80" r="40" fill="${c.primary}" opacity="0.1"/><text x="421" y="90" font-family="Georgia,serif" font-size="40" font-weight="bold" fill="${c.primary}" text-anchor="middle">CERTIFICADO</text><text x="421" y="130" font-family="Georgia,serif" font-size="18" fill="${c.primary}" text-anchor="middle" letter-spacing="6">DE PARTICIPAÇÃO</text><rect x="300" y="145" width="242" height="1" fill="${c.light}"/><text x="421" y="210" font-family="'Helvetica Neue',Arial,sans-serif" font-size="14" fill="${c.secondary}" text-anchor="middle">Concedemos o presente certificado a</text><text x="421" y="280" font-family="Georgia,serif" font-size="32" font-weight="bold" fill="${c.dark}" text-anchor="middle">[NOME DO ALUNO]</text><rect x="320" y="300" width="202" height="2" fill="${c.primary}"/><text x="421" y="350" font-family="'Helvetica Neue',Arial,sans-serif" font-size="13" fill="${c.secondary}" text-anchor="middle">Por ter concluído com êxito o curso</text><text x="421" y="400" font-family="Georgia,serif" font-size="22" font-weight="bold" fill="${c.primary}" text-anchor="middle">[NOME DO CURSO]</text><text x="421" y="440" font-family="'Helvetica Neue',Arial,sans-serif" font-size="12" fill="${c.secondary}" text-anchor="middle">Carga horária: 40 horas</text><line x1="200" y1="510" x2="350" y2="510" stroke="${c.dark}" stroke-width="0.5"/><text x="275" y="530" font-family="Arial,sans-serif" font-size="10" fill="${c.secondary}" text-anchor="middle">Assinatura</text><line x1="492" y1="510" x2="642" y2="510" stroke="${c.dark}" stroke-width="0.5"/><text x="567" y="530" font-family="Arial,sans-serif" font-size="10" fill="${c.secondary}" text-anchor="middle">Data: [DATA]</text></svg>`,
       "Instruções": "Substitua os placeholders entre colchetes. O SVG pode ser salvo como imagem, impresso ou convertido para PDF diretamente no navegador.",
-      "Personalização": `Adicione seu logo no canto superior esquerdo. Paleta aplicada: ${p?.paleta?.nome || "Marrom Clássico"}.`,
+      "Personalização": `Adicione seu logo no canto superior esquerdo. Paleta aplicada: ${p?.paleta?.nome || "Espresso Premium"}.`,
     }
   },
   landing: (_, __, p) => {
@@ -1450,12 +1450,12 @@ function DashboardInner() {
                     </span>
                     <span className="flex items-center gap-2 min-w-0">
                       <span className="flex shrink-0">
-                        {(selectedPalette?.cores || acharPaleta("marrom")?.cores || []).map(c => (
+                        {(selectedPalette?.cores || acharPaleta("espresso")?.cores || []).map(c => (
                           <span key={c} className="w-3 h-3 rounded-full border border-white -ml-0.5 first:ml-0" style={{ background: c }} />
                         ))}
                       </span>
                       <span className="text-[10px] text-[#5C5146] truncate hidden sm:inline">
-                        {selectedPalette?.nome || "Marrom Clássico"} • {selectedFont?.nome || "Inter"}
+                        {selectedPalette?.nome || "Espresso Premium"} • {selectedFont?.nome || "Playfair Display"}
                       </span>
                       <ChevronDown className={`w-4 h-4 text-[#5C5146] shrink-0 transition-transform ${mostrarIdentidade ? "rotate-180" : ""}`} />
                     </span>
@@ -1463,8 +1463,8 @@ function DashboardInner() {
                   {mostrarIdentidade && (
                     <div className="border-t border-[#D9CEC2] p-3">
                       <IdentidadeSeletor
-                        paletaId={selectedPalette?.id || "marrom"}
-                        fonteId={selectedFont?.id || "inter"}
+                        paletaId={selectedPalette?.id || "espresso"}
+                        fonteId={selectedFont?.id || "playfair"}
                         onPaleta={id => {
                           const p = acharPaleta(id)
                           if (p) {

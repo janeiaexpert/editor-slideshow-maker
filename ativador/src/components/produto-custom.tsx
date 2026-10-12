@@ -19,8 +19,8 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
   const [publico, setPublico] = useState("")
   const [instagram, setInstagram] = useState("")
   const [lucro, setLucro] = useState(0)
-  const [paleta, setPaleta] = useState("marrom")
-  const [fonte, setFonte] = useState("inter")
+  const [paleta, setPaleta] = useState("espresso")
+  const [fonte, setFonte] = useState("playfair")
   const [gerando, setGerando] = useState(false)
 
   const isValid = nome.trim().length > 0 && descricao.trim().length > 0
@@ -32,10 +32,10 @@ export function ProdutoCustom({ onGerar }: ProdutoCustomProps) {
     const f = FONTS.find(x => x.id === fonte)
     const cores = p ? p.cores.join(", ") : ""
     const ig = instagram.startsWith("@") ? instagram : instagram ? `@${instagram}` : ""
-    const ideia = `${nome}. ${descricao}. Público-alvo: ${publico || "Não definido"}. Paleta de cores: ${cores}. Nome da paleta: ${p?.nome || "Marrom Clássico"}. Tipografia: ${f?.nome || "Inter"}. Instagram: ${ig || "Não informado"}`
+    const ideia = `${nome}. ${descricao}. Público-alvo: ${publico || "Não definido"}. Paleta de cores: ${cores}. Nome da paleta: ${p?.nome || "Espresso Premium"}. Tipografia: ${f?.nome || "Playfair Display"}. Instagram: ${ig || "Não informado"}`
     onGerar(ideia, lucro, {
       nome,
-      tag: p?.nome || "Marrom Clássico",
+      tag: p?.nome || "Espresso Premium",
       descricao,
       publico: publico || "Não definido",
       paleta: p ? { id: p.id, nome: p.nome, cores: p.cores } : undefined,

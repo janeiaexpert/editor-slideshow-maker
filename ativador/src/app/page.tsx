@@ -15,8 +15,8 @@ const VITRINE = ordenarComEtiqueta(PRODUTOS_VALIDADOS)
 export default function HomePage() {
   const router = useRouter()
   const [selectedProduct, setSelectedProduct] = useState<typeof PRODUTOS_VALIDADOS[0] | null>(null)
-  const [paletaEscolhida, setPaletaEscolhida] = useState("marrom")
-  const [fonteEscolhida, setFonteEscolhida] = useState("inter")
+  const [paletaEscolhida, setPaletaEscolhida] = useState("espresso")
+  const [fonteEscolhida, setFonteEscolhida] = useState("playfair")
   const [vitrineAberta, setVitrineAberta] = useState(true)
   const [vitrineExpandida, setVitrineExpandida] = useState(false)
   const VITRINE_INICIAL = 8
@@ -24,8 +24,8 @@ export default function HomePage() {
 
   const abrirProduto = (p: typeof PRODUTOS_VALIDADOS[0]) => {
     setSelectedProduct(p)
-    setPaletaEscolhida(p.paleta?.id || "marrom")
-    setFonteEscolhida(p.fonte?.id || "inter")
+    setPaletaEscolhida(p.paleta?.id || "espresso")
+    setFonteEscolhida(p.fonte?.id || "playfair")
   }
 
   const focarVitrine = () => {
