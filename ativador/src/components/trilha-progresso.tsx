@@ -72,7 +72,9 @@ export function TrilhaProgresso({
                     : "bg-white/50 border border-transparent hover:bg-white/80"
                 }`}
               >
-                <config.Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: config.color }} strokeWidth={1.8} />
+                <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#9A6B1F] to-[#5E3E17] flex items-center justify-center shadow-md">
+                  <config.Icon className="w-5 h-5 text-white" strokeWidth={2.1} />
+                </span>
                 <span className={`text-[9px] sm:text-[10px] font-bold ${isActive ? "text-[#8B5E3C]" : "text-[#5C5146]"}`}>
                   {config.label}
                 </span>
@@ -81,7 +83,7 @@ export function TrilhaProgresso({
                     className="h-full rounded-full transition-all duration-300"
                     style={{
                       width: `${tabPercent}%`,
-                      backgroundColor: tabPercent === 100 ? "#22C55E" : config.color,
+                      backgroundColor: config.color,
                     }}
                   />
                 </div>
