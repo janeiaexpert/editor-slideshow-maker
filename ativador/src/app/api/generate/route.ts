@@ -408,8 +408,6 @@ SUBSTITUA TODOS OS PLACEHOLDERS por conteúdo REAL baseado na IDEIA do produto:
 - [PERGUNTA FAQ 1-8] → perguntas baseadas em objeções reais do nicho
 - [RESPOSTA FAQ 1-8] → respostas que vendem, não apenas informam
 
-NOME REAL DO PRODUTO (obrigatório): crie um nome CURTO de no máximo 5 palavras a partir do TEMA da ideia (nunca comece com "Quero", "Criar", "Aprenda", "Como" ou "Guia" genérico — use o tema; ex.: ideia sobre carrosséis virais → "Método Carrosséis Virais"). Use esse nome em TODA a página. NUNCA cole a ideia inteira como headline, título ou parágrafo — escreva copy própria e enxuta para cada seção.
-
 TAMANHO DO ARQUIVO (obrigatório): o HTML inteiro deve ficar entre 9.000 e 15.000 caracteres — CSS compacto (sem comentários longos e sem repetir regras), animações essenciais apenas. O arquivo DEVE terminar com </body></html>; NUNCA corte o HTML no meio.
 
 VARIAÇÃO DE LAYOUT (gere layout DIFERENTE a cada vez):
@@ -462,6 +460,22 @@ const CORES_SUBSTITUIVEIS: Array<[string, number]> = [
 // letras. Texto SVG rende melhor no tamanho natural.
 function semDistorcaoSvg(svg: string): string {
   return svg.replace(/\s+textLength="[^"]*"/gi, "").replace(/\s+lengthAdjust="[^"]*"/gi, "")
+}
+
+// Nome curto e real do produto a partir do TEMA da ideia (nunca os primeiros
+// verbos: "Quero criar" vira "Método Atualizado", nunca "Quero criar").
+function nomeCurtoDaIdeia(ideia: string): string {
+  const stop = /\b(com|para|de|do|da|dos|das|e|em|no|na|o|a|os|as|um|uma|que|se|por|mais|muito|como|quero|quer|criar|crio|cria|criam|fazer|faco|faço|faz|fazem|ter|tenho|tem|têm|aprender|aprenda|aprendem|ensinar|ensine|dominar|domine|usar|use|produzir|produza|gerar|gere|vender|venda|ganhar|ganhe|conquistar|alcancar|alcançar|alcance|transformar|transforme|descobrir|descubra|entender|entenda|montar|monte|organizar|organize|controlar|controle|sobre|este|esta|esse|essa|isto|isso|meu|minha|seu|sua|nosso|nossa|sem|entre|atraves|através|antes|depois|onde|quando)\b/gi
+  const words = (ideia || "").replace(stop, "").replace(/\s+/g, " ").trim().split(" ").filter(w => w.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, "").length > 2)
+  const t = (s: string) => s.replace(/(^|\s)(\S)/g, (_m: string, sp: string, c: string) => sp + c.toUpperCase())
+  return t(words.slice(0, 2).join(" ") || "Seu Produto")
+}
+
+// A IA às vezes escreve "Quero criar" (início da ideia) como nome do produto.
+// Troca pelo nome real em todos os artefatos.
+function corrigirNomeProduto(texto: string, nomeReal: string): string {
+  if (!nomeReal) return texto
+  return texto.replace(/\bquero\s+criar(\s+m[eé]todo)?\b/gi, nomeReal)
 }
 
 function artefatoCompleto(step: string, obj: Record<string, unknown>): boolean {
@@ -653,7 +667,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { ideia, tom, lucro, step, paleta, fonte, prompt: customPrompt } = body
+    const { ideia, tom, lucro, step, paleta, fonte, nomeProduto, prompt: customPrompt } = body
 
     if (!ideia) {
       return NextResponse.json({ error: "Ideia é obrigatória" }, { status: 400 })
@@ -680,7 +694,13 @@ export async function POST(req: NextRequest) {
       const fonteBlock = fonteNome
         ? `\n\nTIPOGRAFIA OBRIGATORIA: use a fonte "${fonteNome}" (Google Fonts) nos titulos e textos deste conteudo. Se o formato for SVG ou HTML, declare font-family com "${fonteNome}" e uma fallback sans-serif. Nao use outras fontes decorativas.`
         : ""
-      const systemPrompt = basePrompt + paletaBlock + fonteBlock
+      const nomeReal = typeof nomeProduto === "string" && nomeProduto.trim()
+        ? nomeProduto.trim().slice(0, 60)
+        : nomeCurtoDaIdeia(ideia)
+      const nomeBlock = ehArtefato && nomeReal
+        ? `\n\nNOME REAL DO PRODUTO: use EXATAMENTE "${nomeReal}" como nome do produto em todo o artefato. PROIBIDO escrever "Quero criar", "Quero criar método" ou qualquer variação disso. PROIBIDO colar a ideia inteira como título, headline ou parágrafo.`
+        : ""
+      const systemPrompt = basePrompt + paletaBlock + fonteBlock + nomeBlock
       const userPrompt = `Crie conteúdo COMPLETO E PRONTO PARA PUBLICAR para o produto abaixo:
 
 IDEIA DO PRODUTO: ${ideia}
@@ -741,7 +761,7 @@ REGRAS OBRIGATÓRIAS:
             cleaned = Object.fromEntries(
               Object.entries(cleaned).map(([k, v]) => [
                 k,
-                typeof v === "string" ? semDistorcaoSvg(enforcePaletteColors(v, coresAplicadas)) : v,
+                typeof v === "string" ? semDistorcaoSvg(enforcePaletteColors(corrigirNomeProduto(v, nomeReal), coresAplicadas)) : v,
               ])
             )
           }
@@ -772,7 +792,7 @@ REGRAS OBRIGATÓRIAS:
         if (step === "landing") {
           const htmlMatch = content.match(/<!DOCTYPE[\s\S]*<\/html>/i)
           if (htmlMatch) {
-            return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(htmlMatch[0], coresAplicadas), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
+            return NextResponse.json({ "HTML Landing Page": enforcePaletteColors(corrigirNomeProduto(htmlMatch[0], nomeReal), coresAplicadas), "Como Usar": "Copie o HTML e salve como .html", "Personalização": "Troque cores e placeholders", "Layout Usado": "Variável" })
           }
         }
         if (["logo", "capa", "card_oferta", "certificado"].includes(step)) {
@@ -785,7 +805,7 @@ REGRAS OBRIGATÓRIAS:
               : ["Certificado SVG"]
             svgMatches.forEach((svg: string, i: number) => {
               const key = svgKeys[i] || `SVG ${i + 1}`
-              svgResult[key] = semDistorcaoSvg(enforcePaletteColors(svg, coresAplicadas))
+              svgResult[key] = semDistorcaoSvg(enforcePaletteColors(corrigirNomeProduto(svg, nomeReal), coresAplicadas))
             })
             if (step === "logo") {
               const c = coresAplicadas || DEFAULT_CORES

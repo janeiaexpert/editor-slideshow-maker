@@ -225,7 +225,7 @@ function stripEmojis(text: string): string {
   return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}]/gu, "").replace(/\s{2,}/g, " ").trim()
 }
 
-function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeFixo?: string): string {
+function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeFixo?: string, soArtefato?: boolean): string {
   // Remove conectivos E verbos de intenção ("quero criar", "aprender"...) para que o
   // nome derivado venha do TEMA ("Método Atualizado") e nunca do começo da frase.
   const cleaned = ideia.replace(/\b(com|para|de|do|da|dos|das|e|em|no|na|o|a|os|as|um|uma|que|se|por|mais|muito|como|quero|quer|criar|crio|cria|criam|fazer|faco|faço|faz|fazem|ter|tenho|tem|têm|aprender|aprenda|aprendem|ensinar|ensine|dominar|domine|usar|use|produzir|produza|gerar|gere|vender|venda|ganhar|ganhe|conquistar|alcancar|alcançar|alcance|transformar|transforme|descobrir|descubra|entender|entenda|montar|monte|organizar|organize|controlar|controle|sobre|este|esta|esse|essa|isto|isso|meu|minha|seu|sua|nosso|nossa|sem|entre|atraves|através|antes|depois|onde|quando)\b/gi, "").replace(/\s+/g, " ").trim()
@@ -274,6 +274,11 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeF
   let result = text
   for (const [key, val] of Object.entries(map)) {
     result = result.replaceAll(key, val)
+  }
+  // A IA às vezes escreve "Quero criar" como nome do produto: troca pelo nome
+  // certo (só em artefatos, para não mexer no texto corrido).
+  if (soArtefato) {
+    result = result.replace(/\bquero\s+criar(\s+m[eé]todo)?\b/gi, nome)
   }
   return result
 }
@@ -818,7 +823,7 @@ function DashboardInner() {
         const res = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, prompt: customPrompt || undefined }),
+          body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, nomeProduto: resolvedProduto?.nome || undefined, prompt: customPrompt || undefined }),
         })
         let content: Record<string, string> | null = null
         if (res.ok) {
@@ -1021,7 +1026,7 @@ function DashboardInner() {
   const handleExportCapaPNG = (step: StepData) => {
     const filled: Record<string, string> = {}
     for (const [k, v] of Object.entries(step.content)) {
-      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
+      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea), PASSOS_COM_FONTE.includes(step.id)))
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && svg.includes("<svg")) {
         const h = k.includes("Reels") ? 1920 : 1350
@@ -1088,7 +1093,7 @@ function DashboardInner() {
     let count = 0
     for (const [k, v] of Object.entries(step.content)) {
       if (typeof v !== "string") continue
-      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
+      let svg = semDistorcao(fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea), PASSOS_COM_FONTE.includes(step.id)))
       if (!svg.trim().startsWith("<svg")) continue
       const photo = k.includes("Reels") ? capaPhotoReels : capaPhotoFeed
       if (photo && step.id === "capa") {
@@ -1106,7 +1111,7 @@ function DashboardInner() {
     let count = 0
     for (const [k, v] of Object.entries(step.content)) {
       if (typeof v !== "string" || !conteudoHTML(v)) continue
-      downloadFile(`${slugify(step.title)}-${slugify(k)}.html`, fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)), "text/html;charset=utf-8")
+      downloadFile(`${slugify(step.title)}-${slugify(k)}.html`, fillVars(v, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea), PASSOS_COM_FONTE.includes(step.id)), "text/html;charset=utf-8")
       count++
     }
     toast(count > 0 ? `${count} arquivo(s) HTML baixado(s)!` : "Nenhum HTML neste card")
@@ -1717,7 +1722,7 @@ function DashboardInner() {
                           <div className="space-y-2">
                             {Object.entries(step.content).map(([key, value]) => {
                               if (key === "Video") return null
-                              const filled = sanitizeText(fillVars(value, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea)))
+                              const filled = sanitizeText(fillVars(value, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea), PASSOS_COM_FONTE.includes(step.id)))
                               const isSVG = filled.startsWith("<svg")
                               const isHTML = filled.includes("<!DOCTYPE") || filled.includes("<html") || (filled.includes("<style") && filled.includes("<body")) || (filled.includes("<div") && filled.includes("font-family") && filled.includes("padding"))
                               let svgContent = filled
