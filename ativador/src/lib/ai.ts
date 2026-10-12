@@ -36,6 +36,7 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
   if (!OPENROUTER_KEY) return null
   if (isRateLimited("openrouter")) return null
   const { messages, temperature = 0.8, maxTokens = 4000 } = opts
+  for (let tentativa = 1; tentativa <= 2; tentativa++) {
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 45000)
@@ -46,6 +47,11 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
       signal: controller.signal,
     })
     clearTimeout(timeout)
+    if (res.status === 429 && tentativa === 1) {
+      // Rajada momentânea: espera 5s e tenta de novo 1x antes de desistir
+      await new Promise(r => setTimeout(r, 5000))
+      continue
+    }
     if (res.status === 429) {
       markRateLimited("openrouter")
       return null
@@ -60,12 +66,15 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
     console.error("[OpenRouter] Error:", e?.name === "AbortError" ? "TIMEOUT" : e?.message)
     return null
   }
+  }
+  return null
 }
 
 async function callGroq(opts: CallOptions): Promise<string | null> {
   if (!GROQ_KEY) return null
   if (isRateLimited("groq")) return null
   const { messages, temperature = 0.8, maxTokens = 4000 } = opts
+  for (let tentativa = 1; tentativa <= 2; tentativa++) {
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 45000)
@@ -76,6 +85,11 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
       signal: controller.signal,
     })
     clearTimeout(timeout)
+    if (res.status === 429 && tentativa === 1) {
+      // Rajada momentânea: espera 5s e tenta de novo 1x antes de desistir
+      await new Promise(r => setTimeout(r, 5000))
+      continue
+    }
     if (res.status === 429) {
       markRateLimited("groq")
       return null
@@ -90,6 +104,8 @@ async function callGroq(opts: CallOptions): Promise<string | null> {
     console.error("[Groq] Error:", e?.name === "AbortError" ? "TIMEOUT" : e?.message)
     return null
   }
+  }
+  return null
 }
 
 async function callGemini(opts: CallOptions): Promise<string | null> {

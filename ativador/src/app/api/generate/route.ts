@@ -616,12 +616,22 @@ const STOPWORDS_ESPEC = new Set([
   "aquilo", "voce", "vocês", "você", "ele", "ela", "eles", "elas",
   "porque", "através", "durante", "depois", "antes", "ainda", "sempre",
   "nunca", "pouco", "forma", "jeito", "maneira", "coisa", "algo",
-  "através", "fazer", "termos", "desde", "senão", "então",
+  "fazer", "termos", "desde", "senão", "então",
+  "para", "com", "como", "pelo", "pela", "sem", "sob", "este", "esta",
+  "esse", "essa", "desse", "dessa", "deste", "desta", "neste", "nesta",
+  "numa", "também", "tambem", "quero", "quer", "querem", "criar",
+  "crio", "cria", "criam", "criação", "criacao", "ensinar", "ensina",
+  "ensinam", "aprender", "aprenda", "aprendem", "faco", "faço", "faz",
+  "fazem", "ter", "tenho", "tem", "têm", "usar", "usa", "usam",
+  "pode", "podem", "deve", "devem", "vai", "vamos", "aqui", "hoje",
+  "agora", "novo", "nova", "guia", "curso", "cursos", "metodo",
+  "método", "completo", "completa", "total", "rapido", "rápido",
+  "passo", "tudo", "toda", "todo", "muita", "muitas", "grande",
 ])
 
 // Palavras-chave do produto (para exigir especificidade da IA)
 function keywordsDaIdeia(ideia: string): string[] {
-  const words = (ideia.toLowerCase().match(/[a-zà-ú]{5,}/g) || []).filter(w => !STOPWORDS_ESPEC.has(w))
+  const words = (ideia.toLowerCase().match(/[a-zà-ú]{4,}/g) || []).filter(w => !STOPWORDS_ESPEC.has(w))
   const freq = new Map<string, number>()
   for (const w of words) freq.set(w, (freq.get(w) || 0) + 1)
   return [...freq.entries()]
@@ -645,11 +655,12 @@ function tryParseJson(t: string): Record<string, unknown> | null {
   return null
 }
 
-// Todo valor precisa citar literalmente o tema do produto
+// Todo valor LONGO precisa citar literalmente o tema do produto (campos curtos
+// como "Garantia: 7 dias" são isentos para não gerar refação à toa)
 function valoresEspecificos(obj: Record<string, unknown>, kws: string[]): boolean {
   if (kws.length === 0) return true
-  const vals = Object.values(obj).filter((v): v is string => typeof v === "string")
-  if (vals.length === 0) return false
+  const vals = Object.values(obj).filter((v): v is string => typeof v === "string" && v.length >= 80)
+  if (vals.length === 0) return true
   return vals.every(v => kws.some(k => v.toLowerCase().includes(k)))
 }
 
@@ -722,8 +733,8 @@ REGRAS OBRIGATÓRIAS:
         maxTokens: maxTokensArtefato,
       })
 
-      // Passos que precisam citar o produto: se vier genérico, manda refazer 1x
-      if (result && ["modulos", "entregaveis", "bonus"].includes(step)) {
+      // Passos de texto precisam citar o produto: se vier genérico, manda refazer 1x
+      if (result && ["modulos", "entregaveis", "bonus", "headline", "oferta", "vsl", "anuncios", "conteudo", "funil", "story"].includes(step)) {
         const kws = keywordsDaIdeia(ideia)
         const first = tryParseJson(result.content)
         if (first && !valoresEspecificos(first, kws)) {

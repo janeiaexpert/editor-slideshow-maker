@@ -40,6 +40,7 @@ type StepData = {
   prompt?: string
   coresUsadas?: string[]
   fonteUsada?: string
+  fallbackUsado?: boolean
 }
 
 const INITIAL_STEPS: StepData[] = [
@@ -640,8 +641,8 @@ function DashboardInner() {
     return () => el.removeEventListener("keydown", handler, true)
   }, [])
   const [steps, setSteps] = useState<StepData[]>(() => {
-    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }>>("stepsData", {})
-    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt, coresUsadas: saved[s.id].coresUsadas, fonteUsada: saved[s.id].fonteUsada } : s)
+    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string; fallbackUsado?: boolean }>>("stepsData", {})
+    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt, coresUsadas: saved[s.id].coresUsadas, fonteUsada: saved[s.id].fonteUsada, fallbackUsado: saved[s.id].fallbackUsado } : s)
   })
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); const n = typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0; return n > 50000 ? 497 : n })
@@ -699,8 +700,8 @@ function DashboardInner() {
   }
 
   useEffect(() => {
-    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }> = {}
-    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt, coresUsadas: s.coresUsadas, fonteUsada: s.fonteUsada } })
+    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string; fallbackUsado?: boolean }> = {}
+    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt, coresUsadas: s.coresUsadas, fonteUsada: s.fonteUsada, fallbackUsado: s.fallbackUsado } })
     saveState("stepsData", data)
   }, [steps])
   useEffect(() => { saveState("tom", tom) }, [tom])
@@ -716,11 +717,12 @@ function DashboardInner() {
   useEffect(() => { saveState("metricas", metricas) }, [metricas])
   useEffect(() => { saveState("showIdeiaForm", showIdeiaForm) }, [showIdeiaForm])
 
-  const updateStepContent = useCallback((id: string, content: Record<string, string>, meta?: { cores?: string[]; fonte?: string }) => {
+  const updateStepContent = useCallback((id: string, content: Record<string, string>, meta?: { cores?: string[]; fonte?: string; fallback?: boolean }) => {
     setSteps(prev => prev.map(s => s.id === id ? {
       ...s, content, generated: true,
       ...(meta?.cores && meta.cores.length === 5 ? { coresUsadas: meta.cores } : {}),
       ...(meta?.fonte ? { fonteUsada: meta.fonte } : {}),
+      ...(meta && typeof meta.fallback === "boolean" ? { fallbackUsado: meta.fallback } : {}),
     } : s))
   }, [])
 
@@ -780,6 +782,7 @@ function DashboardInner() {
         body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, prompt: customPrompt || undefined }),
       })
       let content: Record<string, string> | null = null
+      let usouFallback = false
       if (res.ok) {
         const data = await res.json()
         if (data && typeof data === "object" && !data.error) content = data
@@ -789,11 +792,12 @@ function DashboardInner() {
       if (!content) {
         const fallback = FALLBACKS[stepId]
         content = fallback ? aplicarFonteNoConteudo(fallback(ideaText, precoFinal, produtoFallback), stepId, produtoFallback.fonte) : { "Conteúdo": "Conteúdo gerado automaticamente" }
+        usouFallback = true
         if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
           toast("A IA falhou neste artefato e usei o modelo padrão. Clique em Regenerar para tentar de novo.")
         }
       }
-      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome })
+      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome, fallback: usouFallback })
       return content
     } catch {
       const fallback = FALLBACKS[stepId]
@@ -801,7 +805,7 @@ function DashboardInner() {
       if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
         toast("Sem conexão com a IA neste artefato — usei o modelo padrão. Tente Regenerar.")
       }
-      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome || produtoFallback.fonte?.nome })
+      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome || produtoFallback.fonte?.nome, fallback: true })
       return content
     }
   }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette, selectedFont])
@@ -814,7 +818,7 @@ function DashboardInner() {
     setLucro(precoFinal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
     setExpandedSteps([])
     const matchProduto = PRODUTOS_VALIDADOS.find(p => p.ideia === ideia) ||
       PRODUTOS_VALIDADOS.find(p =>
@@ -940,7 +944,7 @@ function DashboardInner() {
     setActiveTab("produto")
     setShowIdeiaForm(true)
     setExpandedSteps([])
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
     toast("Pronto! Comece um novo produto.")
   }, [])
 
@@ -1356,7 +1360,7 @@ function DashboardInner() {
                     setTransformacao("")
                     setTom("")
                     setLucro(0)
-                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
+                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
                     setExpandedSteps([])
                     localStorage.removeItem(LS_KEY)
                     toast("Ideia apagada.")
@@ -1571,6 +1575,7 @@ function DashboardInner() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {step.generated && <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px]">Pronto</Badge>}
+                      {step.generated && step.fallbackUsado && <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-[10px]">Modelo padrão</Badge>}
                       {expandedSteps.includes(step.id) ? <ChevronDown className="w-4 h-4 text-[#5C5146]" /> : <ChevronRight className="w-4 h-4 text-[#5C5146]" />}
                     </div>
                   </div>
