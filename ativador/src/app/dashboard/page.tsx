@@ -40,7 +40,6 @@ type StepData = {
   prompt?: string
   coresUsadas?: string[]
   fonteUsada?: string
-  fallbackUsado?: boolean
 }
 
 const INITIAL_STEPS: StepData[] = [
@@ -344,6 +343,9 @@ interface ProdutoInfo {
   preco?: number
 }
 
+// DESATIVADO: modelos padrão removidos por decisão da dona — o sistema agora só
+// aceita conteúdo real da IA (ou nada). Mantido abaixo apenas como referência,
+// sem nenhuma chamada ativa.
 const FALLBACKS: Record<string, (idea: string, lucro?: number, produto?: ProdutoInfo) => Record<string, string>> = {
   headline: (idea, _, p) => {
     const nome = p?.nome || extractTheme(idea, 2)
@@ -657,8 +659,8 @@ function DashboardInner() {
     return () => el.removeEventListener("keydown", handler, true)
   }, [])
   const [steps, setSteps] = useState<StepData[]>(() => {
-    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string; fallbackUsado?: boolean }>>("stepsData", {})
-    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt, coresUsadas: saved[s.id].coresUsadas, fonteUsada: saved[s.id].fonteUsada, fallbackUsado: saved[s.id].fallbackUsado } : s)
+    const saved = loadState<Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }>>("stepsData", {})
+    return INITIAL_STEPS.map(s => saved[s.id] ? { ...s, content: saved[s.id].content, generated: saved[s.id].generated, prompt: saved[s.id].prompt, coresUsadas: saved[s.id].coresUsadas, fonteUsada: saved[s.id].fonteUsada } : s)
   })
   const [tom, setTom] = useState(() => loadState("tom", ""))
   const [lucro, setLucro] = useState<number>(() => { const v = loadState("lucro", 0); const n = typeof v === "string" ? parseFloat(v) || 0 : Number(v) || 0; return n > 50000 ? 497 : n })
@@ -753,8 +755,8 @@ function DashboardInner() {
   }
 
   useEffect(() => {
-    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string; fallbackUsado?: boolean }> = {}
-    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt, coresUsadas: s.coresUsadas, fonteUsada: s.fonteUsada, fallbackUsado: s.fallbackUsado } })
+    const data: Record<string, { content: Record<string, string>; generated: boolean; prompt?: string; coresUsadas?: string[]; fonteUsada?: string }> = {}
+    steps.forEach(s => { data[s.id] = { content: s.content, generated: s.generated, prompt: s.prompt, coresUsadas: s.coresUsadas, fonteUsada: s.fonteUsada } })
     saveState("stepsData", data)
   }, [steps])
   useEffect(() => { saveState("tom", tom) }, [tom])
@@ -770,12 +772,11 @@ function DashboardInner() {
   useEffect(() => { saveState("metricas", metricas) }, [metricas])
   useEffect(() => { saveState("showIdeiaForm", showIdeiaForm) }, [showIdeiaForm])
 
-  const updateStepContent = useCallback((id: string, content: Record<string, string>, meta?: { cores?: string[]; fonte?: string; fallback?: boolean }) => {
+  const updateStepContent = useCallback((id: string, content: Record<string, string>, meta?: { cores?: string[]; fonte?: string }) => {
     setSteps(prev => prev.map(s => s.id === id ? {
       ...s, content, generated: true,
       ...(meta?.cores && meta.cores.length === 5 ? { coresUsadas: meta.cores } : {}),
       ...(meta?.fonte ? { fonteUsada: meta.fonte } : {}),
-      ...(meta && typeof meta.fallback === "boolean" ? { fallbackUsado: meta.fallback } : {}),
     } : s))
   }, [])
 
@@ -825,42 +826,35 @@ function DashboardInner() {
 
     // Paleta efetiva: a escolha atual do usuário vence a paleta original do produto
     const paletaEfetiva = selectedPalette || produtoInfo?.paleta || resolvedProduto?.paleta || null
-    const produtoBase = resolvedProduto || { nome: "", tag: "", descricao: "", publico: "" }
-    const produtoFallback: ProdutoInfo = { ...produtoBase, paleta: paletaEfetiva || resolvedProduto?.paleta, fonte: selectedFont || resolvedProduto?.fonte }
 
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, prompt: customPrompt || undefined }),
-      })
-      let content: Record<string, string> | null = null
-      let usouFallback = false
-      if (res.ok) {
-        const data = await res.json()
-        if (data && typeof data === "object" && !data.error) content = data
-      }
-      // Resposta incompleta/cortada? Usa o template local pronto em vez de texto solto
-      if (content && !artefatoOk(stepId, content)) content = null
-      if (!content) {
-        const fallback = FALLBACKS[stepId]
-        content = fallback ? aplicarFonteNoConteudo(fallback(ideaText, precoFinal, produtoFallback), stepId, produtoFallback.fonte) : { "Conteúdo": "Conteúdo gerado automaticamente" }
-        usouFallback = true
-        if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
-          toast("A IA falhou neste artefato e usei o modelo padrão. Clique em Regenerar para tentar de novo.")
+    // Tenta até 3x com espera entre tentativas. Ou vem conteúdo REAL da IA ou
+    // nada — NUNCA modelo padrão: quem paga recebe o produto de verdade.
+    for (let tentativa = 1; tentativa <= 3; tentativa++) {
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ideia: enrichedIdea, tom: tomText, lucro: precoFinal, step: stepId, paleta: paletaEfetiva, fonte: selectedFont, prompt: customPrompt || undefined }),
+        })
+        let content: Record<string, string> | null = null
+        if (res.ok) {
+          const data = await res.json()
+          if (data && typeof data === "object" && !data.error) content = data
         }
+        // Resposta incompleta/cortada? Descarta e tenta de novo
+        if (content && !artefatoOk(stepId, content)) content = null
+        if (content) {
+          updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome })
+          return content
+        }
+      } catch {
+        // sem conexão / erro: tenta de novo abaixo
       }
-      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome, fallback: usouFallback })
-      return content
-    } catch {
-      const fallback = FALLBACKS[stepId]
-      const content = fallback ? aplicarFonteNoConteudo(fallback(ideaText, precoFinal, produtoFallback), stepId, produtoFallback.fonte) : { "Conteúdo": "Conteúdo gerado (offline)" }
-      if (["logo", "capa", "card_oferta", "certificado", "landing"].includes(stepId)) {
-        toast("Sem conexão com a IA neste artefato — usei o modelo padrão. Tente Regenerar.")
+      if (tentativa < 3) {
+        await new Promise(r => setTimeout(r, tentativa === 1 ? 2000 : 5000))
       }
-      updateStepContent(stepId, content, { cores: paletaEfetiva?.cores, fonte: selectedFont?.nome || produtoFallback.fonte?.nome, fallback: true })
-      return content
     }
+    return null
   }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette, selectedFont])
 
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
@@ -871,7 +865,7 @@ function DashboardInner() {
     setLucro(precoFinal)
     setShowIdeiaForm(false)
     setActiveTab("produto")
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
     setExpandedSteps([])
     const matchProduto = PRODUTOS_VALIDADOS.find(p => p.ideia === ideia) ||
       PRODUTOS_VALIDADOS.find(p =>
@@ -892,6 +886,9 @@ function DashboardInner() {
     setAutoProgress({ current: 0, total: totalSteps, tab: "" })
 
     let current = 0
+    let gerados = 0
+    let falhasSeguidas = 0
+    let abortado = false
     for (const tab of allTabs) {
       const tabSteps = steps.filter(s => s.tab === tab)
       setAutoProgress({ current, total: totalSteps, tab })
@@ -899,22 +896,36 @@ function DashboardInner() {
         current++
         setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
-        await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo, step.prompt)
+        const r = await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo, step.prompt)
+        if (r) { gerados++; falhasSeguidas = 0 }
+        else {
+          falhasSeguidas++
+          if (falhasSeguidas >= 3) { abortado = true; break }
+        }
       }
+      if (abortado) break
     }
     setAutoGenerating(false)
-    toast("Produto completo gerado com sucesso!")
+    if (gerados === totalSteps) toast("Produto completo gerado com sucesso!")
+    else if (abortado) toast("A IA está indisponível no momento. Tente de novo em instantes.")
+    else toast(`${gerados} de ${totalSteps} passos gerados. Clique em Gerar nos restantes.`)
   }, [steps, tom, doGenerate])
 
-  const generateStep = useCallback(async (step: StepData) => {
-    if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return }
+  const generateStep = useCallback(async (step: StepData, avisar = true) => {
+    if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return false }
     const ideaText = stepIdeia || idea
     setLoading(step.id)
     try {
-      await doGenerate(step.id, ideaText, tom || "Persuasivo e direto", lucro, undefined, step.prompt)
-      setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
+      const r = await doGenerate(step.id, ideaText, tom || "Persuasivo e direto", lucro, undefined, step.prompt)
+      if (r) {
+        setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
+        return true
+      }
+      if (avisar) toast(`Não consegui gerar ${step.title}. Clique em Gerar de novo.`)
+      return false
     } catch {
-      toast("Erro ao gerar. Tente novamente.")
+      if (avisar) toast("Erro ao gerar. Tente novamente.")
+      return false
     } finally {
       setLoading(null)
     }
@@ -997,7 +1008,7 @@ function DashboardInner() {
     setActiveTab("produto")
     setShowIdeiaForm(true)
     setExpandedSteps([])
-    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
+    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
     toast("Pronto! Comece um novo produto.")
   }, [])
 
@@ -1130,10 +1141,26 @@ function DashboardInner() {
     if (tabSteps.length === 0) { toast("Todos os passos já foram gerados"); return }
     if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return }
 
+    let ok = 0
+    let falhasSeguidas = 0
+    let abortado = false
     for (const step of tabSteps) {
-      await generateStep(step)
+      const r = await generateStep(step, false)
+      if (r) { ok++; falhasSeguidas = 0 }
+      else {
+        falhasSeguidas++
+        if (falhasSeguidas >= 3) { abortado = true; break }
+      }
     }
-    toast(`Todos os passos de ${tab} foram gerados!`)
+    if (abortado) {
+      toast("A IA está indisponível no momento. Tente de novo em instantes.")
+    } else if (ok === tabSteps.length) {
+      toast(`Todos os passos de ${tab} foram gerados!`)
+    } else if (ok > 0) {
+      toast(`${ok} de ${tabSteps.length} passos gerados. Clique em Gerar nos restantes.`)
+    } else {
+      toast("Não consegui gerar agora. Clique em Gerar de novo.")
+    }
 
     // Auto-navegar para a próxima aba
     const tabOrder = ["produto", "vendas", "operacao", "artefatos"]
@@ -1459,7 +1486,7 @@ function DashboardInner() {
                     setTransformacao("")
                     setTom("")
                     setLucro(0)
-                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined, fallbackUsado: undefined })))
+                    setSteps(prev => prev.map(s => ({ ...s, content: {}, generated: false, coresUsadas: undefined, fonteUsada: undefined })))
                     setExpandedSteps([])
                     localStorage.removeItem(LS_KEY)
                     toast("Ideia apagada.")
@@ -1674,7 +1701,6 @@ function DashboardInner() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {step.generated && <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px]">Pronto</Badge>}
-                      {step.generated && step.fallbackUsado && <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-[10px]">Modelo padrão</Badge>}
                       {expandedSteps.includes(step.id) ? <ChevronDown className="w-4 h-4 text-[#5C5146]" /> : <ChevronRight className="w-4 h-4 text-[#5C5146]" />}
                     </div>
                   </div>

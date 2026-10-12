@@ -836,30 +836,9 @@ REGRAS OBRIGATÓRIAS:
         return NextResponse.json({ "Conteúdo": cleanStepValue(content) })
       }
 
-      // IA indisponível (sem chave API) -> usar templates locais do dashboard
-      // Construir resposta básica modo texto
-      const nome = (ideia.split(".")[0] || "Produto").slice(0, 60)
-      const ideiaCurta = ideia.length > 200 ? ideia.slice(0, 200) + "…" : ideia
-      const lucroVal = lucro || 497
-      const fv = lucroVal.toLocaleString("pt-BR")
-      const parcela = Math.round(lucroVal / 12)
-      const fParcela = parcela.toLocaleString("pt-BR")
-      const valorCheio = Math.round(lucroVal * 2)
-      const fCheio = valorCheio.toLocaleString("pt-BR")
-
-      const modoTexto = {
-        "HTML Landing Page": `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${nome}</title></head><body style="font-family:Arial; padding:40px; text-align:center;"><h1 style="color:#8B5E3C;">${nome}</h1><p style="color:#5C5146;">${ideiaCurta}</p><p style="color:#D4A574; font-size:24px; margin:20px 0;">R$ ${fv}</p><p style="color:#5C5146;">12x de R$ ${fParcela}</p><a style="background:#8B5E3C; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Quero Meu Acesso Agora</a><p style="color:#5C5146; font-size:12px;">Substitua os valores e adicione suas imagens.</p></body></html>`,
-        "Como Usar": "Modo texto ativo. APIs de IA não configuradas. Copie o HTML acima, adicione suas imagens e altere os valores. Salve como .html e abra no navegador.",
-        "Personalização": "Substitua R$ ${fv} pelo preço real. Adicione imagens do produto. Troque o texto pela sua ideia completa.",
-        "Layout Usado": "Modo Texto (sem IA)"
-      }
-
-      // Template offline só faz sentido para landing; demais passos usam fallback local do dashboard
-      if (step !== "landing") {
-        return NextResponse.json(null)
-      }
-      modoTexto["HTML Landing Page"] = enforcePaletteColors(modoTexto["HTML Landing Page"], coresAplicadas)
-      return NextResponse.json(modoTexto)
+      // IA indisponível: NADA de modelo padrão — o painel tenta de novo sozinho
+      // até conseguir o conteúdo real (quem paga recebe o produto de verdade).
+      return NextResponse.json({ error: "IA indisponível no momento. Tente de novo." }, { status: 503 })
     }
 
     // Full product generation (no step specified) - use the old generate.js logic
