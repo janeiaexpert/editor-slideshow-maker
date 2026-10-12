@@ -39,11 +39,11 @@ function LoginInner() {
   return (
     <div className="min-h-screen bg-[#F5EFE8] flex items-center justify-center px-4">
       <div className="w-full max-w-[360px] bg-white border border-[#D9CEC2] rounded-2xl shadow-xl p-6 sm:p-8">
-        <div className="w-12 h-12 rounded-2xl bg-[#8B5E3C] flex items-center justify-center mx-auto mb-4">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-[#9A6B1F] to-[#5E3E17] flex items-center justify-center mx-auto mb-4">
           <Lock className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-center text-lg font-bold text-[#1A1A1A]">
-          Ativador <span className="text-[#8B5E3C]">Automático</span>
+        <h1 className="text-center text-lg font-bold text-[#1A1A1A] font-[family-name:var(--font-playfair)]">
+          Ativador <span className="text-[#9A6B1F]">Automático</span>
         </h1>
         <p className="text-center text-xs text-[#5C5146] mt-1 mb-6">Entre com sua conta Google para acessar</p>
 

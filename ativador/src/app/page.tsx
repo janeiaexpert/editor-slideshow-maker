@@ -36,14 +36,14 @@ export default function HomePage() {
       <div className="w-full max-w-[800px] mx-auto relative">
 
         <Card className="border-[#D9CEC2] shadow-xl overflow-hidden">
-          <div className="relative bg-gradient-to-br from-[#5C3D1F] via-[#8B5E3C] to-[#A67C52] text-center pb-8 pt-6">
+          <div className="relative bg-gradient-to-br from-[#140C04] via-[#2E1A0B] to-[#5E3E17] text-center pb-8 pt-6">
             <div className="absolute top-0 left-1/4 w-72 h-full bg-gradient-to-r from-[#D4B896]/25 via-[#FFD700]/12 to-transparent blur-3xl pointer-events-none" />
             <div className="absolute -top-6 right-1/4 w-56 h-24 bg-[#D4B896]/20 blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-20 bg-[#FFD700]/8 blur-3xl pointer-events-none" />
 
             <div className="relative mx-auto mb-3 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16">
               <div className="absolute -inset-1.5 bg-gradient-to-r from-[#D4B896] via-[#FFD700] to-[#D4B896] rounded-2xl logo-glow" />
-              <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-b from-[#A67C52] via-[#8B5E3C] to-[#5C3D1F] shadow-[0_6px_0_#3D2512,0_8px_20px_rgba(0,0,0,0.4)] flex items-center justify-center">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-b from-[#E7CD9A] via-[#9A6B1F] to-[#5E3E17] shadow-[0_6px_0_#0B0603,0_8px_20px_rgba(0,0,0,0.5)] flex items-center justify-center">
                 <div className="absolute inset-1 rounded-[14px] bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                 <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7 drop-shadow-sm" fill="none">
                   <path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z" fill="#FFD700" stroke="#F5EFE8" strokeWidth="0.8" strokeLinejoin="round"/>
@@ -51,11 +51,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <h1 className="relative text-white text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
+            <h1 className="relative text-white text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight font-[family-name:var(--font-playfair)]">
               Ativador Automático<br />
-              <span className="text-[#D4B896]">de Produtos Virais</span>
+              <span className="text-[#E7CD9A]">de Produtos Virais</span>
             </h1>
-            <p className="relative text-white/70 text-xs sm:text-sm mt-2 max-w-md mx-auto">
+            <p className="relative text-[#F7F1E5]/70 text-xs sm:text-sm mt-2 max-w-md mx-auto">
               Transforme sua ideia em um produto digital completo, pronto para vender — em minutos.
             </p>
           </div>
@@ -63,7 +63,7 @@ export default function HomePage() {
           <CardContent className="p-6 space-y-5">
 
             <div>
-              <h2 className="text-[#8B5E3C] text-xs font-bold uppercase tracking-wider mb-2">O que é</h2>
+              <h2 className="text-[#5E3E17] text-xs font-bold uppercase tracking-[0.18em] mb-2 font-[family-name:var(--font-playfair)]">O que é</h2>
               <p className="text-[#5C5146] text-sm leading-relaxed">
                 Um sistema inteligente que gera automaticamente a estrutura completa de um produto digital:
                 nome, headline, módulos, anúncios, VSL, página de vendas, funil de automação, precificação,
@@ -75,7 +75,7 @@ export default function HomePage() {
 
             {/* Como Começar — Duas opções */}
             <div>
-              <h2 className="text-[#8B5E3C] text-xs font-bold uppercase tracking-wider mb-3">Como Começar</h2>
+              <h2 className="text-[#5E3E17] text-xs font-bold uppercase tracking-[0.18em] mb-3 font-[family-name:var(--font-playfair)]">Como Começar</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
                 <button
@@ -117,7 +117,7 @@ export default function HomePage() {
 
             {/* O que você recebe */}
             <div>
-              <h2 className="text-[#8B5E3C] text-xs font-bold uppercase tracking-wider mb-3">O que você recebe</h2>
+              <h2 className="text-[#5E3E17] text-xs font-bold uppercase tracking-[0.18em] mb-3 font-[family-name:var(--font-playfair)]">O que você recebe</h2>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   "Headline e Promessa",
@@ -152,7 +152,7 @@ export default function HomePage() {
                 aria-expanded={vitrineAberta}
               >
                 <Store className="w-4 h-4 text-[#A67C52]" />
-                <span className="text-[#A67C52] text-xs font-bold uppercase tracking-wider">Vitrine — Produtos Prontos</span>
+                <span className="text-[#5E3E17] text-xs font-bold uppercase tracking-[0.18em] font-[family-name:var(--font-playfair)]">Vitrine — Produtos Prontos</span>
                 <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-[#A67C52] uppercase">
                   {vitrineAberta ? "Recolher" : "Mostrar"}
                   {vitrineAberta ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

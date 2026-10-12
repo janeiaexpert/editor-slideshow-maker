@@ -1115,9 +1115,9 @@ function DashboardInner() {
   return (
     <div className="min-h-screen bg-[#F5EFE8]">
       {/* Header all devices */}
-      <header className="relative px-4 py-3 sm:px-6 sm:py-4" style={{background: "linear-gradient(135deg, #6B4226 0%, #8B5E3C 40%, #A67C52 70%, #8B5E3C 100%)", zIndex: 50}}>
-        <div className="absolute top-0 left-1/4 w-64 h-full bg-gradient-to-r from-[#D4B896]/20 via-[#FFD700]/10 to-transparent blur-2xl pointer-events-none" />
-        <div className="absolute -top-4 right-1/3 w-48 h-16 bg-[#D4B896]/15 blur-3xl pointer-events-none" />
+      <header className="relative px-4 py-3 sm:px-6 sm:py-4 rounded-b-2xl shadow-lg" style={{background: "linear-gradient(135deg, #140C04 0%, #2E1A0B 45%, #5E3E17 100%)", zIndex: 50}}>
+        <div className="absolute top-0 left-1/4 w-64 h-full bg-gradient-to-r from-[#E7CD9A]/20 via-[#FFD700]/10 to-transparent blur-2xl pointer-events-none" />
+        <div className="absolute -top-4 right-1/3 w-48 h-16 bg-[#E7CD9A]/15 blur-3xl pointer-events-none" />
         <div className="max-w-[900px] mx-auto flex items-center justify-between gap-2 relative z-50">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <button onClick={() => router.push("/")} className="text-white/70 hover:text-white transition-colors shrink-0" style={{touchAction:'manipulation'}}>
@@ -1125,7 +1125,7 @@ function DashboardInner() {
             </button>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 min-w-0">
-                <h1 className="text-white text-sm sm:text-base font-bold truncate">Ativador <span className="text-[#D4B896]">Automático</span></h1>
+                <h1 className="text-white text-sm sm:text-base font-bold truncate font-[family-name:var(--font-playfair)]">Ativador <span className="text-[#E7CD9A]">Automático</span></h1>
                 {!showIdeiaForm && (
                   <div className="hidden sm:flex items-center gap-1 text-white/50 text-[10px] shrink-0">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
