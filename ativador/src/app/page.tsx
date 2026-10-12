@@ -185,7 +185,13 @@ export default function HomePage() {
                               {v.etiquetas[0].tipo}
                             </span>
                           )}
-                          <div className="aspect-[4/5] overflow-hidden" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
+                          <div className="aspect-[4/5] overflow-hidden">
+                            {v.capa ? (
+                              <img src={v.capa} alt={v.nome} loading="lazy" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full [&>svg]:w-full [&>svg]:h-full" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(v)) }} />
+                            )}
+                          </div>
                           <div className="p-2 text-center">
                             <Badge variant="outline" className="text-[9px] text-[#8B5E3C] border-[#8B5E3C]/50 mb-1 bg-white/50">
                               {v.tag}
@@ -252,7 +258,13 @@ export default function HomePage() {
               <div className="relative px-4 pt-2 sm:px-6 sm:pt-4">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4B896]/30 via-[#8B5E3C]/20 to-[#A67C52]/30 rounded-2xl blur-xl opacity-0 animate-glow-in" style={{animationDelay: '100ms'}} />
-                  <div className="relative rounded-2xl overflow-hidden border border-[#D9CEC2] shadow-xl bg-white [&>svg]:w-full [&>svg]:h-auto [&>svg]:block" style={{aspectRatio: '4/5'}} dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(selectedProduct)) }} />
+                  <div className="relative rounded-2xl overflow-hidden border border-[#D9CEC2] shadow-xl bg-white" style={{aspectRatio: '4/5'}}>
+                    {selectedProduct.capa ? (
+                      <img src={selectedProduct.capa} alt={selectedProduct.nome} className="w-full h-full object-cover block" />
+                    ) : (
+                      <div className="[&>svg]:w-full [&>svg]:h-auto [&>svg]:block" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(selectedProduct)) }} />
+                    )}
+                  </div>
                 </div>
               </div>
 

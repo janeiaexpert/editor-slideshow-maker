@@ -1241,7 +1241,13 @@ function DashboardInner() {
                     onClick={() => { setActiveTab("biblioteca"); clearNewProducts() }}
                     className="flex-shrink-0 w-32 bg-white/10 hover:bg-white/20 rounded-lg p-2 transition-all text-left"
                   >
-                    <div className="w-full aspect-square rounded-md overflow-hidden mb-1.5" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} />
+                    <div className="w-full aspect-[4/5] rounded-md overflow-hidden mb-1.5">
+                      {p.capa ? (
+                        <img src={p.capa} alt={p.nome} loading="lazy" className="w-full h-full object-cover" />
+                      ) : (
+                        <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="[&>svg]:w-full [&>svg]:h-full" />
+                      )}
+                    </div>
                     <p className="text-[9px] text-white font-bold leading-tight line-clamp-2">{p.nome}</p>
                     <p className="text-[8px] text-[#D4B896] uppercase">{p.tag}</p>
                   </button>

@@ -9,6 +9,7 @@
   ideia: string
   atualizadoEm?: string
   criadoEm?: string
+  capa?: string
   etiquetas?: Array<{ tipo: "NOVO" | "ATUALIZADO"; data?: string }>
   paleta?: { id: string; nome: string; cores: string[] }
   fonte?: { id: string; nome: string }
@@ -39,6 +40,29 @@ const IDENTIDADES: Record<string, { paleta: string; fonte: string }> = {
   "criar-skills": { paleta: "verde", fonte: "montserrat" },
 }
 
+const CAPAS: Record<string, string> = {
+  "chatgpt-vendas": "/capas/01-chatgpt-para-vendas.jpg",
+  "avatares-ia": "/capas/02-avatares-digitais-com-ia.jpg",
+  "carrosseis-virais": "/capas/03-carrosseis-virais-com-ia.jpg",
+  "ia-iniciantes": "/capas/04-ia-para-iniciantes.jpg",
+  "copy-ia": "/capas/05-copywriting-com-ia.jpg",
+  "video-ia": "/capas/06-edicao-de-video-com-ia.jpg",
+  "cursos-ia": "/capas/07-criacao-de-cursos-com-ia.jpg",
+  "automacao-marketing": "/capas/08-automacao-de-marketing-com-ia.jpg",
+  "design-ia": "/capas/09-design-grafico-com-ia.jpg",
+  "afiliados-ia": "/capas/10-marketing-de-afiliados-com-ia.jpg",
+  "trafego-ia": "/capas/11-trafego-pago-com-ia.jpg",
+  "musica-ia": "/capas/12-musica-e-audio-com-ia.jpg",
+  "chatbot-atendimento": "/capas/13-chatbot-e-atendimento-com-ia.jpg",
+  "ebook-ia": "/capas/14-e-book-digital-com-ia.jpg",
+  "dados-ia": "/capas/15-analise-de-dados-com-ia.jpg",
+  "personas-ia": "/capas/16-criacao-de-personas-com-ia.jpg",
+  "claude-ecossistema": "/capas/17-claude-chat-code-cowork-designer.jpg",
+  "vibe-coding": "/capas/18-vibe-coding-com-ia.jpg",
+  "skills-ia": "/capas/19-skills-de-ia-claude-codex-manus.jpg",
+  "criar-skills": "/capas/20-aprenda-a-criar-skills.jpg",
+}
+
 const CRIADO_EM: Record<string, string> = {
   "chatgpt-vendas": "23/07/2026",
   "avatares-ia": "23/07/2026",
@@ -63,7 +87,11 @@ const CRIADO_EM: Record<string, string> = {
 }
 
 function comIdentidade(p: ProdutoValidado): ProdutoValidado {
-  const base: ProdutoValidado = CRIADO_EM[p.id] ? { ...p, criadoEm: CRIADO_EM[p.id] } : p
+  const base: ProdutoValidado = {
+    ...p,
+    ...(CRIADO_EM[p.id] ? { criadoEm: CRIADO_EM[p.id] } : {}),
+    ...(CAPAS[p.id] ? { capa: CAPAS[p.id] } : {}),
+  }
   const i = IDENTIDADES[p.id]
   if (!i) return base
   const pa = acharPaleta(i.paleta)

@@ -164,7 +164,11 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
             className="vitrine-card relative border-2 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer text-left focus:outline-none aspect-[4/5] bg-white/40"
             style={{ borderColor: selected === p.id ? "#8B5E3C" : "rgba(255,255,255,0.3)" }}
           >
-            <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
+            {p.capa ? (
+              <img src={p.capa} alt={p.nome} loading="lazy" className="w-full h-full object-cover" />
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="w-full h-full [&>svg]:w-full [&>svg]:h-full" />
+            )}
             {p.etiquetas && p.etiquetas.length > 0 && (
               <span
                 className={`absolute top-2 left-2 z-10 px-1.5 py-[1px] rounded-full text-[7px] font-semibold uppercase tracking-[0.14em] backdrop-blur-sm shadow-sm ${
@@ -200,7 +204,13 @@ export function Biblioteca({ onSelectProduto }: BibliotecaProps) {
             <CardContent className="p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(produto)) }} />
+                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                    {produto.capa ? (
+                      <img src={produto.capa} alt={produto.nome} loading="lazy" className="w-full h-full object-cover" />
+                    ) : (
+                      <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(produto)) }} className="[&>svg]:w-full [&>svg]:h-full" />
+                    )}
+                  </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#1A1A1A]">{produto.nome}</h3>
                     <span className="text-[10px] font-bold text-[#A67C52] uppercase tracking-wider">{produto.tag}</span>

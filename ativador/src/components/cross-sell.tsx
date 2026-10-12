@@ -73,7 +73,13 @@ export function CrossSellPopup({ selectedId, lucro, onConfirm, onSkip }: CrossSe
           </div>
 
           <div className="bg-[#F5EFE8] rounded-lg p-3 flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(mainProduct)) }} />
+            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
+              {mainProduct.capa ? (
+                <img src={mainProduct.capa} alt={mainProduct.nome} loading="lazy" className="w-full h-full object-cover" />
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(mainProduct)) }} className="[&>svg]:w-full [&>svg]:h-full" />
+              )}
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-[#1A1A1A] truncate">{mainProduct.nome}</p>
               <p className="text-[10px] text-[#5C5146]">{mainProduct.tag}</p>
@@ -101,7 +107,13 @@ export function CrossSellPopup({ selectedId, lucro, onConfirm, onSkip }: CrossSe
                       : "border-transparent bg-[#F5EFE8] hover:bg-[#EDE6DC]"
                   }`}
                 >
-                  <div className="w-full aspect-square rounded-md overflow-hidden mb-1.5" dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} />
+                  <div className="w-full aspect-[4/5] rounded-md overflow-hidden mb-1.5">
+                    {p.capa ? (
+                      <img src={p.capa} alt={p.nome} loading="lazy" className="w-full h-full object-cover" />
+                    ) : (
+                      <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(gerarCoverSvg(p)) }} className="[&>svg]:w-full [&>svg]:h-full" />
+                    )}
+                  </div>
                   <p className="text-[9px] font-bold text-[#1A1A1A] leading-tight line-clamp-2">{p.nome}</p>
                   <p className="text-[8px] text-[#A67C52] uppercase mt-0.5">{p.tag}</p>
                   {selectedExtra === p.id && (
