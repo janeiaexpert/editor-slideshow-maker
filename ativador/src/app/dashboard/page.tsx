@@ -12,7 +12,7 @@ import {
   ArrowLeft, ShoppingCart, DollarSign, TrendingUp, BarChart3,
   Mail, MessageSquare, Gift, ShieldCheck, Target, Zap, Eye,
   Palette, Play, RotateCcw, Camera, X,
-  RefreshCw, Star, Package, Book, Settings, Sparkles, LogOut
+  RefreshCw, Star, Package, Book, Settings, Sparkles, LogOut, Bell
 } from "lucide-react"
 import { exportPDF, downloadMarkdown, exportDOCX, exportPNG } from "@/lib/export"
 import { sanitizeSvg, sanitizeText } from "@/lib/security"
@@ -278,6 +278,12 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeF
   }
   return result
 }
+function dataCurta(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+  } catch { return "" }
+}
+
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
 function stopKeys(e: React.KeyboardEvent) {
@@ -316,6 +322,16 @@ function acharProdutoValidado(ideaText: string) {
 
 function nomeDoProduto(ideaText: string): string {
   return acharProdutoValidado(ideaText)?.nome || ""
+}
+
+type NotifChamado = {
+  id: string
+  data: string
+  mensagem: string
+  status: string
+  respostas: { texto: string; data: string; de: string }[]
+  vistoEm: string | null
+  naoLidas: number
 }
 
 interface ProdutoInfo {
@@ -674,6 +690,43 @@ function DashboardInner() {
   const [showHtmlCode, setShowHtmlCode] = useState<string | null>(null)
   const [newProducts, setNewProductsState] = useState<string[]>([])
   const [showNewBanner, setShowNewBanner] = useState(true)
+  const [notifs, setNotifs] = useState<NotifChamado[]>([])
+  const [showNotif, setShowNotif] = useState(false)
+
+  const carregarNotifs = useCallback(async () => {
+    try {
+      const res = await fetch("/api/suporte")
+      if (!res.ok) return
+      const data = await res.json()
+      if (Array.isArray(data.chamados)) setNotifs(data.chamados)
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    carregarNotifs()
+    const t = setInterval(carregarNotifs, 90000)
+    return () => clearInterval(t)
+  }, [carregarNotifs])
+
+  const naoLidasTotal = notifs.reduce((n, t) => n + (t.naoLidas || 0), 0)
+
+  const abrirNotifs = async () => {
+    const vaiAbrir = !showNotif
+    setShowNotif(vaiAbrir)
+    if (vaiAbrir) {
+      carregarNotifs()
+      for (const t of notifs.filter(x => (x.naoLidas || 0) > 0)) {
+        try {
+          await fetch("/api/suporte", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "ver", id: t.id }),
+          })
+        } catch {}
+      }
+      setTimeout(carregarNotifs, 1500)
+    }
+  }
 
   useEffect(() => {
     const currentIds = PRODUTOS_VALIDADOS.map(p => p.id)
@@ -1145,6 +1198,19 @@ function DashboardInner() {
           </div>
           <div className="flex items-center gap-1 shrink-0 relative z-30">
             <button
+              onClick={abrirNotifs}
+              className="relative flex items-center text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-2 rounded-lg"
+              title="Notificações de suporte"
+              style={{touchAction:'manipulation'}}
+            >
+              <Bell className={`w-4 h-4 ${naoLidasTotal > 0 ? "animate-bell-glow" : ""}`} />
+              {naoLidasTotal > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {naoLidasTotal > 9 ? "9+" : naoLidasTotal}
+                </span>
+              )}
+            </button>
+            <button
               onClick={handleNovoProduto}
               className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-semibold transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg"
               title="Limpar e comecar novo produto"
@@ -1164,6 +1230,39 @@ function DashboardInner() {
             </button>
           </div>
         </div>
+      {showNotif && (
+        <div className="absolute right-2 sm:right-4 top-full mt-2 w-[330px] max-w-[calc(100vw-16px)] max-h-[70vh] overflow-y-auto bg-white rounded-xl shadow-2xl border border-[#D9CEC2] z-[60]">
+          <div className="sticky top-0 bg-white/95 backdrop-blur px-4 py-3 border-b border-[#D9CEC2] flex items-center justify-between">
+            <span className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">Notificações</span>
+            <button onClick={() => setShowNotif(false)} className="text-[#5C5146] hover:text-[#1A1A1A]" aria-label="Fechar">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {notifs.length === 0 ? (
+            <p className="text-xs text-[#5C5146] text-center py-6">Nenhuma notificação.</p>
+          ) : notifs.map(t => (
+            <div key={t.id} className="px-4 py-3 border-b border-[#EDE6DC] last:border-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${t.status === "respondido" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-800"}`}>
+                  {t.status === "respondido" ? "Respondido" : "Aguardando"}
+                </span>
+                <span className="text-[10px] text-[#A67C52]">{dataCurta(t.data)}</span>
+                {(t.naoLidas || 0) > 0 && (
+                  <span className="text-[9px] font-bold text-red-600">• novo</span>
+                )}
+              </div>
+              <p className="text-xs text-[#1A1A1A] leading-relaxed">{t.mensagem}</p>
+              {t.respostas.map((r, i) => (
+                <div key={i} className="mt-2 bg-[#F5EFE8] rounded-lg p-2.5">
+                  <p className="text-[10px] font-bold text-[#8B5E3C] uppercase tracking-wider">Resposta do suporte • {dataCurta(r.data)}</p>
+                  <p className="text-xs text-[#1A1A1A] mt-0.5 leading-relaxed whitespace-pre-wrap">{r.texto}</p>
+                </div>
+              ))}
+            </div>
+          ))}
+          <p className="text-[10px] text-[#A67C52] text-center px-4 py-2">Suporte em até 48h úteis.</p>
+        </div>
+      )}
       </header>
 
       {/* Auto-generation overlay */}

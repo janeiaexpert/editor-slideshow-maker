@@ -41,6 +41,22 @@ async function hmacHex(message: string, secret: string): Promise<string> {
     .join("")
 }
 
+const EMAIL_RE_GATE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Lê o e-mail gravado no cookie de acesso ("" se não houver ou for inválido).
+// Usado para separar dados por usuário (ex.: chamados de suporte).
+export async function lerEmailGate(token: string | undefined | null): Promise<string> {
+  if (!token || !(await verifyGateToken(token))) return ""
+  try {
+    const [payload] = token.split(".")
+    const data = JSON.parse(b64urlDecode(payload)) as { email?: string }
+    const em = ((data.email || "") as string).trim().toLowerCase()
+    return EMAIL_RE_GATE.test(em) ? em : ""
+  } catch {
+    return ""
+  }
+}
+
 export async function createGateToken(email?: string): Promise<string> {
   const payload = b64urlEncode(JSON.stringify({ v: 1, t: Date.now(), email: email || "" }))
   const sig = await hmacHex(payload, getSecret())

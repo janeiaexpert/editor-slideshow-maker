@@ -88,17 +88,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Conteudos ja gerados (resumo)
+    // Conteudos ja gerados (resumo com trechos reais para poder refinar)
     if (steps && typeof steps === "object") {
-      const entries = Object.entries(steps).filter(([, v]) => v && typeof v === "object" && Object.keys(v as object).length > 0)
+      const entries = Object.entries(steps).filter(([, v]) => {
+        if (typeof v === "string") return v.trim().length > 0
+        return v && typeof v === "object" && Object.keys(v as object).length > 0
+      })
       if (entries.length > 0) {
         contextBlock += `\n## CONTEUDOS GERADOS\n`
-        for (const [stepId, content] of entries.slice(0, 5)) {
-          const keys = Object.keys(content as object)
-          contextBlock += `- ${stepId}: ${keys.join(", ")}\n`
+        for (const [stepId, content] of entries.slice(0, 6)) {
+          if (typeof content === "string") {
+            contextBlock += `- ${stepId}: ${content.slice(0, 400)}\n`
+          } else {
+            const keys = Object.keys(content as object)
+            contextBlock += `- ${stepId}: ${keys.join(", ")}\n`
+          }
         }
-        if (entries.length > 5) {
-          contextBlock += `(mais ${entries.length - 5} etapas)\n`
+        if (entries.length > 6) {
+          contextBlock += `(mais ${entries.length - 6} etapas)\n`
         }
       }
     }
