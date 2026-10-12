@@ -8,7 +8,7 @@ O Ativador e uma ferramenta que gera automaticamente toda a estrutura de um prod
 - **Produto**: Headline, Modulos, Entregaveis, Bonus, VSL, Anuncios, Conteudo (30 dias)
 - **Vendas**: Oferta, Funil (Checkout/Upsell/Downsell), Automacao (emails/WhatsApp), Monetizacao
 - **Operacao**: Dashboard de KPIs, Estrategias de Escala
-- **Artefatos**: Logo SVG, Capas para Redes Sociais, Card de Oferta, Certificado, Landing Page HTML, Roteiro para Story/Reel
+- **Artefatos**: Logo SVG, Capas para Redes Sociais, Card de Oferta, Certificado de Participação, Landing Page HTML, Roteiro para Story/Reel
 
 ## COMO FUNCIONA
 1. Usuario descreve sua ideia OU escolhe um produto da vitrine
@@ -33,7 +33,7 @@ O Ativador e uma ferramenta que gera automaticamente toda a estrutura de um prod
 14. Logo SVG
 15. Capa para Redes Sociais
 16. Card de Oferta
-17. Certificado
+17. Certificado de Participação
 18. Landing Page HTML
 19. Roteiro para Story/Reel
 

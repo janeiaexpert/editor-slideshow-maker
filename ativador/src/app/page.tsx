@@ -131,7 +131,7 @@ export default function HomePage() {
                   "Estratégias de Escala",
                   "Página de Vendas HTML",
                   "Logo e Capas SVG",
-                  "Certificado"
+                  "Certificado de Participação"
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-xs text-[#5C5146]">
                     <CheckCircle className="w-3.5 h-3.5 text-[#8B5E3C] shrink-0" />
