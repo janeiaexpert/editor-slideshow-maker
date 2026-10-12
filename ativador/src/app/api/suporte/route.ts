@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { GATE_COOKIE, lerEmailGate, verifyGateToken } from "@/lib/gate"
 
 // E-mail que recebe os chamados de suporte (confirmar com a dona).
-const EMAIL_SUPORTE = "janesanaia@gmail.com"
+const EMAIL_SUPORTE = "janesantanaia@gmail.com"
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export type RespostaSuporte = { texto: string; data: string; de: "suporte" }
