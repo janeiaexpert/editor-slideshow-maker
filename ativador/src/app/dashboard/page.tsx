@@ -1115,7 +1115,7 @@ function DashboardInner() {
   return (
     <div className="min-h-screen bg-[#F5EFE8]">
       {/* Header all devices */}
-      <header className="relative px-4 py-3 sm:px-6 sm:py-4 rounded-b-2xl shadow-lg" style={{background: "linear-gradient(135deg, #140C04 0%, #2E1A0B 45%, #5E3E17 100%)", zIndex: 50}}>
+      <header className="relative mx-2 sm:mx-4 mt-2 px-4 py-3 sm:px-6 sm:py-4 rounded-2xl shadow-lg" style={{background: "linear-gradient(135deg, #140C04 0%, #2E1A0B 45%, #5E3E17 100%)", zIndex: 50}}>
         <div className="absolute top-0 left-1/4 w-64 h-full bg-gradient-to-r from-[#E7CD9A]/20 via-[#FFD700]/10 to-transparent blur-2xl pointer-events-none" />
         <div className="absolute -top-4 right-1/3 w-48 h-16 bg-[#E7CD9A]/15 blur-3xl pointer-events-none" />
         <div className="max-w-[900px] mx-auto flex items-center justify-between gap-2 relative z-50">

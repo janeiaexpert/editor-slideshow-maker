@@ -48,9 +48,9 @@ export function IdentidadeSeletor({ paletaId, fonteId, onPaleta, onFonte, nomeEx
         </div>
         {sel && (
           <div className="mt-3 rounded-xl overflow-hidden border border-[#D9CEC2]">
-            <div className="p-4 text-center" style={{ background: `linear-gradient(135deg, ${sel.cores[0]}, ${sel.cores[1]})` }}>
-              <p className="text-white font-bold text-sm" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.3)" }}>{nome}</p>
-              <p className="text-white/70 text-[10px] mt-1">{sel.nome}</p>
+            <div className="p-4 text-center" style={{ background: `linear-gradient(135deg, ${sel.cores[2]}, ${sel.cores[3]})` }}>
+              <p className="font-bold text-sm" style={{ color: sel.cores[4] }}>{nome}</p>
+              <p className="text-[10px] mt-1" style={{ color: sel.cores[1] }}>{sel.nome}</p>
             </div>
             <div className="flex">
               {sel.cores.map((c, i) => (

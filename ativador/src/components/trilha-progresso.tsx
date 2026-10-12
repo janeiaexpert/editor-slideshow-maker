@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Circle, Flame } from "lucide-react"
+import { CheckCircle2, Circle, Flame, Package, DollarSign, Palette, Settings2 } from "lucide-react"
 
 interface StepData {
   id: string
@@ -10,10 +10,10 @@ interface StepData {
 }
 
 const TAB_CONFIG = {
-  produto: { label: "Produto", emoji: "📦", color: "#8B5E3C" },
-  vendas: { label: "Vendas", emoji: "💰", color: "#D4A574" },
-  artefatos: { label: "Artefatos", emoji: "🎨", color: "#A67C52" },
-  operacao: { label: "Operação", emoji: "⚙️", color: "#6B4226" },
+  produto: { label: "Produto", Icon: Package, color: "#8B5E3C" },
+  vendas: { label: "Vendas", Icon: DollarSign, color: "#9A6B1F" },
+  artefatos: { label: "Artefatos", Icon: Palette, color: "#A67C52" },
+  operacao: { label: "Operação", Icon: Settings2, color: "#6B4226" },
 } as const
 
 export function TrilhaProgresso({
@@ -72,7 +72,7 @@ export function TrilhaProgresso({
                     : "bg-white/50 border border-transparent hover:bg-white/80"
                 }`}
               >
-                <span className="text-xs sm:text-sm">{config.emoji}</span>
+                <config.Icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: config.color }} strokeWidth={1.8} />
                 <span className={`text-[9px] sm:text-[10px] font-bold ${isActive ? "text-[#8B5E3C]" : "text-[#5C5146]"}`}>
                   {config.label}
                 </span>
