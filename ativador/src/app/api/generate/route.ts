@@ -41,7 +41,7 @@ Não use emojis.`,
   vsl: `Gere um script completo de VSL (Vídeo de Vendas) ESPECÍFICO para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Abertura", "Problema", "Solução", "Prova Social", "Oferta", "Script Completo".
 Cada valor deve ser TEXTO FALADO COMPLETO, pronto para ler em voz alta, ESPECÍFICO ao nicho e produto.
-O script completo deve unir todas as seções em texto corrido com marcações de cena.
+O script completo deve unir todas as seções com marcações de cena: comece cada cena com o marcador [CENA N - Nome] e separe as cenas com uma linha em branco. Nunca junte tudo num parágrafo só.
 USE A IDEIA DO PRODUTO para falar de temas, dores, desejos e objeções REAIS do público-alvo.
 Exemplo: Curso de Fotografia → fale de fotos embaçadas, luz ruim, clientes insatisfeitos, equipamento caro — NÃO de "resultados" genéricos.
 Exemplo: Método Produtividade para Mães → fale de rotina caótica, filhos, sono, culpa, tempo — NÃO de "produtividade" abstrata.

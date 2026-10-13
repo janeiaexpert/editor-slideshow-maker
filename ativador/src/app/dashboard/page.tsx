@@ -282,6 +282,28 @@ function fillVars(text: string, ideia: string, tom: string, lucro: number, nomeF
   }
   return result
 }
+// VSL: o "Script Completo" vem com marcações [CENA N - Nome]. Exibe cada cena
+// num bloco próprio em vez de um paredão de texto.
+function dividirCenas(texto: string): { titulo: string; texto: string }[] | null {
+  const partes = texto.split(/(\[CENA\s*\d+\s*[-–—:][^\]\n]{0,60}\]?)/gi)
+  if (partes.length < 3) return null
+  const cenas: { titulo: string; texto: string }[] = []
+  let atual: { titulo: string; texto: string } | null = null
+  for (const parte of partes) {
+    if (/^\[CENA\s*\d+/i.test(parte.trim())) {
+      if (atual) cenas.push(atual)
+      atual = { titulo: parte.trim().replace(/[\[\]]/g, ""), texto: "" }
+    } else if (atual) {
+      atual.texto += parte
+    } else if (parte.trim()) {
+      atual = { titulo: "Abertura", texto: parte }
+    }
+  }
+  if (atual) cenas.push(atual)
+  const validas = cenas.map(c => ({ titulo: c.titulo, texto: c.texto.trim() })).filter(c => c.texto)
+  return validas.length >= 2 ? validas : null
+}
+
 function dataCurta(iso: string): string {
   try {
     return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
@@ -1836,7 +1858,20 @@ function DashboardInner() {
                                 ) : isEditing ? (
                                   <textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={e => e.stopPropagation()} className="w-full min-h-[150px] text-sm text-[#1A1A1A] leading-relaxed bg-white border border-[#D9CEC2] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#8B5E3C]/30 resize-y whitespace-pre-wrap" />
                                 ) : (
-                                  <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{stripEmojis(filled)}</p>
+                                  <p className="text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{(() => {
+                                    const cenas = step.id === "vsl" && /script completo/i.test(key) ? dividirCenas(filled) : null
+                                    if (!cenas) return stripEmojis(filled)
+                                    return (
+                                      <span className="block space-y-2">
+                                        {cenas.map((c, i) => (
+                                          <span key={i} className="block bg-white rounded-lg p-3 border border-[#D9CEC2]">
+                                            <span className="block text-[10px] font-bold text-[#8B5E3C] uppercase tracking-wider mb-1">{stripEmojis(c.titulo)}</span>
+                                            <span className="block text-sm text-[#1A1A1A] leading-relaxed whitespace-pre-wrap">{stripEmojis(c.texto)}</span>
+                                          </span>
+                                        ))}
+                                      </span>
+                                    )
+                                  })()}</p>
                                 )}
                               </div>
                             )})}
