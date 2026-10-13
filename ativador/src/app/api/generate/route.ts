@@ -102,7 +102,8 @@ ROTAÇÃO ESTRATÉGICA POR SEMANA (aplique temas REAIS do produto):
 - Semana 4: Ação — Oferta completa + FAQ + Última chamada + Encerramento
 - Semana 5: Pós-venda/Lista espera — Resultados alunos + Próxima turma + Conteúdo bônus
 
-NÃO USE EMOJIS. NÃO INVENTE NÚMEROS/DEPOIMENTOS/MÉTRICAS. Placeholders apenas: [INSIRA SEU PRINT REAL], [INSIRA CASE REAL], [INSIRA RESULTADO REAL]. A copy deve ser ESPECÍFICA ao produto — se não souber detalhes, use termos do nicho inferidos da ideia.`,
+NÃO USE EMOJIS. NÃO INVENTE NÚMEROS/DEPOIMENTOS/MÉTRICAS. Placeholders apenas: [INSIRA SEU PRINT REAL], [INSIRA CASE REAL], [INSIRA RESULTADO REAL]. A copy deve ser ESPECÍFICA ao produto — se não souber detalhes, use termos do nicho inferidos da ideia.
+ORDEM OBRIGATÓRIA: dias em sequência do Dia 1 ao Dia 30, sem pular e sem repetir nenhum dia. Use EXATAMENTE as chaves "Semana 1 — Dia 1" até "Semana 5 — Dia 30" com esse travessão. Cada dia com copy completa (mínimo 2 frases + CTA).`,
 
   oferta: `Gere uma oferta completa com precificação inteligente, ESPECÍFICA para o produto do usuário.
 Retorne APENAS um JSON com as chaves: "Valor Ideal", "Ancoragem", "Parcelamento", "Garantia", "Escassez", "Oferta Principal".

@@ -288,6 +288,21 @@ function dataCurta(iso: string): string {
   } catch { return "" }
 }
 
+// Plano de Conteúdo: exibe sempre em ordem Dia 1 → Dia 30,
+// mesmo que a IA devolva fora de ordem.
+function ordenarConteudo(stepId: string, content: Record<string, string>): [string, string][] {
+  const entries = Object.entries(content)
+  if (stepId !== "conteudo") return entries
+  const diaDe = (k: string): number => {
+    const m = k.match(/dia\s*(\d+)/i)
+    return m ? parseInt(m[1], 10) : 9999
+  }
+  return entries
+    .map(([k, v], i) => ({ k, v, i, d: diaDe(k) }))
+    .sort((a, b) => (a.d - b.d) || (a.i - b.i))
+    .map(({ k, v }) => [k, v] as [string, string])
+}
+
 function Calendar({ className }: { className?: string }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> }
 
 function stopKeys(e: React.KeyboardEvent) {
@@ -1720,7 +1735,7 @@ function DashboardInner() {
                       ) : (
                         <>
                           <div className="space-y-2">
-                            {Object.entries(step.content).map(([key, value]) => {
+                            {ordenarConteudo(step.id, step.content).map(([key, value]) => {
                               if (key === "Video") return null
                               const filled = sanitizeText(fillVars(value, stepIdeia || idea, tom, lucro, nomeDoProduto(stepIdeia || idea), PASSOS_COM_FONTE.includes(step.id)))
                               const isSVG = filled.startsWith("<svg")
