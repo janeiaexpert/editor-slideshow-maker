@@ -3,6 +3,7 @@ export type Fonte = { id: string; nome: string; estilo: string; preview: string 
 
 export const PALETTES: Paleta[] = [
   { id: "espresso", nome: "Espresso Premium", cores: ["#9A6B1F", "#5E3E17", "#E7CD9A", "#F7F1E5", "#140C04"] },
+  { id: "terracota", nome: "Terracota Tech", cores: ["#B95527", "#3A2312", "#0E7490", "#F3EAD9", "#241207"] },
   { id: "marrom", nome: "Marrom Clássico", cores: ["#8B5E3C", "#6B4226", "#D4B896", "#F5EFE8", "#1A1A1A"] },
   { id: "azul", nome: "Azul Corporativo", cores: ["#1E40AF", "#1E3A5F", "#93C5FD", "#EFF6FF", "#0F172A"] },
   { id: "verde", nome: "Verde Natureza", cores: ["#16A34A", "#166534", "#86EFAC", "#F0FDF4", "#052E16"] },
