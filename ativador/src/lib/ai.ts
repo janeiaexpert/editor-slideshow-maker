@@ -43,7 +43,7 @@ async function callOpenRouter(opts: CallOptions): Promise<string | null> {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENROUTER_KEY}` },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b:free", messages, temperature, max_tokens: Math.min(maxTokens, 8000) }),
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages, temperature, max_tokens: Math.min(maxTokens, 8000) }),
       signal: controller.signal,
     })
     clearTimeout(timeout)
@@ -146,11 +146,12 @@ async function callGemini(opts: CallOptions): Promise<string | null> {
 }
 
 export async function aiChat(opts: CallOptions): Promise<{ content: string; provider: string } | null> {
-  // Try providers in order: OpenRouter -> Groq -> Gemini
-  // If one is rate-limited or fails, automatically try the next
+  // Ordem: Groq primeiro (é o provedor funcionando; responde em segundos).
+  // OpenRouter de graça foi desligado (404) e sem créditos (402); tenta o slug
+  // pago caso a conta tenha saldo, senão cai para o próximo. Gemini por último.
   const providers = [
-    { name: "openrouter", fn: callOpenRouter },
     { name: "groq", fn: callGroq },
+    { name: "openrouter", fn: callOpenRouter },
     { name: "gemini", fn: callGemini },
   ]
 

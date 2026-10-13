@@ -861,6 +861,41 @@ function DashboardInner() {
     return null
   }, [updateStepContent, nicho, publicoAlvo, transformacao, selectedPalette, selectedFont])
 
+  // PEIXE PRONTO: publica e abre a página de vendas direto, sem passar pela
+  // tela de revisão. Usa exatamente o que foi gerado (nada de modelo padrão).
+  const publicarDireto = useCallback(async (conteudos: Record<string, Record<string, string>>) => {
+    const ids = Object.keys(conteudos)
+    if (ids.length === 0) { toast("Gere pelo menos um passo primeiro"); return }
+    const savedSteps: Record<string, Record<string, string>> = {}
+    ids.forEach(id => { savedSteps[id] = conteudos[id] })
+    if (Object.values(metricas).some(v => (v || "").trim())) {
+      savedSteps["metricas"] = metricas
+    }
+    const previewData = {
+      ideia: stepIdeia || idea,
+      tom,
+      lucro,
+      name: conteudos["headline"]?.["Headline"] || stepIdeia || idea || "Produto",
+      ctaLink: "#",
+      ctaText: "Quero Meu Acesso Agora",
+      steps: savedSteps,
+      paleta: selectedPalette,
+      fonte: selectedFont,
+    }
+    let publishId: string | null = null
+    try {
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(previewData),
+      })
+      if (res.ok) publishId = (await res.json()).id
+    } catch {}
+    if (!publishId) publishId = "local_" + Date.now().toString(36)
+    try { sessionStorage.setItem("preview_data", JSON.stringify(previewData)) } catch {}
+    router.push(`/produto/preview?key=${publishId}`)
+  }, [metricas, stepIdeia, idea, tom, lucro, selectedPalette, selectedFont, router])
+
   const handleSelectProduto = useCallback(async (ideia: string, lucroVal: number, produtoInfo?: ProdutoInfo) => {
     localStorage.removeItem(LS_KEY)
     setStepIdeia(ideia)
@@ -891,6 +926,7 @@ function DashboardInner() {
 
     let current = 0
     let gerados = 0
+    const conteudos: Record<string, Record<string, string>> = {}
     for (const tab of allTabs) {
       const tabSteps = steps.filter(s => s.tab === tab)
       setAutoProgress({ current, total: totalSteps, tab })
@@ -899,13 +935,16 @@ function DashboardInner() {
         setAutoProgress({ current, total: totalSteps, tab })
         setExpandedSteps(prev => prev.includes(step.id) ? prev : [...prev, step.id])
         const r = await doGenerate(step.id, ideia, tomText, precoFinal, produtoInfo, step.prompt)
-        if (r) gerados++
+        if (r) { gerados++; conteudos[step.id] = r }
       }
     }
     setAutoGenerating(false)
-    if (gerados === totalSteps) toast("Produto completo gerado com sucesso!")
+    if (gerados === totalSteps) {
+      toast("Produto pronto! Abrindo sua página de vendas...")
+      publicarDireto(conteudos)
+    }
     else toast(`${gerados} de ${totalSteps} passos gerados. Clique em Gerar nos restantes.`)
-  }, [steps, tom, doGenerate])
+  }, [steps, tom, doGenerate, publicarDireto])
 
   const generateStep = useCallback(async (step: StepData, avisar = true) => {
     if (!stepIdeia && !idea) { toast("Descreva sua ideia primeiro"); return false }
