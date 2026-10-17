@@ -5,6 +5,11 @@ import { fileURLToPath } from "url";
 const dir = dirname(fileURLToPath(import.meta.url));
 const configPath = join(dir, "dist", "config.json");
 
+if (!existsSync(configPath)) {
+  console.log("[fix-nitro-vercel] dist/config.json not found — not a Vercel build, skipping.");
+  process.exit(0);
+}
+
 const config = JSON.parse(readFileSync(configPath, "utf-8"));
 
 console.log("[fix-nitro-vercel] config.json routes:", JSON.stringify(config.routes, null, 2));
